@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班級成績與紀錄管理系統</title>
+    <style>
+        /* 基礎版面設定 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; background-color: #f4f7f6; }
+        
+        /* 左側導覽列 */
+        .sidebar { width: 250px; background-color: #2c3e50; color: white; padding: 20px 0; display: flex; flex-direction: column; }
+        .sidebar h2 { text-align: center; font-size: 1.2rem; margin-bottom: 20px; color: #ecf0f1; }
+        .menu-category { font-size: 0.9rem; color: #95a5a6; padding: 10px 20px; margin-top: 10px; }
+        .menu-item { padding: 12px 20px; cursor: pointer; transition: 0.3s; color: #bdc3c7; }
+        .menu-item:hover, .menu-item.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
+        
+        /* 右側主要內容區 */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .page-section { display: none; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .page-section.active { display: block; }
+        
+        /* 表單樣式微調 */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input[type="text"], .form-group input[type="number"] { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .checkbox-label { display: inline-flex; align-items: center; font-weight: normal; font-size: 1.1rem; color: #e74c3c;}
+        .checkbox-label input { width: 20px; height: 20px; margin-right: 8px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+        button:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+
+    <!-- 左側選單 -->
+    <div class="sidebar">
+        <h2>📊 成績管理系統</h2>
+        
+        <div class="menu-category">📝 考試成績</div>
+        <div class="menu-item active" onclick="switchPage('exam')">大考與平時成績</div>
+        
+        <div class="menu-category">📓 作業與表現</div>
+        <div class="menu-item" onclick="switchPage('math-workbook')">數習成績</div>
+        <div class="menu-item" onclick="switchPage('chinese-workbook')">國習成績</div>
+        <div class="menu-item" onclick="switchPage('composition')">作文 / 美勞成績</div>
+
+        <div class="menu-category">🗣️ 語文與檢定</div>
+        <div class="menu-item" onclick="switchPage('english-vocab')">英檢單字 / 每週一句</div>
+        <div class="menu-item" onclick="switchPage('cloud-test')">雲端速測 / 閱讀紀錄</div>
+
+        <div class="menu-category">🌱 學習輔導</div>
+        <div class="menu-item" onclick="switchPage('remedial')">學習扶助成績</div>
+    </div>
+
+    <!-- 右側內容區 -->
+    <div class="main-content">
+        
+        <!-- 大考成績頁面 -->
+        <div id="exam" class="page-section active">
+            <h2>📝 登錄期中、期末、平時成績</h2>
+            <form>
+                <div class="form-group">
+                    <label>考試類別：</label>
+                    <select style="padding: 8px; width: 100%;">
+                        <option>期中成績</option>
+                        <option>期中平時</option>
+                        <option>期末成績</option>
+                        <option>期末平時</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>學號：</label><input type="text"></div>
+                <div class="form-group"><label>分數：</label><input type="number"></div>
+                <button type="button">送出成績</button>
+            </form>
+        </div>
+
+        <!-- 數習成績頁面 (包含勾選功能) -->
+        <div id="math-workbook" class="page-section">
+            <h2>📓 數習成績登錄</h2>
+            <form>
+                <div class="form-group"><label>學號：</label><input type="text" placeholder="例如: 01"></div>
+                <div class="form-group"><label>成績 / 等第：</label><input type="text"></div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <!-- 這就是您需要的特殊勾選按鈕 -->
+                        <input type="checkbox" name="isExcellent" value="是"> 🌟 勾選：繕寫優良
+                    </label>
+                </div>
+                <button type="button">送出成績</button>
+            </form>
+        </div>
+
+        <!-- 國習成績頁面 (包含勾選功能) -->
+        <div id="chinese-workbook" class="page-section">
+            <h2>📓 國習成績登錄</h2>
+            <p>表單結構同數習，可勾選繕寫優良...</p>
+        </div>
+
+        <!-- 作文/美勞成績頁面 (包含文華專刊) -->
+        <div id="composition" class="page-section">
+            <h2>🎨 作文與美勞成績</h2>
+            <form>
+                <div class="form-group">
+                    <label>科目：</label>
+                    <select style="padding: 8px;"><option>作文</option><option>美勞</option></select>
+                </div>
+                <div class="form-group"><label>學號：</label><input type="text"></div>
+                <div class="form-group"><label>成績：</label><input type="text"></div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="isPublished" value="是"> 🏆 勾選：入選文華專刊
+                    </label>
+                </div>
+                <button type="button">送出成績</button>
+            </form>
+        </div>
+
+        <!-- 其他保留頁面 (簡化顯示) -->
+        <div id="english-vocab" class="page-section"><h2>🗣️ 英檢單字 / 每週一句</h2></div>
+        <div id="cloud-test" class="page-section"><h2>☁️ 雲端速測 / 閱讀紀錄</h2></div>
+        <div id="remedial" class="page-section"><h2>🌱 學習扶助成績</h2></div>
+
+    </div>
+
+    <!-- 切換頁面的 JavaScript -->
+    <script>
+        function switchPage(pageId) {
+            // 隱藏所有頁面
+            let pages = document.querySelectorAll('.page-section');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // 移除所有選單的 active 狀態
+            let menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => item.classList.remove('active'));
+
+            // 顯示被點擊的頁面並反白選單
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
