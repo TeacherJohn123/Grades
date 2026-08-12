@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>學生成績與學習歷程平台 v4.0</title>
+    <title>學生成績與學習歷程平台 v7.0</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -11,7 +11,7 @@
     <style>
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body { -webkit-text-size-adjust: 100%; }
-        button, select, input { touch-action: manipulation; }
+        button, select, input, textarea { touch-action: manipulation; }
         .active-tab { background-color: #3B82F6 !important; color: white !important; }
         .dynamic-hidden, .content-sec.hidden { display: none !important; }
         select, input { min-height: 44px; }
@@ -30,7 +30,7 @@
             <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
             <h1 class="text-lg md:text-xl font-bold tracking-wide">
                 學生成績與學習歷程平台
-                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v4.0</span>
+                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.0</span>
             </h1>
         </div>
 
@@ -38,11 +38,6 @@
             <div class="flex items-center bg-indigo-900/60 p-1 rounded-lg border border-indigo-400/30 text-sm">
                 <span class="px-2 text-indigo-200 font-medium hidden sm:inline">👤 選擇學生：</span>
                 <select id="current-student-select" onchange="switchStudent(this.value)" class="bg-indigo-800 text-white text-xs md:text-sm rounded border-none p-1 focus:ring-2 focus:ring-yellow-300">
-                    <option value="01號 王小明">01號 王小明</option>
-                    <option value="02號 李小美">02號 李小美</option>
-                    <option value="03號 張大同">03號 張大同</option>
-                    <option value="04號 林小華">04號 林小華</option>
-                    <option value="05號 陳志明">05號 陳志明</option>
                 </select>
             </div>
 
@@ -79,7 +74,12 @@
             <button type="button" onclick="switchTab('support')" id="tab-support" class="tab-btn w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                 <i class="fa-solid fa-hands-holding-child w-5"></i><span>學習扶助</span>
             </button>
-            <button type="button" onclick="switchTab('review')" id="tab-review" class="tab-btn teacher-only hidden w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium border border-amber-200 mt-4">
+
+            <!-- 老師專用選項 -->
+            <button type="button" onclick="switchTab('import-students')" id="tab-import-students" class="tab-btn teacher-only hidden w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium border border-amber-200 mt-4">
+                <i class="fa-solid fa-users-gear w-5"></i><span>匯入學生名單</span>
+            </button>
+            <button type="button" onclick="switchTab('review')" id="tab-review" class="tab-btn teacher-only hidden w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium border border-amber-200 mt-1">
                 <i class="fa-solid fa-check-double w-5"></i><span>老師審核與發布</span>
             </button>
         </nav>
@@ -90,10 +90,15 @@
 
         <!-- 數據總覽 -->
         <section id="sec-overview" class="content-sec space-y-6">
-            <!-- 全班閱讀點數看板 (老師視角) -->
-            <div class="teacher-only hidden bg-amber-50 border border-amber-200 p-5 rounded-xl">
-                <h3 class="font-bold text-amber-900 mb-3"><i class="fa-solid fa-trophy mr-1 text-amber-600"></i> 全班學生閱讀累積點數排行榜 (已核可)</h3>
-                <div id="teacher-class-reading-summary" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"></div>
+            <!-- 全班學生喜閱網通過色標歷程 (老師視角) -->
+            <div class="teacher-only hidden bg-white border border-amber-200 p-5 rounded-xl shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 class="font-bold text-amber-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-amber-600"></i> 全班學生喜閱網通過色標歷程
+                    </h3>
+                    <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">老師視角</span>
+                </div>
+                <div id="teacher-class-reading-history" class="space-y-3"></div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -254,22 +259,32 @@
             </div>
         </section>
 
-        <!-- 閱讀成長 (喜閱網點數版) -->
+        <!-- 閱讀成長 (喜閱網12色標分級) -->
         <section id="sec-reading" class="content-sec hidden space-y-6">
-            <!-- 規則呈現看板 -->
-            <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl space-y-2">
+            <!-- 規則對應看板 -->
+            <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl space-y-3">
                 <h3 class="font-bold text-emerald-900 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-book-bookmark text-emerald-600"></i> 喜閱網閱讀成長與給分規則
+                    <i class="fa-solid fa-book-bookmark text-emerald-600"></i> 喜閱網 12 色標年級分級對應與規則
                 </h3>
-                <ul class="text-xs text-emerald-800 space-y-1 list-disc list-inside">
-                    <li><b>點數說明</b>：凡完成喜閱網線上閱讀測驗並通過者，請填寫書籍名稱、選擇色標與獲取點數。</li>
-                    <li><b>補填說明</b>：若暫未填寫獲取點數，系統將呈現 <span class="bg-amber-100 text-amber-800 px-1 rounded font-bold">待補點數</span>，可後續再進行補充編輯。</li>
-                    <li><b>審核與累計</b>：老師將審核並可修正點數，經老師核可後，點數將正式計入<b>「個人閱讀累積總點數」</b>與<b>「全班累積點數」</b>中。</li>
-                </ul>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-xs text-emerald-800">
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">⚪ <b>白標</b>：一上</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">⬛ <b>黑標</b>：一下</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🔴 <b>紅標</b>：二上</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🟧 <b>橙標</b>：二下</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🟡 <b>黃標</b>：三上</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🟢 <b>綠標</b>：三下</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🔵 <b>藍標</b>：四上</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100"><b>靛標</b>：四下</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🟣 <b>紫標</b>：五上</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🥉 <b>銅標</b>：五下</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🪙 <b>銀標</b>：六上</div>
+                    <div class="bg-white/80 p-2 rounded border border-emerald-100">🥇 <b>金標</b>：六下</div>
+                </div>
+                <p class="text-xs text-emerald-700 font-medium">※ 完成測驗後請填寫書籍與獲得點數（留空自動顯示 <span class="bg-amber-100 text-amber-800 px-1 rounded font-bold">待補點數</span>）。老師核可後即併入閱讀累積總點數。</p>
             </div>
 
-            <!-- 個人累積點數展示 (學生/家長視角) -->
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <!-- 個人累積點數與歷程 -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
                 <div class="flex items-center space-x-3">
                     <div class="bg-emerald-100 text-emerald-700 p-3 rounded-lg text-xl"><i class="fa-solid fa-star"></i></div>
                     <div>
@@ -286,24 +301,24 @@
                     <div>
                         <label class="block text-xs font-semibold mb-1 text-slate-600">喜閱網色標分級</label>
                         <select id="reading-color-tag" class="w-full border p-2 rounded-lg text-sm font-medium">
-                            <option value="紅標">🔴 紅色標 (低年級)</option>
-                            <option value="橙標">🟧 橙色標 (低年級)</option>
-                            <option value="黃標">🟡 黃色標 (中年級)</option>
-                            <option value="綠標">🟢 綠色標 (中年級)</option>
-                            <option value="藍標">🔵 藍色標 (中年級)</option>
-                            <option value="靛標">靛色標 (高年級)</option>
-                            <option value="紫標">🟣 紫色標 (高年級)</option>
-                            <option value="褐標">🟤 褐色標 (高年級)</option>
-                            <option value="黑標">⬛ 黑色標 (進階)</option>
-                            <option value="灰標">🩶 灰色標 (進階)</option>
-                            <option value="白標">⚪ 白色標 (進階)</option>
-                            <option value="銀標">🪙 銀色標 (進階)</option>
+                            <option value="白標（一上）">⚪ 白標（一上）</option>
+                            <option value="黑標（一下）">⬛ 黑標（一下）</option>
+                            <option value="紅標（二上）">🔴 紅標（二上）</option>
+                            <option value="橙標（二下）">🟧 橙標（二下）</option>
+                            <option value="黃標（三上）">🟡 黃標（三上）</option>
+                            <option value="綠標（三下）">🟢 綠標（三下）</option>
+                            <option value="藍標（四上）">🔵 藍標（四上）</option>
+                            <option value="靛標（四下）">靛標（四下）</option>
+                            <option value="紫標（五上）">🟣 紫標（五上）</option>
+                            <option value="銅標（五下）">🥉 銅標（五下）</option>
+                            <option value="銀標（六上）">🪙 銀標（六上）</option>
+                            <option value="金標（六下）">🥇 金標（六下）</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold mb-1 text-slate-600">閱讀通過書籍名稱</label>
-                        <input type="text" id="reading-title" placeholder="例如：可愛的鼠小弟" required class="w-full border p-2 rounded-lg text-sm">
+                        <input type="text" id="reading-title" placeholder="例如：神奇樹屋" required class="w-full border p-2 rounded-lg text-sm">
                     </div>
 
                     <div>
@@ -357,6 +372,27 @@
             </div>
         </section>
 
+        <!-- 老師專用：匯入學生名單 -->
+        <section id="sec-import-students" class="content-sec hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h2 class="text-lg font-bold text-slate-800">📋 匯入與管理學生名單</h2>
+                    <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded font-bold">老師專用模組</span>
+                </div>
+                <p class="text-xs text-slate-500">說明：請在下方框內直接輸入或貼上全班學生姓名（每行一位學生，亦可使用逗號或頓號分隔）。儲存後系統將自動更新頂端學生選擇下拉選單與全班闖關總表。</p>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">學生姓名清單（批次貼上）</label>
+                    <textarea id="import-student-input" rows="8" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-amber-500" placeholder="例如：&#10;01號 王小明&#10;02號 李小美&#10;03號 張大同"></textarea>
+                </div>
+
+                <div class="flex flex-wrap justify-between items-center gap-2 pt-2">
+                    <button type="button" onclick="loadDefaultStudents()" class="text-xs text-slate-500 hover:text-slate-800 underline">↺ 載入預設範例名單</button>
+                    <button type="button" onclick="saveStudentList()" class="bg-amber-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-amber-700 transition">💾 儲存並更新學生名單</button>
+                </div>
+            </div>
+        </section>
+
         <!-- 老師審核與發布 -->
         <section id="sec-review" class="content-sec hidden space-y-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200">
@@ -364,7 +400,7 @@
                     <h2 class="text-lg font-bold text-slate-800">👩‍🏫 學生成績與閱讀點數審核與修改發布</h2>
                     <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded font-bold">老師專用模組</span>
                 </div>
-                <p class="text-xs text-slate-500 mb-4">說明：點擊「✏️ 修改點數/內容」可修改學生點數或填錯欄位；點擊「點擊核可」後點數將計入學生個人與全班閱讀累積總數。</p>
+                <p class="text-xs text-slate-500 mb-4">說明：點擊「✏️ 修改點數/內容」可修改學生點數或填錯欄位；點擊「點擊核可」後點數與通過數將計入全班閱讀色標闖關進度總表。</p>
                 <div class="table-wrapper">
                     <table class="w-full text-sm text-left">
                         <thead class="bg-amber-50 text-slate-700 text-xs">
@@ -418,12 +454,13 @@
 
 let records = [];
 let currentRole = "student";
-let currentStudent = "01號 王小明";
-const STUDENTS = ["01號 王小明", "02號 李小美", "03號 張大同", "04號 林小華", "05號 陳志明"];
+let currentStudent = "";
+let STUDENTS = ["01號 王小明", "02號 李小美", "03號 張大同", "04號 林小華", "05號 陳志明"];
 const VALID_ROLES = ["student", "teacher", "parent"];
 
 document.addEventListener("DOMContentLoaded", function () {
     try {
+        initStudents();
         createLessonCheckboxes();
         loadData();
         const urlParams = new URLSearchParams(window.location.search);
@@ -435,6 +472,57 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("初始化錯誤：", error);
     }
 });
+
+function initStudents() {
+    const saved = localStorage.getItem("studentList_v7");
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) STUDENTS = parsed;
+        } catch (e) { console.error("學生名單載入失敗", e); }
+    }
+    renderStudentDropdown();
+}
+
+function renderStudentDropdown() {
+    const select = document.getElementById("current-student-select");
+    if (!select) return;
+
+    select.innerHTML = STUDENTS.map(s => `<option value="${escapeHTML(s)}">${escapeHTML(s)}</option>`).join("");
+
+    if (!STUDENTS.includes(currentStudent)) {
+        currentStudent = STUDENTS[0] || "";
+    }
+    select.value = currentStudent;
+
+    const input = document.getElementById("import-student-input");
+    if (input) input.value = STUDENTS.join("\n");
+}
+
+function saveStudentList() {
+    const raw = document.getElementById("import-student-input").value;
+    const list = raw.split(/[\n,，、]+/).map(s => s.trim()).filter(s => s.length > 0);
+
+    if (list.length === 0) {
+        alert("請至少輸入一位學生姓名！");
+        return;
+    }
+
+    STUDENTS = list;
+    localStorage.setItem("studentList_v7", JSON.stringify(STUDENTS));
+    renderStudentDropdown();
+    renderAll();
+    alert("✅ 學生名單已成功更新！");
+}
+
+function loadDefaultStudents() {
+    if (confirm("要還原為 5 位預設學生名單嗎？")) {
+        STUDENTS = ["01號 王小明", "02號 李小美", "03號 張大同", "04號 林小華", "05號 陳志明"];
+        localStorage.setItem("studentList_v7", JSON.stringify(STUDENTS));
+        renderStudentDropdown();
+        renderAll();
+    }
+}
 
 function createLessonCheckboxes() {
     const container = document.getElementById("lesson-checkboxes");
@@ -448,7 +536,7 @@ function createLessonCheckboxes() {
 
 function loadData() {
     try {
-        const saved = localStorage.getItem("gradeRecords_v4");
+        const saved = localStorage.getItem("gradeRecords_v7");
         if (saved) {
             const parsed = JSON.parse(saved);
             records = Array.isArray(parsed) ? parsed : [];
@@ -460,7 +548,7 @@ function loadData() {
 
 function saveData() {
     try {
-        localStorage.setItem("gradeRecords_v4", JSON.stringify(records));
+        localStorage.setItem("gradeRecords_v7", JSON.stringify(records));
         renderAll();
     } catch (error) { alert("資料儲存失敗。"); }
 }
@@ -486,7 +574,7 @@ function switchRole(role) {
     document.querySelectorAll(".student-only").forEach(el => role === "student" ? el.classList.remove("hidden") : el.classList.add("hidden"));
     document.querySelectorAll(".teacher-only").forEach(el => role === "teacher" ? el.classList.remove("hidden") : el.classList.add("hidden"));
 
-    if (role !== "teacher" && !document.getElementById("sec-review").classList.contains("hidden")) {
+    if (role !== "teacher" && (!document.getElementById("sec-review").classList.contains("hidden") || !document.getElementById("sec-import-students").classList.contains("hidden"))) {
         switchTab("overview");
     }
 
@@ -494,11 +582,11 @@ function switchRole(role) {
 }
 
 function switchTab(tabKey) {
-    const validTabs = ["overview", "daily", "exam", "language", "reading", "support", "review"];
+    const validTabs = ["overview", "daily", "exam", "language", "reading", "support", "import-students", "review"];
     if (!validTabs.includes(tabKey)) tabKey = "overview";
 
-    if (tabKey === "review" && currentRole !== "teacher") {
-        alert("只有老師可以使用審核功能。");
+    if ((tabKey === "review" || tabKey === "import-students") && currentRole !== "teacher") {
+        alert("只有老師可以使用此功能。");
         return;
     }
 
@@ -716,7 +804,6 @@ function escapeHTML(value) {
     return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-// 計算學生核可的閱讀累積點數
 function getStudentApprovedPts(studentName) {
     return records
         .filter(r => r.student === studentName && r.mainCat === "閱讀成長" && r.status === "approved")
@@ -744,22 +831,39 @@ function renderAll() {
 }
 
 function renderReadingAccumulation() {
-    // 學生個人累積點數更新
     const currentPts = getStudentApprovedPts(currentStudent);
     const nameEl = document.getElementById("student-accumulate-name");
     const ptsEl = document.getElementById("student-accumulate-pts");
+
     if (nameEl) nameEl.textContent = currentStudent;
     if (ptsEl) ptsEl.textContent = `${currentPts} 點`;
 
-    // 老師視角的全班閱讀累積統計表
-    const teacherSummaryEl = document.getElementById("teacher-class-reading-summary");
-    if (teacherSummaryEl) {
-        teacherSummaryEl.innerHTML = STUDENTS.map(s => {
-            const pts = getStudentApprovedPts(s);
+    // 老師視角：全班學生通過的喜閱網色標歷程
+    const teacherHistoryEl = document.getElementById("teacher-class-reading-history");
+    if (teacherHistoryEl) {
+        if (STUDENTS.length === 0) {
+            teacherHistoryEl.innerHTML = `<div class="p-4 text-center text-slate-400">尚未建立學生名單</div>`;
+            return;
+        }
+
+        teacherHistoryEl.innerHTML = STUDENTS.map(studentName => {
+            const studentPassedRecords = records.filter(r => r.student === studentName && r.mainCat === "閱讀成長" && r.status === "approved");
+
+            let historyBadges = "";
+            if (studentPassedRecords.length === 0) {
+                historyBadges = `<span class="text-xs text-slate-400 italic">尚無審核通過紀錄</span>`;
+            } else {
+                historyBadges = studentPassedRecords.map(r => `
+                    <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full text-xs font-medium">
+                        <b>${escapeHTML(r.subCat.replace("喜閱網（", "").replace("）", ""))}</b>：${escapeHTML(r.title)}
+                    </span>
+                `).join("");
+            }
+
             return `
-                <div class="bg-white p-3 rounded-lg border border-amber-200 text-center shadow-sm">
-                    <div class="text-xs text-slate-500 font-medium">${escapeHTML(s)}</div>
-                    <div class="text-lg font-bold text-amber-700">${pts} 點</div>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div class="font-bold text-slate-700 min-w-[110px] text-sm">${escapeHTML(studentName)}</div>
+                    <div class="flex flex-wrap gap-1.5 flex-1">${historyBadges}</div>
                 </div>
             `;
         }).join("");
@@ -855,9 +959,11 @@ function renderReview() {
 }
 
 function resetTestData() {
-    if (confirm("確定清除測試資料？")) {
-        localStorage.removeItem("gradeRecords_v4");
+    if (confirm("確定清除測試資料與重設設定？")) {
+        localStorage.removeItem("gradeRecords_v7");
+        localStorage.removeItem("studentList_v7");
         records = [];
+        initStudents();
         renderAll();
     }
 }
