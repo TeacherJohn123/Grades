@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -22,9 +23,9 @@
             </div>
             <div class="flex items-center bg-indigo-900/60 p-1 rounded-lg border border-indigo-400/30 text-sm">
                 <span class="px-2 text-indigo-200 font-medium">當前身份：</span>
-                <button onclick="switchRole('student')" id="role-btn-student" class="px-3 py-1 rounded-md transition font-medium text-white bg-indigo-600 shadow">👨‍🎓 學生</button>
-                <button onclick="switchRole('teacher')" id="role-btn-teacher" class="px-3 py-1 rounded-md transition font-medium text-indigo-200 hover:text-white">👩‍🏫 老師</button>
-                <button onclick="switchRole('parent')" id="role-btn-parent" class="px-3 py-1 rounded-md transition font-medium text-indigo-200 hover:text-white">👪 家長</button>
+                <button type="button" onclick="switchRole('student')" id="role-btn-student" class="px-3 py-1 rounded-md transition font-medium text-white bg-indigo-600 shadow">👨‍🎓 學生</button>
+                <button type="button" onclick="switchRole('teacher')" id="role-btn-teacher" class="px-3 py-1 rounded-md transition font-medium text-indigo-200 hover:text-white">👩‍🏫 老師</button>
+                <button type="button" onclick="switchRole('parent')" id="role-btn-parent" class="px-3 py-1 rounded-md transition font-medium text-indigo-200 hover:text-white">👪 家長</button>
             </div>
         </div>
     </header>
@@ -37,25 +38,25 @@
                 <span id="role-desc">學生模式：填寫與查看個人成績狀態</span>
             </div>
             <nav class="space-y-1">
-                <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium active-tab">
+                <button type="button" onclick="switchTab('overview')" id="tab-overview" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium active-tab">
                     <i class="fa-solid fa-chart-pie w-5"></i><span>數據總覽與統計</span>
                 </button>
-                <button onclick="switchTab('daily')" id="tab-daily" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
+                <button type="button" onclick="switchTab('daily')" id="tab-daily" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                     <i class="fa-solid fa-pen-ruler w-5"></i><span>平時成績</span>
                 </button>
-                <button onclick="switchTab('exam')" id="tab-exam" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
+                <button type="button" onclick="switchTab('exam')" id="tab-exam" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                     <i class="fa-solid fa-award w-5"></i><span>定期評量成績</span>
                 </button>
-                <button onclick="switchTab('language')" id="tab-language" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
+                <button type="button" onclick="switchTab('language')" id="tab-language" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                     <i class="fa-solid fa-language w-5"></i><span>語文檢定</span>
                 </button>
-                <button onclick="switchTab('reading')" id="tab-reading" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
+                <button type="button" onclick="switchTab('reading')" id="tab-reading" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                     <i class="fa-solid fa-book-open w-5"></i><span>閱讀成長</span>
                 </button>
-                <button onclick="switchTab('support')" id="tab-support" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
+                <button type="button" onclick="switchTab('support')" id="tab-support" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                     <i class="fa-solid fa-hands-holding-child w-5"></i><span>學習扶助</span>
                 </button>
-                <button onclick="switchTab('review')" id="tab-review" class="tab-btn teacher-only hidden w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium border border-amber-200 mt-4">
+                <button type="button" onclick="switchTab('review')" id="tab-review" class="tab-btn teacher-only hidden w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium border border-amber-200 mt-4">
                     <i class="fa-solid fa-check-double w-5"></i><span>老師審核與發布</span>
                 </button>
             </nav>
@@ -158,7 +159,7 @@
                                     <option value="甲下下">甲下下</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-2 flex items-end justify-end pb-1">
+                            <div class="md:col-span-2 flex items-end justify-end pb-1 mt-3 md:mt-0">
                                 <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm">送出成績審核</button>
                             </div>
                         </div>
@@ -178,149 +179,3 @@
 
             <section id="sec-exam" class="content-sec hidden space-y-6">
                 <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <form onsubmit="addRecord(event, '定期評量成績')" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div><label class="block text-xs font-semibold mb-1">評量階段</label><select id="exam-subcat" class="w-full border p-2 rounded-lg text-sm"><option value="期中評量">期中評量</option><option value="期末評量">期末評量</option></select></div>
-                        <div><label class="block text-xs font-semibold mb-1">科目</label><input type="text" id="exam-title" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div><label class="block text-xs font-semibold mb-1">分數</label><input type="number" id="exam-score" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div class="md:col-span-3 text-right"><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm">提交</button></div>
-                    </form>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <table class="w-full text-sm text-left"><tbody id="exam-list" class="divide-y divide-slate-100"></tbody></table>
-                </div>
-            </section>
-
-            <section id="sec-language" class="content-sec hidden space-y-6">
-                <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <form onsubmit="addRecord(event, '語文檢定')" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div><label class="block text-xs font-semibold mb-1">檢定項目</label><select id="lang-subcat" class="w-full border p-2 rounded-lg text-sm"><option value="英檢單字檢定">英檢單字檢定</option><option value="每週一句">每週一句</option></select></div>
-                        <div><label class="block text-xs font-semibold mb-1">範圍</label><input type="text" id="lang-title" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div><label class="block text-xs font-semibold mb-1">結果</label><input type="text" id="lang-score" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div class="md:col-span-3 text-right"><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm">提交</button></div>
-                    </form>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <table class="w-full text-sm text-left"><tbody id="lang-list" class="divide-y divide-slate-100"></tbody></table>
-                </div>
-            </section>
-
-            <section id="sec-reading" class="content-sec hidden space-y-6">
-                <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <form onsubmit="addRecord(event, '閱讀成長')" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="block text-xs font-semibold mb-1">書名</label><input type="text" id="reading-title" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div><label class="block text-xs font-semibold mb-1">心得</label><input type="text" id="reading-score" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div class="md:col-span-2 text-right"><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm">提交</button></div>
-                    </form>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <table class="w-full text-sm text-left"><tbody id="reading-list" class="divide-y divide-slate-100"></tbody></table>
-                </div>
-            </section>
-
-            <section id="sec-support" class="content-sec hidden space-y-6">
-                <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <form onsubmit="addRecord(event, '學習扶助')" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div><label class="block text-xs font-semibold mb-1">扶助科目</label><select id="support-subcat" class="w-full border p-2 rounded-lg text-sm"><option value="國語扶助">國語扶助</option></select></div>
-                        <div><label class="block text-xs font-semibold mb-1">項目</label><input type="text" id="support-title" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div><label class="block text-xs font-semibold mb-1">得分</label><input type="text" id="support-score" required class="w-full border p-2 rounded-lg text-sm"></div>
-                        <div class="md:col-span-3 text-right"><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm">提交</button></div>
-                    </form>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <table class="w-full text-sm text-left"><tbody id="support-list" class="divide-y divide-slate-100"></tbody></table>
-                </div>
-            </section>
-
-            <section id="sec-review" class="content-sec hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200">
-                    <h2 class="text-lg font-bold text-slate-800 mb-4"><i class="fa-solid fa-user-check text-amber-600"></i> 學生成績檢核與家長發布管理</h2>
-                    <table class="w-full text-sm text-left"><tbody id="review-table-body" class="divide-y divide-slate-100"></tbody></table>
-                </div>
-            </section>
-
-        </main>
-    </div>
-
-    <script>
-        let records = JSON.parse(localStorage.getItem('gradeRecords')) || [];
-        let currentRole = 'student'; 
-
-        window.onload = function() {
-            const mode = new URLSearchParams(window.location.search).get('mode');
-            switchRole(mode || 'student');
-            renderAll();
-            updateDailyForm(); // 初始化平時成績表單狀態
-        };
-
-        function saveData() { localStorage.setItem('gradeRecords', JSON.stringify(records)); renderAll(); }
-
-        function switchRole(role) {
-            currentRole = role;
-            ['student', 'teacher', 'parent'].forEach(r => {
-                document.getElementById(`role-btn-${r}`).className = (r === role) 
-                    ? "px-3 py-1 rounded-md transition font-medium text-white bg-indigo-600 shadow"
-                    : "px-3 py-1 rounded-md transition font-medium text-indigo-200 hover:text-white";
-            });
-
-            document.querySelectorAll('.student-only').forEach(el => el.classList.toggle('hidden', role !== 'student'));
-            document.querySelectorAll('.teacher-only').forEach(el => el.classList.toggle('hidden', role !== 'teacher'));
-            renderAll();
-        }
-
-        function switchTab(tabKey) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
-            document.querySelectorAll('.content-sec').forEach(sec => sec.classList.add('hidden'));
-            document.getElementById(`tab-${tabKey}`).classList.add('active-tab');
-            document.getElementById(`sec-${tabKey}`).classList.remove('hidden');
-        }
-
-        // 🔥 動態切換平時成績表單介面
-        function updateDailyForm() {
-            const subcat = document.getElementById('daily-subcat').value;
-            const hwType = document.getElementById('hw-type').value;
-
-            // 先全部隱藏
-            document.getElementById('dynamic-daily-subject').classList.add('dynamic-hidden');
-            document.getElementById('dynamic-cloud-quiz').classList.add('dynamic-hidden');
-            document.getElementById('dynamic-hw').classList.add('dynamic-hidden');
-            document.getElementById('score-number-container').classList.add('dynamic-hidden');
-            document.getElementById('score-grade-container').classList.add('dynamic-hidden');
-
-            // 根據選擇顯示對應區塊
-            if (subcat === '平時評量') {
-                document.getElementById('dynamic-daily-subject').classList.remove('dynamic-hidden');
-                document.getElementById('score-number-container').classList.remove('dynamic-hidden');
-            } else if (subcat === '雲端速測' || subcat === '小考分數') {
-                document.getElementById('dynamic-cloud-quiz').classList.remove('dynamic-hidden');
-                document.getElementById('score-number-container').classList.remove('dynamic-hidden');
-            } else if (subcat === '作業分數') {
-                document.getElementById('dynamic-hw').classList.remove('dynamic-hidden');
-                
-                if (hwType === '國習') {
-                    document.getElementById('hw-unit-label').innerText = "單元名稱";
-                    document.getElementById('score-grade-container').classList.remove('dynamic-hidden'); // 顯示等地
-                } else if (hwType === '數習') {
-                    document.getElementById('hw-unit-label').innerText = "單元名稱";
-                    document.getElementById('score-number-container').classList.remove('dynamic-hidden'); // 顯示數字
-                } else if (hwType === '作文') {
-                    document.getElementById('hw-unit-label').innerText = "第幾篇？";
-                    document.getElementById('score-number-container').classList.remove('dynamic-hidden'); // 顯示數字
-                }
-            }
-        }
-
-        // 新增紀錄邏輯
-        function addRecord(e, mainCat) {
-            e.preventDefault();
-            let subCat = "", title = "", score = "";
-
-            if (mainCat === '平時成績') {
-                subCat = document.getElementById('daily-subcat').value;
-                
-                if (subCat === '平時評量') {
-                    title = document.getElementById('daily-subject-val').value;
-                    score = document.getElementById('daily-score-val').value + " 分";
-                } else if (subCat === '雲端速測' || subCat === '小考分數') {
-                    // 獲取勾選的課數
-                    const checkedBoxes = document.querySelectorAll('input[name="lesson-cb"]:checked');
-                    if(checkedBoxes.length === 0) return alert("請
