@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>學生成績與學習歷程平台 v3.3</title>
+    <title>學生成績與學習歷程平台 v3.4</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -63,8 +63,7 @@
 
 <body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
 
-<!-- ==================== 頂部 ==================== -->
-
+<!-- ==================== 頂部頁首 ==================== -->
 <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
         <div class="flex items-center space-x-3">
@@ -72,35 +71,46 @@
             <h1 class="text-lg md:text-xl font-bold tracking-wide">
                 學生成績與學習歷程平台
                 <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">
-                    v3.3
+                    v3.4
                 </span>
             </h1>
         </div>
 
-        <!-- 身份切換 -->
-        <div class="flex items-center bg-indigo-900/60 p-1 rounded-lg border border-indigo-400/30 text-sm">
-            <span class="px-2 text-indigo-200 font-medium hidden sm:inline">
-                當前身份：
-            </span>
-            <button type="button" onclick="switchRole('student')" id="role-btn-student"
-                    class="role-btn px-3 py-1 rounded-md font-medium text-white bg-indigo-600 shadow">
-                👨‍🎓 學生
-            </button>
-            <button type="button" onclick="switchRole('teacher')" id="role-btn-teacher"
-                    class="role-btn px-3 py-1 rounded-md font-medium text-indigo-200">
-                👩‍🏫 老師
-            </button>
-            <button type="button" onclick="switchRole('parent')" id="role-btn-parent"
-                    class="role-btn px-3 py-1 rounded-md font-medium text-indigo-200">
-                👪 家長
-            </button>
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- 學生名單選擇 -->
+            <div class="flex items-center bg-indigo-900/60 p-1 rounded-lg border border-indigo-400/30 text-sm">
+                <span class="px-2 text-indigo-200 font-medium hidden sm:inline">👤 選擇學生：</span>
+                <select id="current-student-select" onchange="switchStudent(this.value)" class="bg-indigo-800 text-white text-xs md:text-sm rounded border-none p-1 focus:ring-2 focus:ring-yellow-300">
+                    <option value="01號 王小明">01號 王小明</option>
+                    <option value="02號 李小美">02號 李小美</option>
+                    <option value="03號 張大同">03號 張大同</option>
+                    <option value="04號 林小華">04號 林小華</option>
+                    <option value="05號 陳志明">05號 陳志明</option>
+                </select>
+            </div>
+
+            <!-- 身份切換區 -->
+            <div class="flex items-center bg-indigo-900/60 p-1 rounded-lg border border-indigo-400/30 text-sm">
+                <span class="px-2 text-indigo-200 font-medium hidden sm:inline">當前身份：</span>
+                <button type="button" onclick="switchRole('student')" id="role-btn-student"
+                        class="role-btn px-3 py-1 rounded-md font-medium text-white bg-indigo-600 shadow">
+                    👨‍🎓 學生
+                </button>
+                <button type="button" onclick="switchRole('teacher')" id="role-btn-teacher"
+                        class="role-btn px-3 py-1 rounded-md font-medium text-indigo-200 hover:text-white">
+                    👩‍🏫 老師
+                </button>
+                <button type="button" onclick="switchRole('parent')" id="role-btn-parent"
+                        class="role-btn px-3 py-1 rounded-md font-medium text-indigo-200 hover:text-white">
+                    👪 家長
+                </button>
+            </div>
         </div>
     </div>
 </header>
 
 
 <!-- ==================== 系統主體 ==================== -->
-
 <div class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 flex flex-col md:flex-row gap-6">
 
     <!-- ==================== 左側選單 ==================== -->
@@ -142,7 +152,7 @@
                 <span>學習扶助</span>
             </button>
 
-            <!-- 老師專用 -->
+            <!-- 老師專用選單 -->
             <button type="button" onclick="switchTab('review')" id="tab-review"
                     class="tab-btn teacher-only hidden w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium border border-amber-200 mt-4">
                 <i class="fa-solid fa-check-double w-5"></i>
@@ -152,7 +162,7 @@
     </aside>
 
 
-    <!-- ==================== 右側內容 ==================== -->
+    <!-- ==================== 右側內容區域 ==================== -->
     <main class="flex-1 space-y-6">
 
         <!-- ==================== 1. 數據總覽 ==================== -->
@@ -182,7 +192,6 @@
         <!-- ==================== 2. 平時成績 ==================== -->
         <section id="sec-daily" class="content-sec hidden space-y-6">
 
-            <!-- 學生輸入表單 -->
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-4 text-slate-800">
                     <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄平時成績
@@ -190,8 +199,6 @@
 
                 <form id="daily-form" class="flex flex-col gap-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                        <!-- 類別 -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">平時成績細項</label>
                             <select id="daily-subcat" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
@@ -202,7 +209,6 @@
                             </select>
                         </div>
 
-                        <!-- 科目 (平時評量用) -->
                         <div id="dynamic-daily-subject" class="md:col-span-2">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">科目名稱</label>
                             <select id="daily-subject-val" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
@@ -214,7 +220,6 @@
                             </select>
                         </div>
 
-                        <!-- 作業選擇與單元選單標籤 (作業分數用) -->
                         <div id="dynamic-hw" class="md:col-span-2 dynamic-hidden">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
@@ -228,21 +233,17 @@
 
                                 <div>
                                     <label id="hw-unit-label" class="block text-xs font-semibold text-slate-600 mb-1">課別/單元標籤</label>
-                                    <select id="hw-unit-val" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-blue-50/50 font-medium">
-                                        <!-- 動態產生單元標籤 -->
-                                    </select>
+                                    <select id="hw-unit-val" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-blue-50/50 font-medium"></select>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 課別 (雲端速測/小考用) -->
                     <div id="dynamic-cloud-quiz" class="dynamic-hidden bg-blue-50 p-3 rounded-lg border border-blue-100">
                         <label class="block text-xs font-semibold text-slate-600 mb-2">國語單元範圍（可複選）</label>
                         <div id="lesson-checkboxes" class="grid grid-cols-3 md:grid-cols-6 gap-3 text-sm"></div>
                     </div>
 
-                    <!-- 分數/等第 -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div id="score-number-container">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">分數</label>
@@ -261,15 +262,12 @@
                         </div>
 
                         <div class="md:col-span-2 flex items-end justify-end">
-                            <button type="submit" class="w-full md:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-                                送出審核
-                            </button>
+                            <button type="submit" class="w-full md:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">送出審核</button>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- 列表 -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div class="table-wrapper">
                     <table class="w-full text-sm text-left">
@@ -285,14 +283,14 @@
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="exam-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold mb-1">評量階段</label>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">評量階段</label>
                         <select id="exam-subcat" class="w-full border p-2 rounded-lg text-sm">
                             <option value="期中評量">期中評量</option>
                             <option value="期末評量">期末評量</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1">科目</label>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">科目名稱</label>
                         <select id="exam-title" class="w-full border p-2 rounded-lg text-sm">
                             <option value="國語">國語</option>
                             <option value="數學">數學</option>
@@ -302,11 +300,11 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1">分數</label>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">分數</label>
                         <input type="number" id="exam-score" required min="0" max="100" placeholder="0-100" class="w-full border p-2 rounded-lg text-sm">
                     </div>
                     <div class="md:col-span-3 text-right">
-                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm">提交</button>
+                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">提交</button>
                     </div>
                 </form>
             </div>
@@ -321,38 +319,88 @@
         </section>
 
 
-        <!-- ==================== 4. 語文檢定 ==================== -->
+        <!-- ==================== 4. 語文檢定 (重點升級) ==================== -->
         <section id="sec-language" class="content-sec hidden space-y-6">
+            
+            <!-- 學生輸入表單 -->
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-4 text-slate-800">
+                    <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄語文檢定紀錄
+                </h2>
                 <form id="language-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold mb-1">檢定項目</label>
-                        <select id="lang-subcat" class="w-full border p-2 rounded-lg text-sm">
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">檢定類別</label>
+                        <select id="lang-subcat" onchange="updateLangForm()" class="w-full border p-2 rounded-lg text-sm">
                             <option value="英檢單字檢定">英檢單字檢定</option>
                             <option value="每週一句">每週一句</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">範圍</label>
-                        <input type="text" id="lang-title" placeholder="例如：Book 1 Unit 2" required class="w-full border p-2 rounded-lg text-sm">
+
+                    <!-- 動態關卡/範圍選擇 -->
+                    <div id="lang-range-container">
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">檢定範圍</label>
+                        <select id="lang-title-select" class="w-full border p-2 rounded-lg text-sm bg-blue-50/40"></select>
                     </div>
+
+                    <!-- 結果 (紅綠燈) -->
                     <div>
-                        <label class="block text-xs font-semibold mb-1">結果</label>
-                        <input type="text" id="lang-score" placeholder="例如：通過、95分" required class="w-full border p-2 rounded-lg text-sm">
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">檢定結果</label>
+                        <select id="lang-score-select" class="w-full border p-2 rounded-lg text-sm font-bold">
+                            <option value="通過">🟢 通過</option>
+                            <option value="未通過">🔴 未通過</option>
+                        </select>
                     </div>
+
+                    <!-- 每週一句專用：期末闖關分數 -->
+                    <div id="lang-final-score-container" class="dynamic-hidden">
+                        <label class="block text-xs font-semibold mb-1 text-amber-700">期末闖關分數</label>
+                        <select id="lang-final-score-select" class="w-full border border-amber-300 p-2 rounded-lg text-sm font-bold bg-amber-50">
+                            <option value="未闖關">未闖關</option>
+                            <option value="未通過">未通過</option>
+                            <option value="優">優</option>
+                            <option value="特優">特優</option>
+                        </select>
+                    </div>
+
                     <div class="md:col-span-3 text-right">
-                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm">提交</button>
+                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">提交審核</button>
                     </div>
                 </form>
             </div>
 
+            <!-- 一般列表 -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 mb-3">語文檢定詳細流水帳</h3>
                 <div class="table-wrapper">
                     <table class="w-full text-sm text-left">
                         <tbody id="lang-list" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- 英檢單字闖關統計矩陣 (依據身份切換個人版與全班版) -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-indigo-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-indigo-600"></i>
+                        <span id="lang-matrix-title">英檢單字檢定通過情形矩陣圖</span>
+                    </h3>
+                    <span class="text-xs text-slate-500">🟢 通過 | 🔴 未通過 | ⚪ 未測驗</span>
+                </div>
+                <div class="table-wrapper" id="lang-matrix-wrapper"></div>
+            </div>
+
+            <!-- 每週一句闖關與期末總覽 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-emerald-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-emerald-600"></i>
+                        <span>每週一句（1~16句）闖關進度與期末分數</span>
+                    </h3>
+                </div>
+                <div class="table-wrapper" id="weekly-matrix-wrapper"></div>
+            </div>
+
         </section>
 
 
@@ -361,15 +409,15 @@
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="reading-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold mb-1">書名</label>
-                        <input type="text" id="reading-title" required class="w-full border p-2 rounded-lg text-sm">
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">書名</label>
+                        <input type="text" id="reading-title" placeholder="請輸入書名" required class="w-full border p-2 rounded-lg text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1">心得/閱讀進度</label>
-                        <input type="text" id="reading-score" required class="w-full border p-2 rounded-lg text-sm">
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">心得/閱讀進度</label>
+                        <input type="text" id="reading-score" placeholder="簡短閱讀心得" required class="w-full border p-2 rounded-lg text-sm">
                     </div>
                     <div class="md:col-span-2 text-right">
-                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm">提交</button>
+                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">提交</button>
                     </div>
                 </form>
             </div>
@@ -389,7 +437,7 @@
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="support-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold mb-1">扶助科目</label>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">扶助科目</label>
                         <select id="support-subcat" class="w-full border p-2 rounded-lg text-sm">
                             <option value="國語扶助">國語扶助</option>
                             <option value="數學扶助">數學扶助</option>
@@ -397,15 +445,15 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1">項目/單元</label>
-                        <input type="text" id="support-title" required class="w-full border p-2 rounded-lg text-sm">
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">項目/單元</label>
+                        <input type="text" id="support-title" placeholder="請填寫評量單元" required class="w-full border p-2 rounded-lg text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1">得分/成果</label>
-                        <input type="text" id="support-score" required class="w-full border p-2 rounded-lg text-sm">
+                        <label class="block text-xs font-semibold mb-1 text-slate-600">得分/成果</label>
+                        <input type="text" id="support-score" placeholder="填寫得分或複習狀況" required class="w-full border p-2 rounded-lg text-sm">
                     </div>
                     <div class="md:col-span-3 text-right">
-                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm">提交</button>
+                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">提交</button>
                     </div>
                 </form>
             </div>
@@ -432,9 +480,9 @@
             </div>
         </section>
 
-        <!-- 測試資料重設 -->
+        <!-- 重設資料按鈕 -->
         <div class="text-right mt-4">
-            <button type="button" onclick="resetTestData()" class="text-xs text-red-500 border border-red-300 px-3 py-2 rounded">
+            <button type="button" onclick="resetTestData()" class="text-xs text-red-500 border border-red-300 hover:bg-red-50 px-3 py-2 rounded transition">
                 一鍵重設測試資料
             </button>
         </div>
@@ -442,7 +490,7 @@
 </div>
 
 
-<!-- ==================== 編輯Modal彈窗 (學生修改待審核資料用) ==================== -->
+<!-- ==================== 編輯 Modal 彈窗 ==================== -->
 <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
@@ -463,26 +511,42 @@
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-slate-600 bg-slate-100 rounded-lg text-sm">取消</button>
-            <button type="button" onclick="saveEditedRecord()" class="px-4 py-2 text-white bg-blue-600 rounded-lg text-sm font-medium">儲存修改</button>
+            <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-slate-600 bg-slate-100 rounded-lg text-sm hover:bg-slate-200 transition">取消</button>
+            <button type="button" onclick="saveEditedRecord()" class="px-4 py-2 text-white bg-blue-600 rounded-lg text-sm font-medium hover:bg-blue-700 transition">儲存修改</button>
         </div>
     </div>
 </div>
 
 
-<!-- ==================== JavaScript ==================== -->
+<!-- ==================== JavaScript 核心邏輯 ==================== -->
 <script>
 "use strict";
 
 /* ==========================================
-   基本資料
+   1. 基本資料與全域變數
 ========================================== */
 let records = [];
 let currentRole = "student";
+let currentStudent = "01號 王小明";
 const VALID_ROLES = ["student", "teacher", "parent"];
+const STUDENT_LIST = [
+    "01號 王小明",
+    "02號 李小美",
+    "03號 張大同",
+    "04號 林小華",
+    "05號 陳志明"
+];
+
+/* 關卡設定 */
+const ENGLISH_LEVELS = [
+    { level: "第一級", pass: [2, 3, 4, 5, 6] },
+    { level: "第二級", pass: [1, 2, 3, 4, 5, 6] },
+    { level: "第三級", pass: [1, 2, 3, 4, 5, 6] },
+    { level: "第四級", pass: [1, 2, 3, 4, 5, 6] }
+];
 
 /* ==========================================
-   頁面載入
+   2. 頁面初始化
 ========================================== */
 document.addEventListener("DOMContentLoaded", function () {
     try {
@@ -495,18 +559,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
         switchRole(role);
         updateDailyForm();
+        updateLangForm();
 
-        console.log("系統初始化完成 v3.3");
+        console.log("系統初始化完成 v3.4");
     } catch (error) {
         console.error("初始化錯誤：", error);
-        alert("網頁初始化時發生錯誤。\n請重新整理網頁後再試一次。");
+        alert("網頁初始化時發生錯誤，請重新整理頁面。");
     }
 });
 
 
 /* ==========================================
-   建立第 1～12 課 Checkbox (雲端速測/小考用)
+   3. 學生切換與 Checkbox 動態建立
 ========================================== */
+function switchStudent(studentName) {
+    currentStudent = studentName;
+    renderAll();
+}
+
 function createLessonCheckboxes() {
     const container = document.getElementById("lesson-checkboxes");
     if (!container) return;
@@ -515,7 +585,7 @@ function createLessonCheckboxes() {
     for (let i = 1; i <= 12; i++) {
         html += `
             <label class="flex items-center gap-2 cursor-pointer p-1">
-                <input type="checkbox" name="lesson-cb" value="${i}" class="w-4 h-4">
+                <input type="checkbox" name="lesson-cb" value="${i}" class="w-4 h-4 text-blue-600 rounded">
                 <span>第${i}課</span>
             </label>
         `;
@@ -525,16 +595,24 @@ function createLessonCheckboxes() {
 
 
 /* ==========================================
-   讀取與儲存資料
+   4. LocalStorage 資料持久化
 ========================================== */
 function loadData() {
     try {
-        const saved = localStorage.getItem("gradeRecords");
+        const saved = localStorage.getItem("gradeRecords_v34");
         if (saved) {
             const parsed = JSON.parse(saved);
             records = Array.isArray(parsed) ? parsed : [];
         } else {
-            records = [];
+            // 預設示範測試資料
+            records = [
+                { id: "1", student: "01號 王小明", mainCat: "語文檢定", subCat: "英檢單字檢定", title: "第一級 第2關", score: "🟢 通過", status: "approved", visibleToParent: true, createdAt: new Date().toISOString() },
+                { id: "2", student: "01號 王小明", mainCat: "語文檢定", subCat: "英檢單字檢定", title: "第一級 第3關", score: "🟢 通過", status: "approved", visibleToParent: true, createdAt: new Date().toISOString() },
+                { id: "3", student: "01號 王小明", mainCat: "語文檢定", subCat: "英檢單字檢定", title: "第一級 第4關", score: "🔴 未通過", status: "approved", visibleToParent: true, createdAt: new Date().toISOString() },
+                { id: "4", student: "01號 王小明", mainCat: "語文檢定", subCat: "每週一句", title: "第一句", score: "🟢 通過", finalScore: "優", status: "approved", visibleToParent: true, createdAt: new Date().toISOString() },
+                { id: "5", student: "02號 李小美", mainCat: "語文檢定", subCat: "英檢單字檢定", title: "第一級 第2關", score: "🟢 通過", status: "approved", visibleToParent: true, createdAt: new Date().toISOString() }
+            ];
+            saveData();
         }
     } catch (error) {
         console.error("讀取 localStorage 失敗：", error);
@@ -544,7 +622,7 @@ function loadData() {
 
 function saveData() {
     try {
-        localStorage.setItem("gradeRecords", JSON.stringify(records));
+        localStorage.setItem("gradeRecords_v34", JSON.stringify(records));
         renderAll();
     } catch (error) {
         console.error("儲存資料失敗：", error);
@@ -554,7 +632,7 @@ function saveData() {
 
 
 /* ==========================================
-   身份與分頁切換
+   5. 身份與選單切換
 ========================================== */
 function switchRole(role) {
     if (!VALID_ROLES.includes(role)) role = "student";
@@ -565,7 +643,7 @@ function switchRole(role) {
         if (!btn) return;
         btn.className = (r === role)
             ? "role-btn px-3 py-1 rounded-md font-medium text-white bg-indigo-600 shadow"
-            : "role-btn px-3 py-1 rounded-md font-medium text-indigo-200";
+            : "role-btn px-3 py-1 rounded-md font-medium text-indigo-200 hover:text-white";
     });
 
     document.querySelectorAll(".student-only").forEach(el => role === "student" ? el.classList.remove("hidden") : el.classList.add("hidden"));
@@ -599,7 +677,7 @@ function switchTab(tabKey) {
 
 
 /* ==========================================
-   平時成績動態表單與「作業單元標籤」更新
+   6. 平時成績與語文檢定動態表單
 ========================================== */
 function updateDailyForm() {
     const subcatEl = document.getElementById("daily-subcat");
@@ -627,7 +705,6 @@ function updateDailyForm() {
     }
 }
 
-/* 更新作業單元標籤選單 */
 function updateHwUnitOptions(hwType) {
     const unitSelect = document.getElementById("hw-unit-val");
     const label = document.getElementById("hw-unit-label");
@@ -637,31 +714,52 @@ function updateHwUnitOptions(hwType) {
 
     if (hwType === "國習") {
         if (label) label.textContent = "國習課別標籤";
-        for (let i = 1; i <= 12; i++) {
-            options.push(`第${numberToChinese(i)}課`);
-        }
+        for (let i = 1; i <= 12; i++) options.push(`第${numberToChinese(i)}課`);
         show("score-grade-container");
     } else if (hwType === "數習") {
         if (label) label.textContent = "數習單元標籤";
-        for (let i = 1; i <= 10; i++) {
-            options.push(`第${numberToChinese(i)}單元`);
-        }
+        for (let i = 1; i <= 10; i++) options.push(`第${numberToChinese(i)}單元`);
         options.push("綜合練習（一）");
         options.push("綜合練習（二）");
         show("score-number-container");
     } else if (hwType === "作文") {
         if (label) label.textContent = "作文篇數標籤";
-        for (let i = 1; i <= 10; i++) {
-            options.push(`第${numberToChinese(i)}篇`);
-        }
+        for (let i = 1; i <= 10; i++) options.push(`第${numberToChinese(i)}篇`);
         show("score-number-container");
     }
 
     unitSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join("");
 }
 
+function updateLangForm() {
+    const subcat = document.getElementById("lang-subcat").value;
+    const titleSelect = document.getElementById("lang-title-select");
+    const finalScoreContainer = document.getElementById("lang-final-score-container");
+    if (!titleSelect) return;
+
+    let options = [];
+
+    if (subcat === "英檢單字檢定") {
+        if (finalScoreContainer) finalScoreContainer.classList.add("dynamic-hidden");
+
+        ENGLISH_LEVELS.forEach(lvl => {
+            lvl.pass.forEach(p => {
+                options.push(`${lvl.level} 第${p}關`);
+            });
+        });
+    } else if (subcat === "每週一句") {
+        if (finalScoreContainer) finalScoreContainer.classList.remove("dynamic-hidden");
+
+        for (let i = 1; i <= 16; i++) {
+            options.push(`第${numberToChinese(i)}句`);
+        }
+    }
+
+    titleSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join("");
+}
+
 function numberToChinese(num) {
-    const chineseNums = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"];
+    const chineseNums = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四", "十五", "十六"];
     return chineseNums[num] || String(num);
 }
 
@@ -672,7 +770,7 @@ function show(id) {
 
 
 /* ==========================================
-   新增紀錄
+   7. 新增紀錄邏輯
 ========================================== */
 function addRecord(mainCat) {
     if (currentRole !== "student") {
@@ -683,6 +781,7 @@ function addRecord(mainCat) {
     let subCat = "";
     let title = "";
     let score = "";
+    let finalScore = "";
 
     if (mainCat === "平時成績") {
         subCat = document.getElementById("daily-subcat").value;
@@ -691,24 +790,17 @@ function addRecord(mainCat) {
             const subject = document.getElementById("daily-subject-val").value;
             const scoreInput = document.getElementById("daily-score-val");
             if (scoreInput.value === "" || Number(scoreInput.value) < 0 || Number(scoreInput.value) > 100) {
-                alert("請輸入 0～100 的分數。");
-                scoreInput.focus();
-                return;
+                alert("請輸入 0～100 的分數。"); scoreInput.focus(); return;
             }
             title = subject;
             score = scoreInput.value + " 分";
         } else if (subCat === "雲端速測" || subCat === "小考分數") {
             const checked = document.querySelectorAll('input[name="lesson-cb"]:checked');
-            if (checked.length === 0) {
-                alert("請至少勾選一個課別。");
-                return;
-            }
+            if (checked.length === 0) { alert("請至少勾選一個課別。"); return; }
             const lessons = Array.from(checked).map(cb => cb.value).join("、");
             const scoreInput = document.getElementById("daily-score-val");
             if (scoreInput.value === "" || Number(scoreInput.value) < 0 || Number(scoreInput.value) > 100) {
-                alert("請輸入 0～100 的分數。");
-                scoreInput.focus();
-                return;
+                alert("請輸入 0～100 的分數。"); scoreInput.focus(); return;
             }
             title = "國語 第 " + lessons + " 課";
             score = scoreInput.value + " 分";
@@ -722,9 +814,7 @@ function addRecord(mainCat) {
             } else if (hwType === "數習" || hwType === "作文") {
                 const scoreInput = document.getElementById("daily-score-val");
                 if (scoreInput.value === "" || Number(scoreInput.value) < 0 || Number(scoreInput.value) > 100) {
-                    alert("請輸入 0～100 的分數。");
-                    scoreInput.focus();
-                    return;
+                    alert("請輸入 0～100 的分數。"); scoreInput.focus(); return;
                 }
                 title = `${hwType}（${unit}）`;
                 score = scoreInput.value + " 分";
@@ -740,9 +830,11 @@ function addRecord(mainCat) {
         score = scoreInput.value + " 分";
     } else if (mainCat === "語文檢定") {
         subCat = document.getElementById("lang-subcat").value;
-        title = document.getElementById("lang-title").value.trim();
-        score = document.getElementById("lang-score").value.trim();
-        if (!title || !score) { alert("請完整填寫資料。"); return; }
+        title = document.getElementById("lang-title-select").value;
+        score = document.getElementById("lang-score-select").value;
+        if (subCat === "每週一句") {
+            finalScore = document.getElementById("lang-final-score-select").value;
+        }
     } else if (mainCat === "閱讀成長") {
         subCat = "閱讀心得";
         title = document.getElementById("reading-title").value.trim();
@@ -757,11 +849,12 @@ function addRecord(mainCat) {
 
     const newRecord = {
         id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
-        student: "01號 王小明",
+        student: currentStudent,
         mainCat: mainCat,
         subCat: subCat,
         title: title,
         score: score,
+        finalScore: finalScore,
         status: "pending",
         visibleToParent: false,
         createdAt: new Date().toISOString()
@@ -770,7 +863,7 @@ function addRecord(mainCat) {
     records.unshift(newRecord);
     saveData();
 
-    alert("✅ 提交成功！\n\n目前狀態：⏳ 待老師審核\n（審核前您可以隨時進行修改或刪除）");
+    alert("✅ 提交成功！\n\n當前學生：" + currentStudent + "\n目前狀態：⏳ 待老師審核\n（審核前您可以隨時進行修改或刪除）");
     resetForm(mainCat);
 }
 
@@ -788,11 +881,14 @@ function resetForm(mainCat) {
         document.querySelectorAll('input[name="lesson-cb"]').forEach(cb => cb.checked = false);
         updateDailyForm();
     }
+    if (mainCat === "語文檢定") {
+        updateLangForm();
+    }
 }
 
 
 /* ==========================================
-   學生修改 / 刪除紀錄（僅限 pending 待審核狀態）
+   8. 編輯與刪除 modal
 ========================================== */
 function openEditModal(id) {
     const item = records.find(r => String(r.id) === String(id));
@@ -855,13 +951,10 @@ function deleteRecord(id) {
 
 
 /* ==========================================
-   老師審核與公開控制
+   9. 審核與權限邏輯
 ========================================== */
 function toggleApprove(id) {
-    if (currentRole !== "teacher") {
-        alert("只有老師可以審核成績。");
-        return;
-    }
+    if (currentRole !== "teacher") { alert("只有老師可以審核成績。"); return; }
     const item = records.find(r => String(r.id) === String(id));
     if (!item) return;
     item.status = item.status === "approved" ? "pending" : "approved";
@@ -869,23 +962,17 @@ function toggleApprove(id) {
 }
 
 function toggleParentVisible(id) {
-    if (currentRole !== "teacher") {
-        alert("只有老師可以設定家長公開狀態。");
-        return;
-    }
+    if (currentRole !== "teacher") { alert("只有老師可以設定家長公開狀態。"); return; }
     const item = records.find(r => String(r.id) === String(id));
     if (!item) return;
-    if (item.status !== "approved") {
-        alert("請先核可成績，再設定家長公開。");
-        return;
-    }
+    if (item.status !== "approved") { alert("請先核可成績，再設定家長公開。"); return; }
     item.visibleToParent = !item.visibleToParent;
     saveData();
 }
 
 
 /* ==========================================
-   畫面繪製與 HTML 安全轉譯
+   10. 畫面渲染與矩陣圖繪製
 ========================================== */
 function escapeHTML(value) {
     if (value === null || value === undefined) return "";
@@ -898,9 +985,13 @@ function escapeHTML(value) {
 }
 
 function renderAll() {
-    const filtered = currentRole === "parent"
-        ? records.filter(r => r.status === "approved" && r.visibleToParent === true)
-        : records;
+    let filtered = records;
+
+    if (currentRole === "student") {
+        filtered = records.filter(r => r.student === currentStudent);
+    } else if (currentRole === "parent") {
+        filtered = records.filter(r => r.student === currentStudent && r.status === "approved" && r.visibleToParent === true);
+    }
 
     renderOverview(filtered);
     renderCategoryList("daily-list", "平時成績", filtered);
@@ -909,9 +1000,12 @@ function renderAll() {
     renderCategoryList("reading-list", "閱讀成長", filtered);
     renderCategoryList("support-list", "學習扶助", filtered);
     renderReview();
+
+    /* 渲染語文檢定專屬紅綠燈表格 */
+    renderEnglishMatrix();
+    renderWeeklyMatrix();
 }
 
-/* 總覽渲染 */
 function renderOverview(data) {
     const body = document.getElementById("overview-table-body");
     if (!body) return;
@@ -926,7 +1020,7 @@ function renderOverview(data) {
             <td class="p-3 font-medium">${escapeHTML(r.student)}</td>
             <td class="p-3"><span class="bg-slate-200 text-xs px-2 py-1 rounded">${escapeHTML(r.mainCat)}</span></td>
             <td class="p-3">${escapeHTML(r.subCat)} - ${escapeHTML(r.title)}</td>
-            <td class="p-3 text-indigo-600 font-bold">${escapeHTML(r.score)}</td>
+            <td class="p-3 text-indigo-600 font-bold">${escapeHTML(r.score)} ${r.finalScore ? `(期末:${escapeHTML(r.finalScore)})` : ''}</td>
             <td class="p-3">${r.status === "approved" ? '<span class="text-emerald-600 font-medium">✓ 已核可</span>' : '<span class="text-amber-600 font-medium">⏳ 待審核</span>'}</td>
             <td class="p-3">${r.visibleToParent ? "👁️ 公開" : "🔒 隱藏"}</td>
             <td class="p-3">${renderActionButtons(r)}</td>
@@ -934,7 +1028,6 @@ function renderOverview(data) {
     `).join("");
 }
 
-/* 分類列表渲染 */
 function renderCategoryList(elementId, category, data) {
     const body = document.getElementById(elementId);
     if (!body) return;
@@ -950,14 +1043,13 @@ function renderCategoryList(elementId, category, data) {
             <td class="p-3 font-medium">${escapeHTML(r.student)}</td>
             <td class="p-3">${escapeHTML(r.subCat)}</td>
             <td class="p-3">${escapeHTML(r.title)}</td>
-            <td class="p-3 text-indigo-600 font-bold">${escapeHTML(r.score)}</td>
+            <td class="p-3 text-indigo-600 font-bold">${escapeHTML(r.score)} ${r.finalScore ? `(期末:${escapeHTML(r.finalScore)})` : ''}</td>
             <td class="p-3">${r.status === "approved" ? '<span class="text-emerald-600 font-medium">✓ 已核可</span>' : '<span class="text-amber-600 font-medium">⏳ 待審核</span>'}</td>
             <td class="p-3">${renderActionButtons(r)}</td>
         </tr>
     `).join("");
 }
 
-/* 學生編輯/刪除按鈕邏輯判斷 */
 function renderActionButtons(r) {
     if (currentRole !== "student") return `<span class="text-xs text-slate-400">-</span>`;
 
@@ -973,7 +1065,6 @@ function renderActionButtons(r) {
     }
 }
 
-/* 老師審核頁渲染 */
 function renderReview() {
     const body = document.getElementById("review-table-body");
     if (!body || currentRole !== "teacher") return;
@@ -992,7 +1083,7 @@ function renderReview() {
                 <td class="p-3">${escapeHTML(r.subCat)}（${escapeHTML(r.title)}）</td>
                 <td class="p-3 text-indigo-600 font-bold">${escapeHTML(r.score)}</td>
                 <td class="p-3">
-                    <button type="button" onclick="toggleApprove('${r.id}')" class="px-3 py-1.5 rounded text-xs text-white ${approved ? "bg-emerald-600" : "bg-slate-500 hover:bg-slate-600"}">
+                    <button type="button" onclick="toggleApprove('${r.id}')" class="px-3 py-1.5 rounded text-xs text-white ${approved ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-500 hover:bg-slate-600"}">
                         ${approved ? "✓ 已核可" : "點擊核可"}
                     </button>
                 </td>
@@ -1009,12 +1100,197 @@ function renderReview() {
 
 
 /* ==========================================
-   重設測試資料
+   11. 英檢單字闖關號誌燈矩陣 (學生/家長/老師)
+========================================== */
+function renderEnglishMatrix() {
+    const container = document.getElementById("lang-matrix-wrapper");
+    const titleEl = document.getElementById("lang-matrix-title");
+    if (!container) return;
+
+    const engRecords = records.filter(r => r.subCat === "英檢單字檢定" && (currentRole === "teacher" || r.status === "approved"));
+
+    if (currentRole === "teacher") {
+        if (titleEl) titleEl.textContent = "全班學生 - 英檢單字闖關全覽總表（依座號）";
+
+        let html = `
+            <table class="w-full text-xs text-center border-collapse border border-slate-200">
+                <thead>
+                    <tr class="bg-indigo-50 text-indigo-900 border-b">
+                        <th class="p-2 border border-slate-200 min-w-[100px]">座號/姓名</th>
+                        <th class="p-2 border border-slate-200">第一級<br>(2~6關)</th>
+                        <th class="p-2 border border-slate-200">第二級<br>(1~6關)</th>
+                        <th class="p-2 border border-slate-200">第三級<br>(1~6關)</th>
+                        <th class="p-2 border border-slate-200">第四級<br>(1~6關)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        STUDENT_LIST.forEach(student => {
+            html += `<tr class="border-b hover:bg-slate-50"><td class="p-2 font-bold text-left border border-slate-200">${student}</td>`;
+
+            ENGLISH_LEVELS.forEach(lvl => {
+                html += `<td class="p-1 border border-slate-200"><div class="flex flex-wrap gap-1 justify-center">`;
+                lvl.pass.forEach(g => {
+                    const titleKey = `${lvl.level} 第${g}關`;
+                    const match = engRecords.find(r => r.student === student && r.title === titleKey);
+                    let symbol = '<span title="未測驗" class="opacity-30">⚪</span>';
+                    if (match) {
+                        symbol = match.score.includes("通過") && !match.score.includes("未") ? '<span title="通過">🟢</span>' : '<span title="未通過">🔴</span>';
+                    }
+                    html += `<span class="inline-block" title="${titleKey}">${symbol}</span>`;
+                });
+                html += `</div></td>`;
+            });
+            html += `</tr>`;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+    } else {
+        if (titleEl) titleEl.textContent = `${currentStudent} - 英檢單字闖關通過情形表`;
+
+        let html = `
+            <table class="w-full text-sm text-center border-collapse border border-slate-200">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-700">
+                        <th class="p-3 border">級數</th>
+                        <th class="p-3 border">第1關</th>
+                        <th class="p-3 border">第2關</th>
+                        <th class="p-3 border">第3關</th>
+                        <th class="p-3 border">第4關</th>
+                        <th class="p-3 border">第5關</th>
+                        <th class="p-3 border">第6關</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        ENGLISH_LEVELS.forEach(lvl => {
+            html += `<tr><td class="p-3 font-bold bg-indigo-50/50 border">${lvl.level}</td>`;
+            for (let g = 1; g <= 6; g++) {
+                if (!lvl.pass.includes(g)) {
+                    html += `<td class="p-3 bg-slate-100/50 text-slate-300 border text-xs">無此關</td>`;
+                } else {
+                    const titleKey = `${lvl.level} 第${g}關`;
+                    const match = engRecords.find(r => r.student === currentStudent && r.title === titleKey);
+                    let symbol = "⚪ 未測驗";
+                    if (match) {
+                        symbol = match.score.includes("通過") && !match.score.includes("未") ? "🟢 通過" : "🔴 未通過";
+                    }
+                    html += `<td class="p-3 border font-medium">${symbol}</td>`;
+                }
+            }
+            html += `</tr>`;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+}
+
+
+/* ==========================================
+   12. 每週一句與期末闖關分數統計表
+========================================== */
+function renderWeeklyMatrix() {
+    const container = document.getElementById("weekly-matrix-wrapper");
+    if (!container) return;
+
+    const weeklyRecords = records.filter(r => r.subCat === "每週一句" && (currentRole === "teacher" || r.status === "approved"));
+
+    if (currentRole === "teacher") {
+        let html = `
+            <table class="w-full text-xs text-center border-collapse border border-slate-200">
+                <thead>
+                    <tr class="bg-emerald-50 text-emerald-900 border-b">
+                        <th class="p-2 border min-w-[100px]">座號/姓名</th>
+                        <th class="p-2 border">1~16 句通過情況</th>
+                        <th class="p-2 border min-w-[90px]">期末闖關分數</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        STUDENT_LIST.forEach(student => {
+            const studentRecs = weeklyRecords.filter(r => r.student === student);
+            let latestFinal = "未闖關";
+
+            html += `<tr class="border-b hover:bg-slate-50"><td class="p-2 font-bold text-left border">${student}</td>`;
+            html += `<td class="p-2 border"><div class="flex flex-wrap gap-1 justify-center">`;
+
+            for (let i = 1; i <= 16; i++) {
+                const sentenceKey = `第${numberToChinese(i)}句`;
+                const match = studentRecs.find(r => r.title === sentenceKey);
+                let symbol = '<span class="opacity-20">⚪</span>';
+                if (match) {
+                    symbol = match.score.includes("通過") && !match.score.includes("未") ? "🟢" : "🔴";
+                    if (match.finalScore) latestFinal = match.finalScore;
+                }
+                html += `<span title="${sentenceKey}">${symbol}</span>`;
+            }
+
+            let badgeClass = "bg-slate-100 text-slate-500";
+            if (latestFinal === "特優") badgeClass = "bg-amber-100 text-amber-800 font-bold";
+            if (latestFinal === "優") badgeClass = "bg-emerald-100 text-emerald-800 font-bold";
+            if (latestFinal === "未通過") badgeClass = "bg-red-100 text-red-700";
+
+            html += `</div></td>`;
+            html += `<td class="p-2 border"><span class="px-2 py-1 rounded text-xs ${badgeClass}">${latestFinal}</span></td></tr>`;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+    } else {
+        const myRecs = weeklyRecords.filter(r => r.student === currentStudent);
+        let latestFinal = "未闖關";
+
+        let html = `
+            <div class="grid grid-cols-4 sm:grid-cols-8 gap-2 text-center mb-4">
+        `;
+
+        for (let i = 1; i <= 16; i++) {
+            const sentenceKey = `第${numberToChinese(i)}句`;
+            const match = myRecs.find(r => r.title === sentenceKey);
+            let statusText = "⚪ 未測驗";
+            if (match) {
+                statusText = match.score.includes("通過") && !match.score.includes("未") ? "🟢 通過" : "🔴 未通過";
+                if (match.finalScore) latestFinal = match.finalScore;
+            }
+            html += `
+                <div class="p-2 bg-slate-50 border rounded-lg">
+                    <div class="text-xs text-slate-500">第${i}句</div>
+                    <div class="text-xs font-bold mt-1">${statusText}</div>
+                </div>
+            `;
+        }
+
+        let badgeClass = "bg-slate-100 text-slate-600";
+        if (latestFinal === "特優") badgeClass = "bg-amber-100 text-amber-800 font-bold text-base";
+        if (latestFinal === "優") badgeClass = "bg-emerald-100 text-emerald-800 font-bold text-base";
+        if (latestFinal === "未通過") badgeClass = "bg-red-100 text-red-700";
+
+        html += `</div>
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
+                <span class="text-sm font-bold text-amber-900">🎓 期末闖關總評估結果：</span>
+                <span class="px-3 py-1 rounded-full ${badgeClass}">${latestFinal}</span>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+}
+
+
+/* ==========================================
+   13. 重設測試資料
 ========================================== */
 function resetTestData() {
     if (confirm("確定要刪除所有測試資料嗎？\n此動作無法復原。")) {
         try {
-            localStorage.removeItem("gradeRecords");
+            localStorage.removeItem("gradeRecords_v34");
             records = [];
             renderAll();
             alert("測試資料已清除。");
@@ -1026,7 +1302,7 @@ function resetTestData() {
 
 
 /* ==========================================
-   表單事件綁定
+   14. 表單與事件綁定
 ========================================== */
 document.addEventListener("DOMContentLoaded", function () {
     const forms = [
