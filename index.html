@@ -641,7 +641,7 @@ function renderStudentDropdown() {
     const select = document.getElementById("current-student-select");
     if (!select) return;
 
-    select.innerHTML = STUDENTS.map(s => <option value="${escapeHTML(s)}">${escapeHTML(s)}</option>).join("");
+    select.innerHTML = STUDENTS.map(s => `<option value="${escapeHTML(s)}">${escapeHTML(s)}</option>`).join("");
 
     if (!STUDENTS.includes(currentStudent)) {
         currentStudent = STUDENTS[0] || "";
@@ -682,7 +682,7 @@ function createLessonCheckboxes() {
     if (!container) return;
     let html = "";
     for (let i = 1; i <= 12; i++) {
-        html += <label class="flex items-center gap-2 cursor-pointer p-1"><input type="checkbox" name="lesson-cb" value="${i}" class="w-4 h-4 text-blue-600 rounded"><span>第${i}課</span></label>;
+        html += `<label class="flex items-center gap-2 cursor-pointer p-1"><input type="checkbox" name="lesson-cb" value="${i}" class="w-4 h-4 text-blue-600 rounded"><span>第${i}課</span></label>`;
     }
     container.innerHTML = html;
 }
@@ -717,7 +717,7 @@ function updateVocabStageOptions() {
     let start = (level === "第一級") ? 2 : 1;
     let html = "";
     for (let i = start; i <= 6; i++) {
-        html += <option value="第 ${i} 關">第 ${i} 關</option>;
+        html += `<option value="第 ${i} 關">第 ${i} 關</option>`;
     }
     stageSelect.innerHTML = html;
 }
@@ -727,7 +727,7 @@ function initWeeklyStageOptions() {
     if (!weeklySelect) return;
     let html = "";
     for (let i = 1; i <= 16; i++) {
-        html += <option value="第 ${i} 句">第 ${i} 句</option>;
+        html += `<option value="第 ${i} 句">第 ${i} 句</option>`;
     }
     weeklySelect.innerHTML = html;
 }
@@ -828,19 +828,19 @@ function updateHwUnitOptions(hwType) {
     let options = [];
     if (hwType === "國習") {
         if (label) label.textContent = "國習課別標籤";
-        for (let i = 1; i <= 12; i++) options.push(第${numberToChinese(i)}課);
+        for (let i = 1; i <= 12; i++) options.push(`第${numberToChinese(i)}課`);
         show("score-grade-container");
     } else if (hwType === "數習") {
         if (label) label.textContent = "數習單元標籤";
-        for (let i = 1; i <= 10; i++) options.push(第${numberToChinese(i)}單元);
+        for (let i = 1; i <= 10; i++) options.push(`第${numberToChinese(i)}單元`);
         options.push("綜合練習（一）"); options.push("綜合練習（二）");
         show("score-number-container");
     } else if (hwType === "作文") {
         if (label) label.textContent = "作文篇數標籤";
-        for (let i = 1; i <= 10; i++) options.push(第${numberToChinese(i)}篇);
+        for (let i = 1; i <= 10; i++) options.push(`第${numberToChinese(i)}篇`);
         show("score-number-container");
     }
-    unitSelect.innerHTML = options.map(opt => <option value="${opt}">${opt}</option>).join("");
+    unitSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join("");
     if (options.includes(prevVal)) {
         unitSelect.value = prevVal;
     }
@@ -882,11 +882,11 @@ function addRecord(mainCat) {
             const hwType = document.getElementById("hw-type").value;
             const unit = document.getElementById("hw-unit-val").value;
             if (hwType === "國習") {
-                title = 國習（${unit}）; score = document.getElementById("daily-grade-val").value;
+                title = `國習（${unit}）`; score = document.getElementById("daily-grade-val").value;
             } else {
                 const scoreInput = document.getElementById("daily-score-val");
                 if (!scoreInput.value) { alert("請輸入分數"); return; }
-                title = ${hwType}（${unit}）; score = scoreInput.value + " 分";
+                title = `${hwType}（${unit}）`; score = scoreInput.value + " 分";
             }
         }
     } else if (mainCat === "定期評量成績") {
@@ -900,7 +900,7 @@ function addRecord(mainCat) {
         if (subCat === "英檢單字檢定") {
             const lvl = document.getElementById("lang-vocab-level").value;
             const stg = document.getElementById("lang-vocab-stage").value;
-            title = ${lvl} ${stg};
+            title = `${lvl} ${stg}`;
             score = passStatus;
         } else if (subCat === "每週一句") {
             const stg = document.getElementById("lang-weekly-stage").value;
@@ -914,9 +914,9 @@ function addRecord(mainCat) {
 
         if (!bookTitle) { alert("請填寫書籍名稱！"); return; }
 
-        subCat = 喜閱網（${colorTag}）;
+        subCat = `喜閱網（${colorTag}）`;
         title = bookTitle;
-        score = ptsVal !== "" ? ${ptsVal} 點 : "⏳ 待補點數";
+        score = ptsVal !== "" ? `${ptsVal} 點` : "⏳ 待補點數";
     } else if (mainCat === "學習扶助") {
         subCat = document.getElementById("support-subcat").value;
         title = document.getElementById("support-title").value.trim();
@@ -1069,7 +1069,7 @@ function renderDailySection(filteredData) {
     // ---- 區塊 1: 平時評量 (五科分數 + 五科總分) ----
     const subjects = ['國語', '英語', '數學', '自然', '社會'];
     let regularTotal = 0;
-    let regularHtml = <div class="grid grid-cols-2 md:grid-cols-6 gap-3">;
+    let regularHtml = `<div class="grid grid-cols-2 md:grid-cols-6 gap-3">`;
     
     subjects.forEach(sub => {
         const rec = studentRecords.find(r => r.subCat === '平時評量' && r.title === sub);
@@ -1077,19 +1077,19 @@ function renderDailySection(filteredData) {
         const score = match ? Number(match[1]) : 0;
         if (rec && match) regularTotal += score;
         
-        regularHtml += 
+        regularHtml += `
             <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-center">
                 <span class="block text-xs font-semibold text-slate-500">${sub}</span>
                 <span class="text-base font-bold text-slate-800">${rec ? rec.score : '--'}</span>
-            </div>;
+            </div>`;
     });
     
-    regularHtml += 
+    regularHtml += `
         <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center col-span-2 md:col-span-1">
             <span class="block text-xs font-semibold text-blue-600">五科總分</span>
             <span class="text-lg font-black text-blue-700">${regularTotal} 分</span>
         </div>
-    </div>;
+    </div>`;
     
     const blockRegular = document.getElementById('block-regular');
     if (blockRegular) blockRegular.innerHTML = regularHtml;
@@ -1108,18 +1108,18 @@ function renderListBlock(elementId, listData) {
     const el = document.getElementById(elementId);
     if (!el) return;
     if (listData.length === 0) {
-        el.innerHTML = <p class="text-xs text-slate-400 p-2 text-center">尚無登記紀錄</p>;
+        el.innerHTML = `<p class="text-xs text-slate-400 p-2 text-center">尚無登記紀錄</p>`;
         return;
     }
-    let html = <ul class="divide-y divide-slate-100 text-xs">;
+    let html = `<ul class="divide-y divide-slate-100 text-xs">`;
     listData.forEach(r => {
-        html += 
+        html += `
             <li class="py-2 flex justify-between items-center gap-2">
                 <span class="text-slate-700 font-medium truncate">${escapeHTML(r.title)}</span>
                 <span class="font-bold text-indigo-600 shrink-0">${escapeHTML(r.score)}</span>
-            </li>;
+            </li>`;
     });
-    html += </ul>;
+    html += `</ul>`;
     el.innerHTML = html;
 }
 
@@ -1177,7 +1177,7 @@ function calculateDailySummary() {
     const wrapper = document.getElementById("teacher-daily-summary-wrapper");
     if (!wrapper) return;
 
-    let html = <table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
+    let html = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
         <thead class="bg-amber-100 text-amber-900 font-bold">
             <tr>
                 <th class="p-2 border text-left min-w-[100px]">學生姓名</th>
@@ -1186,19 +1186,19 @@ function calculateDailySummary() {
                 <th class="p-2 border">作業平均 (含等第換算)</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">;
+        <tbody class="divide-y divide-slate-200">`;
 
     summaryResults.forEach(item => {
-        html += 
+        html += `
             <tr>
                 <td class="p-2 border text-left font-bold bg-slate-50">${escapeHTML(item.studentName)}</td>
                 <td class="p-2 border font-semibold text-sky-700">${item.cloudAvg}</td>
                 <td class="p-2 border font-semibold text-amber-700">${item.quizAvg}</td>
                 <td class="p-2 border font-semibold text-emerald-700">${item.hwAvg}</td>
-            </tr>;
+            </tr>`;
     });
 
-    html += </tbody></table>;
+    html += `</tbody></table>`;
     wrapper.innerHTML = html;
 }
 
@@ -1208,7 +1208,7 @@ function calculateExamRankings() {
     if (!wrapper) return;
 
     if (STUDENTS.length === 0) {
-        wrapper.innerHTML = <p class="text-xs text-slate-400 p-2 text-center">無學生名單</p>;
+        wrapper.innerHTML = `<p class="text-xs text-slate-400 p-2 text-center">無學生名單</p>`;
         return;
     }
 
@@ -1241,7 +1241,7 @@ function calculateExamRankings() {
         }
     });
 
-    let html = <table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
+    let html = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
         <thead class="bg-amber-100 text-amber-900 font-bold">
             <tr>
                 <th class="p-2 border">名次</th>
@@ -1249,19 +1249,19 @@ function calculateExamRankings() {
                 <th class="p-2 border">定期評量 5 科總分</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">;
+        <tbody class="divide-y divide-slate-200">`;
 
     examData.forEach(item => {
         let rankBadge = item.rank === 1 ? '🥇 1' : item.rank === 2 ? '🥈 2' : item.rank === 3 ? '🥉 3' : item.rank;
-        html += 
+        html += `
             <tr class="${item.rank <= 3 ? 'bg-amber-50/50 font-bold' : ''}">
                 <td class="p-2 border text-amber-800">${rankBadge}</td>
                 <td class="p-2 border text-left font-bold bg-slate-50">${escapeHTML(item.studentName)}</td>
                 <td class="p-2 border font-black text-indigo-600">${item.totalScore} 分</td>
-            </tr>;
+            </tr>`;
     });
 
-    html += </tbody></table>;
+    html += `</tbody></table>`;
     wrapper.innerHTML = html;
 }
 
@@ -1276,7 +1276,7 @@ function renderLanguageMatrices() {
 function getVocabStageStatus(studentName, level, stageNum) {
     if (level === "第一級" && stageNum === 1) return { code: "N/A", text: "-" };
 
-    const titleTarget = ${level} 第 ${stageNum} 關;
+    const titleTarget = `${level} 第 ${stageNum} 關`;
     const rec = records.find(r => r.student === studentName && r.mainCat === "語文檢定" && r.subCat === "英檢單字檢定" && r.title === titleTarget && r.status === "approved");
 
     if (!rec) return { code: "none", text: "⚪ 未測驗" };
@@ -1286,7 +1286,7 @@ function getVocabStageStatus(studentName, level, stageNum) {
 }
 
 function getWeeklyStageStatus(studentName, sentenceNum) {
-    const titleTarget = 第 ${sentenceNum} 句;
+    const titleTarget = `第 ${sentenceNum} 句`;
     const rec = records.find(r => r.student === studentName && r.mainCat === "語文檢定" && r.subCat === "每週一句" && r.title === titleTarget && r.status === "approved");
 
     if (!rec) return { code: "none", text: "⚪" };
@@ -1303,7 +1303,7 @@ function renderStudentLanguageMatrix(studentName) {
     if (!vocabWrapper || !weeklyWrapper) return;
 
     const levels = ["第一級", "第二級", "第三級", "第四級"];
-    let vocabHTML = <table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
+    let vocabHTML = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
         <thead class="bg-indigo-50 text-indigo-900 font-bold">
             <tr>
                 <th class="p-2 border">級數＼關卡</th>
@@ -1315,32 +1315,32 @@ function renderStudentLanguageMatrix(studentName) {
                 <th class="p-2 border">第 6 關</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">;
+        <tbody class="divide-y divide-slate-200">`;
 
     levels.forEach(lvl => {
-        vocabHTML += <tr><td class="p-2 border bg-slate-50 font-bold">${lvl}</td>;
+        vocabHTML += `<tr><td class="p-2 border bg-slate-50 font-bold">${lvl}</td>`;
         for (let s = 1; s <= 6; s++) {
             const res = getVocabStageStatus(studentName, lvl, s);
-            vocabHTML += <td class="p-2 border">${res.text}</td>;
+            vocabHTML += `<td class="p-2 border">${res.text}</td>`;
         }
-        vocabHTML += </tr>;
+        vocabHTML += `</tr>`;
     });
-    vocabHTML += </tbody></table>;
+    vocabHTML += `</tbody></table>`;
     vocabWrapper.innerHTML = vocabHTML;
 
     let passCount = 0;
-    let weeklyHTML = <table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
+    let weeklyHTML = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
         <thead class="bg-blue-50 text-blue-900 font-bold">
-            <tr>;
-    for (let i = 1; i <= 16; i++) weeklyHTML += <th class="p-1 border">${i}</th>;
-    weeklyHTML += </tr></thead><tbody><tr>;
+            <tr>`;
+    for (let i = 1; i <= 16; i++) weeklyHTML += `<th class="p-1 border">${i}</th>`;
+    weeklyHTML += `</tr></thead><tbody><tr>`;
 
     for (let i = 1; i <= 16; i++) {
         const res = getWeeklyStageStatus(studentName, i);
         if (res.code === "pass") passCount++;
-        weeklyHTML += <td class="p-2 border">${res.text}</td>;
+        weeklyHTML += `<td class="p-2 border">${res.text}</td>`;
     }
-    weeklyHTML += </tr></tbody></table>;
+    weeklyHTML += `</tr></tbody></table>`;
     weeklyWrapper.innerHTML = weeklyHTML;
 
     let summaryText = "未闖關";
@@ -1348,7 +1348,7 @@ function renderStudentLanguageMatrix(studentName) {
     else if (passCount >= 10) summaryText = "優 (已通過 " + passCount + " 句)";
     else if (passCount > 0) summaryText = "未通過 (已通過 " + passCount + " 句)";
 
-    if (weeklySummary) weeklySummary.textContent = 期末評估：${summaryText};
+    if (weeklySummary) weeklySummary.textContent = `期末評估：${summaryText}`;
 }
 
 function renderTeacherLanguageMatrix() {
@@ -1357,12 +1357,12 @@ function renderTeacherLanguageMatrix() {
     if (!vocabWrapper || !weeklyWrapper) return;
 
     if (STUDENTS.length === 0) {
-        vocabWrapper.innerHTML = <div class="text-center text-slate-400 py-4">無學生名單</div>;
-        weeklyWrapper.innerHTML = <div class="text-center text-slate-400 py-4">無學生名單</div>;
+        vocabWrapper.innerHTML = `<div class="text-center text-slate-400 py-4">無學生名單</div>`;
+        weeklyWrapper.innerHTML = `<div class="text-center text-slate-400 py-4">無學生名單</div>`;
         return;
     }
 
-    let vocabHTML = <table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
+    let vocabHTML = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
         <thead class="bg-amber-100 text-amber-900 font-bold">
             <tr>
                 <th class="p-2 border text-left min-w-[100px]">學生座號姓名</th>
@@ -1372,10 +1372,10 @@ function renderTeacherLanguageMatrix() {
                 <th class="p-2 border">四級(1-6關)</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">;
+        <tbody class="divide-y divide-slate-200">`;
 
     STUDENTS.forEach(studentName => {
-        vocabHTML += <tr><td class="p-2 border text-left font-bold bg-slate-50">${escapeHTML(studentName)}</td>;
+        vocabHTML += `<tr><td class="p-2 border text-left font-bold bg-slate-50">${escapeHTML(studentName)}</td>`;
         ["第一級", "第二級", "第三級", "第四級"].forEach(lvl => {
             let start = (lvl === "第一級") ? 2 : 1;
             let passCnt = 0;
@@ -1383,14 +1383,14 @@ function renderTeacherLanguageMatrix() {
             for (let s = start; s <= 6; s++) {
                 if (getVocabStageStatus(studentName, lvl, s).code === "pass") passCnt++;
             }
-            vocabHTML += <td class="p-2 border">${passCnt === total ? "🟢 全過" : passCnt > 0 ? 🟡 通過 ${passCnt}/${total} : "⚪ 0"}</td>;
+            vocabHTML += `<td class="p-2 border">${passCnt === total ? "🟢 全過" : passCnt > 0 ? `🟡 通過 ${passCnt}/${total}` : "⚪ 0"}</td>`;
         });
-        vocabHTML += </tr>;
+        vocabHTML += `</tr>`;
     });
-    vocabHTML += </tbody></table>;
+    vocabHTML += `</tbody></table>`;
     vocabWrapper.innerHTML = vocabHTML;
 
-    let weeklyHTML = <table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
+    let weeklyHTML = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
         <thead class="bg-amber-100 text-amber-900 font-bold">
             <tr>
                 <th class="p-2 border text-left min-w-[100px]">學生姓名</th>
@@ -1398,7 +1398,7 @@ function renderTeacherLanguageMatrix() {
                 <th class="p-2 border">期末狀態評估</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">;
+        <tbody class="divide-y divide-slate-200">`;
 
     STUDENTS.forEach(studentName => {
         let passCnt = 0;
@@ -1406,13 +1406,13 @@ function renderTeacherLanguageMatrix() {
             if (getWeeklyStageStatus(studentName, i).code === "pass") passCnt++;
         }
         let evalText = passCnt >= 14 ? "🟢 特優" : passCnt >= 10 ? "🔵 優" : passCnt > 0 ? "🔴 未通過" : "⚪ 未闖關";
-        weeklyHTML += <tr>
+        weeklyHTML += `<tr>
             <td class="p-2 border text-left font-bold bg-slate-50">${escapeHTML(studentName)}</td>
             <td class="p-2 border font-bold text-indigo-600">${passCnt} / 16 句</td>
             <td class="p-2 border font-bold">${evalText}</td>
-        </tr>;
+        </tr>`;
     });
-    weeklyHTML += </tbody></table>;
+    weeklyHTML += `</tbody></table>`;
     weeklyWrapper.innerHTML = weeklyHTML;
 }
 
@@ -1422,12 +1422,12 @@ function renderReadingAccumulation() {
     const ptsEl = document.getElementById("student-accumulate-pts");
 
     if (nameEl) nameEl.textContent = currentStudent;
-    if (ptsEl) ptsEl.textContent = ${currentPts} 點;
+    if (ptsEl) ptsEl.textContent = `${currentPts} 點`;
 
     const teacherHistoryEl = document.getElementById("teacher-class-reading-history");
     if (teacherHistoryEl) {
         if (STUDENTS.length === 0) {
-            teacherHistoryEl.innerHTML = <div class="p-4 text-center text-slate-400">尚未建立學生名單</div>;
+            teacherHistoryEl.innerHTML = `<div class="p-4 text-center text-slate-400">尚未建立學生名單</div>`;
             return;
         }
 
@@ -1436,21 +1436,21 @@ function renderReadingAccumulation() {
 
             let historyBadges = "";
             if (studentPassedRecords.length === 0) {
-                historyBadges = <span class="text-xs text-slate-400 italic">尚無審核通過紀錄</span>;
+                historyBadges = `<span class="text-xs text-slate-400 italic">尚無審核通過紀錄</span>`;
             } else {
-                historyBadges = studentPassedRecords.map(r => 
+                historyBadges = studentPassedRecords.map(r => `
                     <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full text-xs font-medium">
                         <b>${escapeHTML(r.subCat.replace("喜閱網（", "").replace("）", ""))}</b>：${escapeHTML(r.title)}
                     </span>
-                ).join("");
+                `).join("");
             }
 
-            return 
+            return `
                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center gap-2">
                     <div class="font-bold text-slate-700 min-w-[110px] text-sm">${escapeHTML(studentName)}</div>
                     <div class="flex flex-wrap gap-1.5 flex-1">${historyBadges}</div>
                 </div>
-            ;
+            `;
         }).join("");
     }
 }
@@ -1459,9 +1459,9 @@ function renderOverview(data) {
     const body = document.getElementById("overview-table-body");
     if (!body) return;
     if (data.length === 0) {
-        body.innerHTML = <tr><td colspan="7" class="p-6 text-center text-slate-400">尚無紀錄</td></tr>; return;
+        body.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">尚無紀錄</td></tr>`; return;
     }
-    body.innerHTML = data.map(r => 
+    body.innerHTML = data.map(r => `
         <tr class="border-b">
             <td class="p-3 font-medium">${escapeHTML(r.student)}</td>
             <td class="p-3"><span class="bg-slate-200 text-xs px-2 py-1 rounded">${escapeHTML(r.mainCat)}</span></td>
@@ -1471,7 +1471,7 @@ function renderOverview(data) {
             <td class="p-3">${r.visibleToParent ? "👁️ 公開" : "🔒 隱藏"}</td>
             <td class="p-3">${renderActionButtons(r)}</td>
         </tr>
-    ).join("");
+    `).join("");
 }
 
 function renderCategoryList(elementId, category, data) {
@@ -1479,9 +1479,9 @@ function renderCategoryList(elementId, category, data) {
     if (!body) return;
     const items = data.filter(r => r.mainCat === category);
     if (items.length === 0) {
-        body.innerHTML = <tr><td colspan="6" class="p-6 text-center text-slate-400">尚無紀錄</td></tr>; return;
+        body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">尚無紀錄</td></tr>`; return;
     }
-    body.innerHTML = items.map(r => 
+    body.innerHTML = items.map(r => `
         <tr class="border-b">
             <td class="p-3 font-medium">${escapeHTML(r.student)}</td>
             <td class="p-3">${escapeHTML(r.subCat)}</td>
@@ -1490,35 +1490,35 @@ function renderCategoryList(elementId, category, data) {
             <td class="p-3">${r.status === "approved" ? '<span class="text-emerald-600 font-medium">✓ 已核可</span>' : '<span class="text-amber-600 font-medium">⏳ 待審核</span>'}</td>
             <td class="p-3">${renderActionButtons(r)}</td>
         </tr>
-    ).join("");
+    `).join("");
 }
 
 function renderActionButtons(r) {
     if (currentRole === "student") {
         if (r.status === "pending") {
-            return <div class="flex items-center gap-2">
+            return `<div class="flex items-center gap-2">
                 <button type="button" onclick="openEditModal('${r.id}')" class="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 px-2 py-1 rounded">✏️ 編輯</button>
                 <button type="button" onclick="deleteRecord('${r.id}')" class="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded">🗑️ 刪除</button>
-            </div>;
+            </div>`;
         } else {
-            return <span class="text-xs text-slate-400 font-semibold">🔒 已審核鎖定</span>;
+            return `<span class="text-xs text-slate-400 font-semibold">🔒 已審核鎖定</span>`;
         }
     } else if (currentRole === "teacher") {
-        return <button type="button" onclick="openEditModal('${r.id}')" class="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-2 py-1 rounded">✏️ 修改點數/狀態</button>;
+        return `<button type="button" onclick="openEditModal('${r.id}')" class="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-2 py-1 rounded">✏️ 修改點數/狀態</button>`;
     }
-    return <span class="text-xs text-slate-400">-</span>;
+    return `<span class="text-xs text-slate-400">-</span>`;
 }
 
 function renderReview() {
     const body = document.getElementById("review-table-body");
     if (!body || currentRole !== "teacher") return;
     if (records.length === 0) {
-        body.innerHTML = <tr><td colspan="7" class="p-6 text-center text-slate-400">目前沒有待審核資料</td></tr>; return;
+        body.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">目前沒有待審核資料</td></tr>`; return;
     }
 
     body.innerHTML = records.map(r => {
         const approved = r.status === "approved";
-        return 
+        return `
             <tr class="border-b hover:bg-amber-50/40">
                 <td class="p-3 font-medium">${escapeHTML(r.student)}</td>
                 <td class="p-3 text-xs">${escapeHTML(r.mainCat)}</td>
@@ -1539,7 +1539,7 @@ function renderReview() {
                     </label>
                 </td>
             </tr>
-        ;
+        `;
     }).join("");
 }
 
@@ -1581,10 +1581,3 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
-
-請為此程式碼加上下列功能
-
- 資料結構升級：所有平時成績紀錄皆新增 ⁠period⁠ (⁠midterm⁠ 或 ⁠final⁠) 欄位。
- 下拉選單記憶保留：提交成績後，**「期程 (⁠period⁠)」**與科目、細項等下拉選單一併保留，僅清空分數輸入框與速測勾選框。
- 學生端雙期程 Tab 切換：新增期中/期末切換按鈕，下方四大區塊（平時評量、雲端速測、小考、作業）會依據選擇的期程自動篩選並展示。
- 老師端依期程結算：可指定「期中」或「期末」進行獨立結算，自動計算雲端速測平均、小考平均及作業平均（含甲上上~甲下下等第數值轉換）。
