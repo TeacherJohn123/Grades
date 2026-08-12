@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>學生成績與學習歷程平台 v7.1 (第七階段修正版 - 平時評量獨立)</title>
+    <title>學生成績與學習歷程平台 v7.2 (各項平均獨立展示)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -30,7 +30,7 @@
             <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
             <h1 class="text-lg md:text-xl font-bold tracking-wide">
                 學生成績與學習歷程平台
-                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.1 (Ph7)</span>
+                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.2</span>
             </h1>
         </div>
 
@@ -62,7 +62,6 @@
             <button type="button" onclick="switchTab('daily')" id="tab-daily" class="tab-btn w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                 <i class="fa-solid fa-pen-ruler w-5"></i><span>平時成績</span>
             </button>
-            <!-- 獨立出來的平時評量選單 -->
             <button type="button" onclick="switchTab('regular')" id="tab-regular" class="tab-btn w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium">
                 <i class="fa-solid fa-square-poll-vertical w-5"></i><span>平時評量</span>
             </button>
@@ -125,7 +124,7 @@
             </div>
         </section>
 
-        <!-- 平時成績 (精簡化後只剩速測、小考、作業) -->
+        <!-- 平時成績 -->
         <section id="sec-daily" class="content-sec hidden space-y-6">
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-4 text-slate-800"><i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄平時成績</h2>
@@ -145,11 +144,13 @@
                             <label class="block text-xs font-semibold text-slate-600 mb-1">平時成績細項</label>
                             <select id="daily-subcat" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                                 <option value="雲端速測">雲端速測</option>
-                                <option value="小考分數">小考分數</option>
+                                <option value="國語小考">國語小考</option>
+                                <option value="數學小考">數學小考</option>
                                 <option value="作業分數">作業分數</option>
                             </select>
                         </div>
                         
+                        <!-- 作業選項動態區 -->
                         <div id="dynamic-hw" class="md:col-span-2 dynamic-hidden">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
@@ -166,11 +167,20 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 數學小考動態區 -->
+                        <div id="dynamic-math-quiz" class="md:col-span-2 dynamic-hidden">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">數學小考單元標籤</label>
+                            <select id="math-quiz-unit-val" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-blue-50/50 font-medium"></select>
+                        </div>
                     </div>
+
+                    <!-- 國語小考與雲端速測 勾選區 -->
                     <div id="dynamic-cloud-quiz" class="dynamic-hidden bg-blue-50 p-3 rounded-lg border border-blue-100">
                         <label class="block text-xs font-semibold text-slate-600 mb-2">國語單元範圍（可複選）</label>
                         <div id="lesson-checkboxes" class="grid grid-cols-3 md:grid-cols-6 gap-3 text-sm"></div>
                     </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div id="score-number-container">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">分數</label>
@@ -200,18 +210,34 @@
                     <button type="button" id="tab-daily-final" onclick="switchDailyPeriodTab('期末')" class="px-5 py-2.5 font-bold text-slate-500 hover:text-blue-500 border-b-2 border-transparent transition-colors">期末平時成績</button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud text-sky-500"></i> 雲端速測登記紀錄</h3>
-                        <div id="block-cloud"></div>
+                <div id="daily-blocks-wrapper" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-cloud text-sky-500"></i> 雲端速測</h3>
+                            <div id="block-cloud"></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-file-pen text-amber-500"></i> 國語小考</h3>
+                            <div id="block-c-quiz"></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-calculator text-indigo-500"></i> 數學小考</h3>
+                            <div id="block-m-quiz"></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-book text-emerald-500"></i> 作業分數</h3>
+                            <div id="block-homework"></div>
+                        </div>
                     </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-file-pen text-amber-500"></i> 小考所有登記分數</h3>
-                        <div id="block-quiz"></div>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-book text-emerald-500"></i> 作業所有登記分數與等第</h3>
-                        <div id="block-homework"></div>
+
+                    <!-- 下方呈現各項平均區塊 -->
+                    <div class="bg-indigo-50 p-5 rounded-xl shadow-sm border border-indigo-200">
+                        <h3 class="font-bold text-indigo-900 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-simple"></i> 期程各項平均統計
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-center" id="student-daily-averages">
+                            <!-- JS 動態生成 -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -220,7 +246,7 @@
             <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4">
                 <div class="flex flex-wrap justify-between items-center border-b pb-3 gap-3">
                     <h3 class="font-bold text-amber-900 text-base flex items-center gap-2">
-                        <i class="fa-solid fa-calculator text-amber-600"></i> 全班學生平時成績與評量結算總表
+                        <i class="fa-solid fa-calculator text-amber-600"></i> 全班平時成績與評量結算總表
                     </h3>
                     <div class="flex items-center gap-2">
                         <select id="teacher-calc-period" class="border border-amber-300 rounded-lg p-2 text-sm font-bold bg-amber-50 text-amber-900">
@@ -232,7 +258,7 @@
                         </button>
                     </div>
                 </div>
-                <p class="text-xs text-slate-500">說明：此表合併計算「平時評量」總分與「平時成績」中的各項作業、小考平均。</p>
+                <p class="text-xs text-slate-500">說明：此表合併計算「平時評量」總分與各項「平時成績」之平均。</p>
                 <div id="teacher-daily-summary-wrapper" class="table-wrapper"></div>
             </div>
 
@@ -242,7 +268,7 @@
             </div>
         </section>
 
-        <!-- ★ 獨立出來的：平時評量 ★ -->
+        <!-- 平時評量 -->
         <section id="sec-regular" class="content-sec hidden space-y-6">
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-4 text-slate-800"><i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄平時評量</h2>
@@ -332,10 +358,8 @@
                 </form>
             </div>
 
-            <!-- 學生/家長端定期評量統計 -->
             <div id="student-exam-stats-container" class="student-only"></div>
 
-            <!-- 全班定期評量總分排名 (老師視角) -->
             <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-3">
                     <h3 class="font-bold text-amber-900 text-base flex items-center gap-2">
@@ -370,7 +394,6 @@
                             <option value="每週一句">每週一句</option>
                         </select>
                     </div>
-                    <!-- 英檢動態選單 -->
                     <div id="lang-vocab-level-container">
                         <label class="block text-xs font-semibold mb-1 text-slate-600">級數選擇</label>
                         <select id="lang-vocab-level" onchange="updateVocabStageOptions()" class="w-full border p-2 rounded-lg text-sm">
@@ -381,7 +404,6 @@
                         <label class="block text-xs font-semibold mb-1 text-slate-600">關卡選擇</label>
                         <select id="lang-vocab-stage" class="w-full border p-2 rounded-lg text-sm"></select>
                     </div>
-                    <!-- 每週一句動態選單 -->
                     <div id="lang-weekly-container" class="dynamic-hidden md:col-span-2">
                         <label class="block text-xs font-semibold mb-1 text-slate-600">每週一句關卡 (1 ~ 16 句)</label>
                         <select id="lang-weekly-stage" class="w-full border p-2 rounded-lg text-sm bg-blue-50/50"></select>
@@ -569,9 +591,8 @@ let STUDENTS = ["01號 王小明", "02號 李小美", "03號 張大同", "04號 
 const VALID_ROLES = ["student", "teacher", "parent"];
 
 let currentDailyTabPeriod = "期中"; 
-let currentRegularTabPeriod = "期中"; // 獨立出來的平時評量頁籤
+let currentRegularTabPeriod = "期中"; 
 
-// 等第轉分數對照表
 const GRADE_CONVERT = { '甲上上': 95, '甲上': 90, '甲': 85, '甲下': 80, '甲下下': 75 };
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -683,11 +704,15 @@ function loadData() {
         records = saved ? JSON.parse(saved) : [];
         if (!Array.isArray(records)) records = [];
 
-        // 【資料遷移邏輯】：將舊資料中的 `mainCat: "平時成績"` 且 `subCat: "平時評量"` 修改為獨立的 `mainCat: "平時評量"`
+        // 自動資料遷移
         let dataMigrated = false;
         records.forEach(r => {
             if (r.mainCat === "平時成績" && r.subCat === "平時評量") {
                 r.mainCat = "平時評量";
+                dataMigrated = true;
+            }
+            if (r.mainCat === "平時成績" && r.subCat === "小考分數") {
+                r.subCat = "國語小考";
                 dataMigrated = true;
             }
         });
@@ -725,7 +750,7 @@ function switchRole(role) {
 }
 
 function switchTab(tabKey) {
-    const validTabs = ["overview", "daily", "regular", "exam", "language", "reading", "support", "import-students", "review"]; // 加入 regular
+    const validTabs = ["overview", "daily", "regular", "exam", "language", "reading", "support", "import-students", "review"]; 
     if (!validTabs.includes(tabKey)) tabKey = "overview";
     if ((tabKey === "review" || tabKey === "import-students") && currentRole !== "teacher") return alert("只有老師可以使用此功能。");
 
@@ -767,14 +792,32 @@ function updateDailyForm() {
     const subcat = document.getElementById("daily-subcat").value;
     const hwType = document.getElementById("hw-type").value;
 
-    ["dynamic-cloud-quiz", "dynamic-hw", "score-number-container", "score-grade-container"]
+    ["dynamic-cloud-quiz", "dynamic-hw", "dynamic-math-quiz", "score-number-container", "score-grade-container"]
         .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add("dynamic-hidden"); });
 
-    if (subcat === "雲端速測" || subcat === "小考分數") {
+    if (subcat === "雲端速測" || subcat === "國語小考") {
         show("dynamic-cloud-quiz"); show("score-number-container");
+    } else if (subcat === "數學小考") {
+        show("dynamic-math-quiz"); show("score-number-container");
+        updateMathQuizUnitOptions();
     } else if (subcat === "作業分數") {
         show("dynamic-hw"); updateHwUnitOptions(hwType);
     }
+}
+
+// 數學小考範圍動態產生
+function updateMathQuizUnitOptions() {
+    const unitSelect = document.getElementById("math-quiz-unit-val");
+    if (!unitSelect) return;
+    const period = document.getElementById("daily-period") ? document.getElementById("daily-period").value : "期中";
+    
+    let options = [];
+    let start = period === "期中" ? 1 : 6;
+    let end = period === "期中" ? 5 : 10;
+    for (let i = start; i <= end; i++) options.push(`第${numberToChinese(i)}單元`);
+    options.push(period === "期中" ? "綜合練習（一）" : "綜合練習（二）");
+    
+    unitSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join("");
 }
 
 function updateHwUnitOptions(hwType) {
@@ -828,11 +871,16 @@ function addRecord(mainCat) {
     if (mainCat === "平時成績") {
         period = document.getElementById("daily-period").value;
         subCat = document.getElementById("daily-subcat").value;
-        if (subCat === "雲端速測" || subCat === "小考分數") {
+        if (subCat === "雲端速測" || subCat === "國語小考") {
             const checked = Array.from(document.querySelectorAll('input[name="lesson-cb"]:checked')).map(cb => cb.value);
             if (checked.length === 0) return alert("請選擇課別");
             if (!document.getElementById("daily-score-val").value) return alert("請輸入分數");
             title = "國語 第 " + checked.join("、") + " 課"; 
+            score = document.getElementById("daily-score-val").value + " 分";
+        } else if (subCat === "數學小考") {
+            const unit = document.getElementById("math-quiz-unit-val").value;
+            if (!document.getElementById("daily-score-val").value) return alert("請輸入分數");
+            title = `數學小考（${unit}）`; 
             score = document.getElementById("daily-score-val").value + " 分";
         } else if (subCat === "作業分數") {
             const hwType = document.getElementById("hw-type").value;
@@ -844,7 +892,7 @@ function addRecord(mainCat) {
                 title = `${hwType}（${unit}）`; score = document.getElementById("daily-score-val").value + " 分";
             }
         }
-    } else if (mainCat === "平時評量") { // 獨立平時評量處理
+    } else if (mainCat === "平時評量") { 
         period = document.getElementById("regular-period").value;
         subCat = "平時評量";
         title = document.getElementById("regular-subject").value;
@@ -966,7 +1014,7 @@ function renderAll() {
 
     renderOverview(filtered);
     renderDailySection(filtered); 
-    renderRegularSection(filtered); // 渲染獨立平時評量
+    renderRegularSection(filtered); 
     renderCategoryList("daily-list", "平時成績", filtered);
     renderCategoryList("regular-list", "平時評量", filtered);
     renderCategoryList("exam-list", "定期評量成績", filtered);
@@ -983,12 +1031,46 @@ function renderAll() {
 
 function renderDailySection(filteredData) {
     const studentRecords = filteredData.filter(r => r.mainCat === "平時成績" && (r.period === currentDailyTabPeriod || (!r.period && currentDailyTabPeriod === "期中")));
+    
     renderListBlock('block-cloud', studentRecords.filter(r => r.subCat === '雲端速測'));
-    renderListBlock('block-quiz', studentRecords.filter(r => r.subCat === '小考分數'));
+    renderListBlock('block-c-quiz', studentRecords.filter(r => r.subCat === '國語小考'));
+    renderListBlock('block-m-quiz', studentRecords.filter(r => r.subCat === '數學小考'));
     renderListBlock('block-homework', studentRecords.filter(r => r.subCat === '作業分數'));
+
+    // 計算學生端各項平均
+    const calcAvg = (list, keyword = "") => {
+        let sum = 0, cnt = 0;
+        list.forEach(r => {
+            if (keyword && !r.title.includes(keyword)) return;
+            const m = r.score.match(/(\d+)/);
+            if (m) { sum += Number(m[1]); cnt++; }
+            else if (GRADE_CONVERT[r.score]) { sum += GRADE_CONVERT[r.score]; cnt++; }
+        });
+        return cnt > 0 ? (sum / cnt).toFixed(1) : '-';
+    };
+
+    const cloudAvg = calcAvg(studentRecords.filter(r => r.subCat === '雲端速測'));
+    const cQuizAvg = calcAvg(studentRecords.filter(r => r.subCat === '國語小考'));
+    const mQuizAvg = calcAvg(studentRecords.filter(r => r.subCat === '數學小考'));
+    
+    const hwRecords = studentRecords.filter(r => r.subCat === '作業分數');
+    const cHwAvg = calcAvg(hwRecords, '國習');
+    const mHwAvg = calcAvg(hwRecords, '數習');
+    const wHwAvg = calcAvg(hwRecords, '作文');
+
+    const avgContainer = document.getElementById('student-daily-averages');
+    if (avgContainer) {
+        avgContainer.innerHTML = `
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-xs font-bold text-slate-500 mb-1">雲端速測</span><span class="text-xl font-black text-sky-600">${cloudAvg}</span></div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-xs font-bold text-slate-500 mb-1">國語小考</span><span class="text-xl font-black text-amber-600">${cQuizAvg}</span></div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-xs font-bold text-slate-500 mb-1">數學小考</span><span class="text-xl font-black text-indigo-600">${mQuizAvg}</span></div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-xs font-bold text-slate-500 mb-1">國習平均</span><span class="text-xl font-black text-emerald-600">${cHwAvg}</span></div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-xs font-bold text-slate-500 mb-1">數習平均</span><span class="text-xl font-black text-emerald-600">${mHwAvg}</span></div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-xs font-bold text-slate-500 mb-1">作文平均</span><span class="text-xl font-black text-emerald-600">${wHwAvg}</span></div>
+        `;
+    }
 }
 
-// ★ 獨立平時評量展示區塊渲染
 function renderRegularSection(filteredData) {
     const regularRecords = filteredData.filter(r => r.mainCat === "平時評量" && (r.period === currentRegularTabPeriod || (!r.period && currentRegularTabPeriod === "期中")));
     
@@ -1037,8 +1119,18 @@ function calculateDailySummary() {
     const targetPeriod = document.getElementById("teacher-calc-period").value;
     let summaryResults = [];
 
+    const getAvg = (list, keyword = "") => {
+        let sum = 0, cnt = 0;
+        list.forEach(r => {
+            if (keyword && !r.title.includes(keyword)) return;
+            const m = r.score.match(/(\d+)/);
+            if (m) { sum += Number(m[1]); cnt++; } 
+            else if (GRADE_CONVERT[r.score]) { sum += GRADE_CONVERT[r.score]; cnt++; }
+        });
+        return cnt > 0 ? (sum / cnt).toFixed(1) : '-';
+    };
+
     STUDENTS.forEach(studentName => {
-        // ★ 這裡需要同時抓取「平時評量」與「平時成績」的資料做統一結算
         const studentRegulars = records.filter(r => r.student === studentName && r.mainCat === "平時評量" && (r.period === targetPeriod || (!r.period && targetPeriod === "期中")));
         const studentDailies = records.filter(r => r.student === studentName && r.mainCat === "平時成績" && (r.period === targetPeriod || (!r.period && targetPeriod === "期中")));
 
@@ -1049,25 +1141,16 @@ function calculateDailySummary() {
             if(m) { regScores[r.title] = m[1]; regTotal += Number(m[1]); }
         });
 
-        const cloudRecords = studentDailies.filter(r => r.subCat === '雲端速測');
-        const quizRecords = studentDailies.filter(r => r.subCat === '小考分數');
-        const getAvg = (list) => {
-            let sum = 0, cnt = 0;
-            list.forEach(r => { const m = r.score.match(/(\d+)/); if (m) { sum += Number(m[1]); cnt++; } });
-            return cnt > 0 ? (sum / cnt).toFixed(1) : '無';
-        };
-
         const hwRecords = studentDailies.filter(r => r.subCat === '作業分數');
-        let hwSum = 0, hwCnt = 0;
-        hwRecords.forEach(r => {
-            const m = r.score.match(/(\d+)/);
-            if (m) { hwSum += Number(m[1]); hwCnt++; } 
-            else if (GRADE_CONVERT[r.score]) { hwSum += GRADE_CONVERT[r.score]; hwCnt++; }
-        });
 
         summaryResults.push({
             studentName, regScores, regTotal,
-            cloudAvg: getAvg(cloudRecords), quizAvg: getAvg(quizRecords), hwAvg: hwCnt > 0 ? (hwSum / hwCnt).toFixed(1) : '無'
+            cloudAvg: getAvg(studentDailies.filter(r => r.subCat === '雲端速測')), 
+            cQuizAvg: getAvg(studentDailies.filter(r => r.subCat === '國語小考')), 
+            mQuizAvg: getAvg(studentDailies.filter(r => r.subCat === '數學小考')),
+            cHwAvg: getAvg(hwRecords, '國習'),
+            mHwAvg: getAvg(hwRecords, '數習'),
+            wHwAvg: getAvg(hwRecords, '作文')
         });
     });
 
@@ -1078,26 +1161,34 @@ function calculateDailySummary() {
             <tr>
                 <th class="p-2 border" rowspan="2">學生姓名</th>
                 <th class="p-2 border" colspan="6">平時評量 (定期測驗)</th>
-                <th class="p-2 border" rowspan="2">雲測均</th>
-                <th class="p-2 border" rowspan="2">小考均</th>
-                <th class="p-2 border" rowspan="2">作業均</th>
+                <th class="p-2 border" colspan="6">各項平時成績平均</th>
             </tr>
             <tr>
                 <th class="p-1 border bg-amber-50">國</th><th class="p-1 border bg-amber-50">英</th>
                 <th class="p-1 border bg-amber-50">數</th><th class="p-1 border bg-amber-50">自</th>
                 <th class="p-1 border bg-amber-50">社</th><th class="p-1 border bg-amber-200">總分</th>
+                <th class="p-1 border bg-sky-50 text-[10px]">雲端速測</th>
+                <th class="p-1 border bg-amber-50 text-[10px]">國語小考</th>
+                <th class="p-1 border bg-indigo-50 text-[10px]">數學小考</th>
+                <th class="p-1 border bg-emerald-50 text-[10px]">國習</th>
+                <th class="p-1 border bg-emerald-50 text-[10px]">數習</th>
+                <th class="p-1 border bg-emerald-50 text-[10px]">作文</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-200">`;
     summaryResults.forEach(item => {
         html += `<tr>
-            <td class="p-2 border font-bold bg-slate-50">${escapeHTML(item.studentName)}</td>
+            <td class="p-2 border font-bold bg-slate-50 whitespace-nowrap">${escapeHTML(item.studentName)}</td>
             <td class="p-2 border">${item.regScores['國語']}</td><td class="p-2 border">${item.regScores['英語']}</td>
             <td class="p-2 border">${item.regScores['數學']}</td><td class="p-2 border">${item.regScores['自然']}</td>
             <td class="p-2 border">${item.regScores['社會']}</td><td class="p-2 border font-bold text-indigo-700 bg-indigo-50">${item.regTotal > 0 ? item.regTotal : '-'}</td>
-            <td class="p-2 border font-semibold text-sky-700">${item.cloudAvg}</td>
-            <td class="p-2 border font-semibold text-amber-700">${item.quizAvg}</td>
-            <td class="p-2 border font-semibold text-emerald-700">${item.hwAvg}</td>
+            
+            <td class="p-1 border font-semibold text-sky-700">${item.cloudAvg}</td>
+            <td class="p-1 border font-semibold text-amber-700">${item.cQuizAvg}</td>
+            <td class="p-1 border font-semibold text-indigo-700">${item.mQuizAvg}</td>
+            <td class="p-1 border font-semibold text-emerald-700">${item.cHwAvg}</td>
+            <td class="p-1 border font-semibold text-emerald-700">${item.mHwAvg}</td>
+            <td class="p-1 border font-semibold text-emerald-700">${item.wHwAvg}</td>
         </tr>`;
     });
     html += `</tbody></table>`;
@@ -1377,10 +1468,9 @@ function resetTestData() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // 將新增加的 regular-form 也綁定提交事件
     const forms = [
         { id: "daily-form", cat: "平時成績" }, 
-        { id: "regular-form", cat: "平時評量" }, // 獨立平時評量
+        { id: "regular-form", cat: "平時評量" }, 
         { id: "exam-form", cat: "定期評量成績" }, 
         { id: "language-form", cat: "語文檢定" }, 
         { id: "reading-form", cat: "閱讀成長" }, 
@@ -1391,7 +1481,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (el) el.addEventListener("submit", function (e) { e.preventDefault(); addRecord(f.cat); });
     });
     
-    // 定期評量 Enter 送出不跳轉
     const examScoreInput = document.getElementById("exam-score");
     if (examScoreInput) {
         examScoreInput.addEventListener('keydown', function(e) {
@@ -1399,7 +1488,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 獨立平時評量 Enter 送出不跳轉
     const regularScoreInput = document.getElementById("regular-score");
     if (regularScoreInput) {
         regularScoreInput.addEventListener('keydown', function(e) {
@@ -1411,6 +1499,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (dailyPeriod) {
         dailyPeriod.addEventListener("change", function() {
             createLessonCheckboxes();
+            updateMathQuizUnitOptions();
             updateDailyForm();
         });
     }
