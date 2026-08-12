@@ -127,14 +127,14 @@
                 <h2 class="text-lg font-bold mb-4 text-slate-800"><i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄平時成績</h2>
                 <form id="daily-form" class="flex flex-col gap-4">
                     
-                    <!-- 階段7：新增結算期程下拉選單 -->
+                    <!-- 結算期程下拉選單 -->
                     <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100 flex items-center gap-3">
                         <label class="font-bold text-slate-700 text-sm">結算期程：</label>
                         <select id="daily-period" class="border border-blue-300 rounded-lg p-2 text-sm font-bold text-blue-700 bg-white">
                             <option value="期中">期中</option>
                             <option value="期末">期末</option>
                         </select>
-                        <span class="text-xs text-slate-500 ml-2">※ 提交後系統會為您保留此設定</span>
+                        <span class="text-xs text-slate-500 ml-2">※ 範圍選單會依據期中/期末自動調整</span>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -200,41 +200,33 @@
                 </form>
             </div>
 
-            <!-- 學生端四大獨立顯示區塊 (階段7新增頁籤) -->
+            <!-- 學生端四大獨立顯示區塊 (頁籤) -->
             <div class="space-y-4">
-                
                 <div class="flex border-b border-slate-200">
                     <button type="button" id="tab-daily-midterm" onclick="switchDailyPeriodTab('期中')" class="px-5 py-2.5 font-bold text-blue-600 border-b-2 border-blue-600 transition-colors">期中平時成績</button>
                     <button type="button" id="tab-daily-final" onclick="switchDailyPeriodTab('期末')" class="px-5 py-2.5 font-bold text-slate-500 hover:text-blue-500 border-b-2 border-transparent transition-colors">期末平時成績</button>
                 </div>
 
                 <div id="daily-blocks-wrapper" class="space-y-6">
-                    <!-- 區塊 1: 平時評量 (5科 + 總分) -->
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                         <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
                             <i class="fa-solid fa-square-poll-vertical text-blue-600"></i> 平時評量五科分數與總分
                         </h3>
                         <div id="block-regular"></div>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- 區塊 2: 雲端速測 -->
                         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                             <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
                                 <i class="fa-solid fa-cloud text-sky-500"></i> 雲端速測登記紀錄
                             </h3>
                             <div id="block-cloud"></div>
                         </div>
-
-                        <!-- 區塊 3: 小考分數 -->
                         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                             <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
                                 <i class="fa-solid fa-file-pen text-amber-500"></i> 小考所有登記分數
                             </h3>
                             <div id="block-quiz"></div>
                         </div>
-
-                        <!-- 區塊 4: 作業分數 -->
                         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                             <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
                                 <i class="fa-solid fa-book text-emerald-500"></i> 作業所有登記分數與等第
@@ -245,7 +237,7 @@
                 </div>
             </div>
 
-            <!-- 老師端平時成績結算區塊 (階段7新增下拉) -->
+            <!-- 老師端平時成績結算區塊 -->
             <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4">
                 <div class="flex flex-wrap justify-between items-center border-b pb-3 gap-3">
                     <h3 class="font-bold text-amber-900 text-base flex items-center gap-2">
@@ -304,7 +296,7 @@
                 </form>
             </div>
 
-            <!-- 學生/家長端定期評量統計 (階段7新增) -->
+            <!-- 學生/家長端定期評量統計 -->
             <div id="student-exam-stats-container" class="student-only"></div>
 
             <!-- 全班定期評量總分排名 (老師視角) -->
@@ -332,7 +324,6 @@
 
         <!-- 語文檢定 -->
         <section id="sec-language" class="content-sec hidden space-y-6">
-            <!-- 原有語文檢定內容... (此部分未變動，保留您的原代碼) -->
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-4 text-slate-800"><i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄語文檢定成績</h2>
                 <form id="language-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -371,14 +362,11 @@
                     </div>
                 </form>
             </div>
-            <!-- 紀錄清單 -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h3 class="font-bold text-slate-800 mb-4">語文檢定提交紀錄列表</h3>
                 <div class="table-wrapper"><table class="w-full text-sm text-left"><tbody id="lang-list" class="divide-y divide-slate-100"></tbody></table></div>
             </div>
-            <!-- 英檢四大級數關卡矩陣 & 每週一句矩陣 -->
             <div class="space-y-6">
-                <!-- 學生 / 家長視角個人總表 -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
                     <div>
                         <div class="flex justify-between items-center mb-3">
@@ -396,7 +384,6 @@
                         <div id="student-weekly-matrix-wrapper" class="table-wrapper"></div>
                     </div>
                 </div>
-                <!-- 老師視角全班闖關總表 -->
                 <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-6">
                     <div>
                         <div class="flex justify-between items-center border-b pb-3 mb-3">
@@ -416,9 +403,8 @@
             </div>
         </section>
 
-        <!-- 閱讀成長 (喜閱網12色標分級) -->
+        <!-- 閱讀成長 -->
         <section id="sec-reading" class="content-sec hidden space-y-6">
-            <!-- 內容與原代碼相同，省略展開以節省篇幅 -->
             <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl space-y-3">
                 <h3 class="font-bold text-emerald-900 text-base flex items-center gap-2"><i class="fa-solid fa-book-bookmark text-emerald-600"></i> 喜閱網 12 色標年級分級對應與規則</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-xs text-emerald-800">
@@ -465,7 +451,6 @@
 
         <!-- 學習扶助 -->
         <section id="sec-support" class="content-sec hidden space-y-6">
-            <!-- 內容與原代碼相同 -->
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="support-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -608,11 +593,21 @@ function loadDefaultStudents() {
     }
 }
 
+/* ★ 動態渲染勾選範圍 (依據期中期末) ★ */
 function createLessonCheckboxes() {
     const container = document.getElementById("lesson-checkboxes");
     if (!container) return;
+    
+    // 取得當前結算期程
+    const periodEl = document.getElementById("daily-period");
+    const period = periodEl ? periodEl.value : "期中";
+    
+    // 期中：1-6課，期末：7-12課
+    let start = period === "期中" ? 1 : 7;
+    let end = period === "期中" ? 6 : 12;
+
     let html = "";
-    for (let i = 1; i <= 12; i++) {
+    for (let i = start; i <= end; i++) {
         html += `<label class="flex items-center gap-2 cursor-pointer p-1"><input type="checkbox" name="lesson-cb" value="${i}" class="w-4 h-4 text-blue-600 rounded"><span>第${i}課</span></label>`;
     }
     container.innerHTML = html;
@@ -702,28 +697,23 @@ function switchTab(tabKey) {
     if (section) section.classList.remove("hidden");
 }
 
-/* 階段7新增：平時成績展示頁籤切換 */
 function switchDailyPeriodTab(period) {
     currentDailyTabPeriod = period;
     
     const btnMid = document.getElementById('tab-daily-midterm');
     const btnFin = document.getElementById('tab-daily-final');
     
-    // 重設樣式
     [btnMid, btnFin].forEach(btn => {
         btn.classList.remove('text-blue-600', 'border-blue-600');
         btn.classList.add('text-slate-500', 'border-transparent');
     });
 
-    // 啟動點擊樣式
     const activeBtn = period === '期中' ? btnMid : btnFin;
     activeBtn.classList.remove('text-slate-500', 'border-transparent');
     activeBtn.classList.add('text-blue-600', 'border-blue-600');
 
-    // 重新渲染畫面
     renderAll(); 
 }
-
 
 function updateDailyForm() {
     const subcat = document.getElementById("daily-subcat").value;
@@ -741,26 +731,46 @@ function updateDailyForm() {
     }
 }
 
+/* ★ 動態渲染作業範圍 (依據期中期末) ★ */
 function updateHwUnitOptions(hwType) {
     const unitSelect = document.getElementById("hw-unit-val");
     const label = document.getElementById("hw-unit-label");
     if (!unitSelect) return;
+    
     const prevVal = unitSelect.value;
+    
+    // 取得當前結算期程
+    const periodEl = document.getElementById("daily-period");
+    const period = periodEl ? periodEl.value : "期中";
+    
     let options = [];
+    
     if (hwType === "國習") {
         if (label) label.textContent = "國習課別標籤";
-        for (let i = 1; i <= 12; i++) options.push(`第${numberToChinese(i)}課`);
+        let start = period === "期中" ? 1 : 7;
+        let end = period === "期中" ? 6 : 12;
+        for (let i = start; i <= end; i++) options.push(`第${numberToChinese(i)}課`);
         show("score-grade-container");
+        
     } else if (hwType === "數習") {
         if (label) label.textContent = "數習單元標籤";
-        for (let i = 1; i <= 10; i++) options.push(`第${numberToChinese(i)}單元`);
-        options.push("綜合練習（一）"); options.push("綜合練習（二）");
+        let start = period === "期中" ? 1 : 6;
+        let end = period === "期中" ? 5 : 10;
+        for (let i = start; i <= end; i++) options.push(`第${numberToChinese(i)}單元`);
+        
+        if (period === "期中") {
+            options.push("綜合練習（一）");
+        } else {
+            options.push("綜合練習（二）");
+        }
         show("score-number-container");
+        
     } else if (hwType === "作文") {
         if (label) label.textContent = "作文篇數標籤";
         for (let i = 1; i <= 10; i++) options.push(`第${numberToChinese(i)}篇`);
         show("score-number-container");
     }
+    
     unitSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join("");
     if (options.includes(prevVal)) unitSelect.value = prevVal;
 }
@@ -772,14 +782,13 @@ function numberToChinese(num) {
 
 function show(id) { const el = document.getElementById(id); if (el) el.classList.remove("dynamic-hidden"); }
 
-/* 修正需求 1 & 4：資料儲存與表單行為 */
 function addRecord(mainCat) {
     if (currentRole !== "student") return;
 
     let subCat = ""; let title = ""; let score = ""; let period = ""; 
 
     if (mainCat === "平時成績") {
-        period = document.getElementById("daily-period").value; // 階段7紀錄期程
+        period = document.getElementById("daily-period").value;
         subCat = document.getElementById("daily-subcat").value;
         if (subCat === "平時評量") {
             title = document.getElementById("daily-subject-val").value; 
@@ -803,7 +812,7 @@ function addRecord(mainCat) {
         }
     } else if (mainCat === "定期評量成績") {
         subCat = document.getElementById("exam-subcat").value;
-        period = subCat; // 同步紀錄期程標籤
+        period = subCat; 
         title = document.getElementById("exam-title").value;
         score = document.getElementById("exam-score").value + " 分";
     } else if (mainCat === "語文檢定") {
@@ -829,25 +838,21 @@ function addRecord(mainCat) {
 
     records.unshift({
         id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
-        student: currentStudent, mainCat, subCat, title, score, period, // 新增 period 屬性
+        student: currentStudent, mainCat, subCat, title, score, period,
         status: "pending", visibleToParent: false, createdAt: new Date().toISOString()
     });
     saveData();
     alert("✅ 提交成功！等待老師審核中。");
     
-    // 執行選單記憶與表單重設
     resetFormWithMemory(mainCat);
 }
 
-/* 階段7修正：填入分數後，不要跳至其他科目 (記憶保留與焦點重新綁定) */
 function resetFormWithMemory(mainCat) {
     if (mainCat === "平時成績") {
-        // 記憶下拉，只清空輸入與勾選
         const scoreInput = document.getElementById("daily-score-val");
         if (scoreInput) { scoreInput.value = ""; scoreInput.focus(); }
         document.querySelectorAll('input[name="lesson-cb"]').forEach(cb => cb.checked = false);
     } else if (mainCat === "定期評量成績") {
-        // 定期評量送出後，不要 reset form，只清空分數，以便連續登記！
         const scoreInput = document.getElementById("exam-score");
         if (scoreInput) { scoreInput.value = ""; scoreInput.focus(); }
     } else {
@@ -927,17 +932,13 @@ function renderAll() {
     renderReadingAccumulation();
     renderLanguageMatrices();
     
-    // 定期評量分析與排名
     if (currentRole === "teacher") calculateExamRankings();
     if (currentRole !== "teacher") renderStudentExamStats();
 }
 
-/* 階段7修正：學生平時成績依據「期程Tab」過濾顯示 */
 function renderDailySection(filteredData) {
-    // 依據全局 currentDailyTabPeriod (期中 / 期末) 進行篩選，若舊資料無 period，預設為 '期中'
     const studentRecords = filteredData.filter(r => r.mainCat === "平時成績" && (r.period === currentDailyTabPeriod || (!r.period && currentDailyTabPeriod === "期中")));
 
-    // 1. 平時評量 (五科 + 總分)
     const subjects = ['國語', '英語', '數學', '自然', '社會'];
     let regularTotal = 0;
     let regularHtml = `<div class="grid grid-cols-2 md:grid-cols-6 gap-3">`;
@@ -961,7 +962,6 @@ function renderDailySection(filteredData) {
     const blockRegular = document.getElementById('block-regular');
     if (blockRegular) blockRegular.innerHTML = regularHtml;
 
-    // 2~4. 其他列表區塊
     renderListBlock('block-cloud', studentRecords.filter(r => r.subCat === '雲端速測'));
     renderListBlock('block-quiz', studentRecords.filter(r => r.subCat === '小考分數'));
     renderListBlock('block-homework', studentRecords.filter(r => r.subCat === '作業分數'));
@@ -983,16 +983,14 @@ function renderListBlock(elementId, listData) {
     html += `</ul>`; el.innerHTML = html;
 }
 
-/* 階段7修正：老師平時成績結算 (依據期中/期末篩選) */
 function calculateDailySummary() {
     if (STUDENTS.length === 0) return;
-    const targetPeriod = document.getElementById("teacher-calc-period").value; // 取得期中/期末
+    const targetPeriod = document.getElementById("teacher-calc-period").value;
     let summaryResults = [];
 
     STUDENTS.forEach(studentName => {
         const studentRecords = records.filter(r => r.student === studentName && r.mainCat === "平時成績" && (r.period === targetPeriod || (!r.period && targetPeriod === "期中")));
 
-        // 計算平時評量各科與總分
         let regScores = { '國語': '-', '英語': '-', '數學': '-', '自然': '-', '社會': '-' };
         let regTotal = 0;
         studentRecords.filter(r => r.subCat === '平時評量').forEach(r => {
@@ -1000,7 +998,6 @@ function calculateDailySummary() {
             if(m) { regScores[r.title] = m[1]; regTotal += Number(m[1]); }
         });
 
-        // 雲端 / 小考
         const cloudRecords = studentRecords.filter(r => r.subCat === '雲端速測');
         const quizRecords = studentRecords.filter(r => r.subCat === '小考分數');
         const getAvg = (list) => {
@@ -1009,7 +1006,6 @@ function calculateDailySummary() {
             return cnt > 0 ? (sum / cnt).toFixed(1) : '無';
         };
 
-        // 作業平均 (含等第)
         const hwRecords = studentRecords.filter(r => r.subCat === '作業分數');
         let hwSum = 0, hwCnt = 0;
         hwRecords.forEach(r => {
@@ -1057,22 +1053,16 @@ function calculateDailySummary() {
     wrapper.innerHTML = html;
 }
 
-/* 階段7修正：學生與家長端 定期評量統計、排名、班平均 */
 function renderStudentExamStats() {
     const container = document.getElementById("student-exam-stats-container");
     if(!container) return;
+    if(STUDENTS.length === 0) { container.innerHTML = ""; return; }
 
-    if(STUDENTS.length === 0) {
-        container.innerHTML = ""; return;
-    }
-
-    // 取得當前要展示的期別（抓取最近一筆登記，或是預設期中/期末）
     const studentExams = records.filter(r => r.student === currentStudent && r.mainCat === "定期評量成績");
     if(studentExams.length === 0) {
         container.innerHTML = `<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center text-slate-500 text-sm">尚無定期評量成績</div>`; return;
     }
     
-    // 簡單判斷最近填寫的期別
     const latestPeriod = studentExams[0].period || studentExams[0].subCat || "期中評量";
 
     let classTotals = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
@@ -1081,8 +1071,6 @@ function renderStudentExamStats() {
 
     STUDENTS.forEach(studentName => {
         const exams = records.filter(r => r.student === studentName && r.mainCat === "定期評量成績" && (r.period === latestPeriod || r.subCat === latestPeriod));
-        
-        // 此處不論身份，必須強制使用全班「所有狀態」或「已審核」資料計算。為求準確，班平均以全班資料算。
         let total = 0;
         exams.forEach(r => {
             const m = r.score.match(/(\d+)/);
@@ -1112,7 +1100,6 @@ function renderStudentExamStats() {
         <h3 class="font-bold text-indigo-900 mb-4 flex items-center gap-2">
             <i class="fa-solid fa-chart-line"></i> 【${latestPeriod}】個人總成績與班級統計
         </h3>
-        
         <div class="grid grid-cols-2 gap-4 mb-5">
             <div class="bg-white p-4 rounded-lg shadow-sm text-center border border-indigo-100">
                 <span class="text-sm font-bold text-indigo-500 block mb-1">我的五科總分</span>
@@ -1123,14 +1110,12 @@ function renderStudentExamStats() {
                 <span class="text-3xl font-black text-amber-600">${myData.totalScore > 0 ? myData.rank : '-'}</span>
             </div>
         </div>
-
         <h4 class="text-xs font-bold text-slate-500 mb-2">📊 班級各科平均</h4>
         <div class="grid grid-cols-5 gap-2 text-center text-xs">`;
     
     ['國語', '英語', '數學', '自然', '社會'].forEach(sub => {
         const avg = classCounts[sub] > 0 ? (classTotals[sub] / classCounts[sub]).toFixed(1) : '-';
-        html += `
-            <div class="bg-white/80 p-2 rounded border border-slate-200">
+        html += `<div class="bg-white/80 p-2 rounded border border-slate-200">
                 <span class="block font-bold text-slate-600">${sub}</span>
                 <span class="text-slate-800 font-semibold">${avg}</span>
             </div>`;
@@ -1185,7 +1170,6 @@ function calculateExamRankings() {
     wrapper.innerHTML = html;
 }
 
-/* 語文與閱讀相關圖表 (精簡化保留原有邏輯) */
 function renderLanguageMatrices() {
     renderStudentLanguageMatrix(currentStudent);
     if (currentRole === "teacher") renderTeacherLanguageMatrix();
@@ -1348,15 +1332,22 @@ document.addEventListener("DOMContentLoaded", function () {
         if (el) el.addEventListener("submit", function (e) { e.preventDefault(); addRecord(f.cat); });
     });
     
-    // 定期評量輸入框特殊處理：防止 Enter 跳脫，直接提交並返回游標 (Requirement 4)
     const examScoreInput = document.getElementById("exam-score");
     if (examScoreInput) {
         examScoreInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault(); 
                 addRecord("定期評量成績"); 
-                // addRecord內部已寫入 resetFormWithMemory 重置焦點
             }
+        });
+    }
+
+    /* ★ 綁定觸發事件：當結算期程變更時，立即重新渲染範圍 ★ */
+    const dailyPeriod = document.getElementById("daily-period");
+    if (dailyPeriod) {
+        dailyPeriod.addEventListener("change", function() {
+            createLessonCheckboxes();
+            updateDailyForm();
         });
     }
 
