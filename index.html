@@ -5,10 +5,12 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>學生成績與學習歷程平台 v3.2</title>
+    <title>學生成績與學習歷程平台 v3.3</title>
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -61,6 +63,8 @@
 
 <body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
 
+<!-- ==================== 頂部 ==================== -->
+
 <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
         <div class="flex items-center space-x-3">
@@ -68,11 +72,12 @@
             <h1 class="text-lg md:text-xl font-bold tracking-wide">
                 學生成績與學習歷程平台
                 <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">
-                    v3.2
+                    v3.3
                 </span>
             </h1>
         </div>
 
+        <!-- 身份切換 -->
         <div class="flex items-center bg-indigo-900/60 p-1 rounded-lg border border-indigo-400/30 text-sm">
             <span class="px-2 text-indigo-200 font-medium hidden sm:inline">
                 當前身份：
@@ -94,8 +99,11 @@
 </header>
 
 
+<!-- ==================== 系統主體 ==================== -->
+
 <div class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 flex flex-col md:flex-row gap-6">
 
+    <!-- ==================== 左側選單 ==================== -->
     <aside class="w-full md:w-64 bg-white rounded-xl shadow-sm border border-slate-200 p-4 shrink-0 h-fit">
         <nav class="space-y-1">
             <button type="button" onclick="switchTab('overview')" id="tab-overview"
@@ -134,6 +142,7 @@
                 <span>學習扶助</span>
             </button>
 
+            <!-- 老師專用 -->
             <button type="button" onclick="switchTab('review')" id="tab-review"
                     class="tab-btn teacher-only hidden w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 font-medium border border-amber-200 mt-4">
                 <i class="fa-solid fa-check-double w-5"></i>
@@ -143,8 +152,10 @@
     </aside>
 
 
+    <!-- ==================== 右側內容 ==================== -->
     <main class="flex-1 space-y-6">
 
+        <!-- ==================== 1. 數據總覽 ==================== -->
         <section id="sec-overview" class="content-sec space-y-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h3 class="font-bold text-slate-800 mb-4">最新紀錄列表</h3>
@@ -168,8 +179,10 @@
         </section>
 
 
+        <!-- ==================== 2. 平時成績 ==================== -->
         <section id="sec-daily" class="content-sec hidden space-y-6">
 
+            <!-- 學生輸入表單 -->
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-4 text-slate-800">
                     <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄平時成績
@@ -178,6 +191,7 @@
                 <form id="daily-form" class="flex flex-col gap-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
+                        <!-- 類別 -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">平時成績細項</label>
                             <select id="daily-subcat" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
@@ -188,6 +202,7 @@
                             </select>
                         </div>
 
+                        <!-- 科目 (平時評量用) -->
                         <div id="dynamic-daily-subject" class="md:col-span-2">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">科目名稱</label>
                             <select id="daily-subject-val" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
@@ -199,6 +214,7 @@
                             </select>
                         </div>
 
+                        <!-- 作業選擇與單元選單標籤 (作業分數用) -->
                         <div id="dynamic-hw" class="md:col-span-2 dynamic-hidden">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
@@ -213,17 +229,20 @@
                                 <div>
                                     <label id="hw-unit-label" class="block text-xs font-semibold text-slate-600 mb-1">課別/單元標籤</label>
                                     <select id="hw-unit-val" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-blue-50/50 font-medium">
-                                        </select>
+                                        <!-- 動態產生單元標籤 -->
+                                    </select>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- 課別 (雲端速測/小考用) -->
                     <div id="dynamic-cloud-quiz" class="dynamic-hidden bg-blue-50 p-3 rounded-lg border border-blue-100">
                         <label class="block text-xs font-semibold text-slate-600 mb-2">國語單元範圍（可複選）</label>
                         <div id="lesson-checkboxes" class="grid grid-cols-3 md:grid-cols-6 gap-3 text-sm"></div>
                     </div>
 
+                    <!-- 分數/等第 -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div id="score-number-container">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">分數</label>
@@ -250,6 +269,7 @@
                 </form>
             </div>
 
+            <!-- 列表 -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div class="table-wrapper">
                     <table class="w-full text-sm text-left">
@@ -260,6 +280,7 @@
         </section>
 
 
+        <!-- ==================== 3. 定期評量 ==================== -->
         <section id="sec-exam" class="content-sec hidden space-y-6">
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="exam-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -272,7 +293,13 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-1">科目</label>
-                        <input type="text" id="exam-title" placeholder="例如：國語、數學" required class="w-full border p-2 rounded-lg text-sm">
+                        <select id="exam-title" class="w-full border p-2 rounded-lg text-sm">
+                            <option value="國語">國語</option>
+                            <option value="數學">數學</option>
+                            <option value="英語">英語</option>
+                            <option value="自然">自然</option>
+                            <option value="社會">社會</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-1">分數</label>
@@ -294,6 +321,7 @@
         </section>
 
 
+        <!-- ==================== 4. 語文檢定 ==================== -->
         <section id="sec-language" class="content-sec hidden space-y-6">
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="language-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -328,6 +356,7 @@
         </section>
 
 
+        <!-- ==================== 5. 閱讀成長 ==================== -->
         <section id="sec-reading" class="content-sec hidden space-y-6">
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="reading-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -355,6 +384,7 @@
         </section>
 
 
+        <!-- ==================== 6. 學習扶助 ==================== -->
         <section id="sec-support" class="content-sec hidden space-y-6">
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <form id="support-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -390,6 +420,7 @@
         </section>
 
 
+        <!-- ==================== 7. 老師審核 ==================== -->
         <section id="sec-review" class="content-sec hidden space-y-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200">
                 <h2 class="text-lg font-bold text-slate-800 mb-4">學生成績檢核與家長發布管理</h2>
@@ -401,6 +432,7 @@
             </div>
         </section>
 
+        <!-- 測試資料重設 -->
         <div class="text-right mt-4">
             <button type="button" onclick="resetTestData()" class="text-xs text-red-500 border border-red-300 px-3 py-2 rounded">
                 一鍵重設測試資料
@@ -410,6 +442,7 @@
 </div>
 
 
+<!-- ==================== 編輯Modal彈窗 (學生修改待審核資料用) ==================== -->
 <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
@@ -437,6 +470,7 @@
 </div>
 
 
+<!-- ==================== JavaScript ==================== -->
 <script>
 "use strict";
 
@@ -462,7 +496,7 @@ document.addEventListener("DOMContentLoaded", function () {
         switchRole(role);
         updateDailyForm();
 
-        console.log("系統初始化完成 v3.2");
+        console.log("系統初始化完成 v3.3");
     } catch (error) {
         console.error("初始化錯誤：", error);
         alert("網頁初始化時發生錯誤。\n請重新整理網頁後再試一次。");
@@ -698,9 +732,8 @@ function addRecord(mainCat) {
         }
     } else if (mainCat === "定期評量成績") {
         subCat = document.getElementById("exam-subcat").value;
-        title = document.getElementById("exam-title").value.trim();
+        title = document.getElementById("exam-title").value;
         const scoreInput = document.getElementById("exam-score");
-        if (!title) { alert("請輸入科目。"); return; }
         if (scoreInput.value === "" || Number(scoreInput.value) < 0 || Number(scoreInput.value) > 100) {
             alert("請輸入 0～100 的分數。"); scoreInput.focus(); return;
         }
