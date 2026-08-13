@@ -707,6 +707,29 @@
     </div>
 </div>
 
+<!-- Modal 評量防呆重複登錄彈窗 (2選項 - 嚴格限制單一分數) -->
+<div id="exam-duplicate-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-5">
+        <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-bold text-amber-600 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> 成績已存在</h3>
+            <button type="button" onclick="closeExamDuplicateModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div class="text-sm text-slate-700 space-y-2">
+            <p>系統發現您已經登錄過此科目的評量成績：</p>
+            <div class="bg-amber-50 text-amber-900 p-3 rounded-lg border border-amber-200 font-semibold" id="exam-duplicate-info-box"></div>
+            <p class="pt-2 text-xs font-bold text-rose-600">⚠️ 平時評量與定期評量一科只能有一個分數。請問是否要用新分數覆蓋舊紀錄？</p>
+        </div>
+        <div class="flex flex-col gap-2 pt-2">
+            <button type="button" onclick="handleExamDuplicateOverride()" class="w-full px-4 py-2 text-white bg-amber-600 rounded-lg text-sm font-medium hover:bg-amber-700 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-left"></i> 覆蓋舊成績
+            </button>
+            <button type="button" onclick="closeExamDuplicateModal()" class="w-full px-4 py-2 text-slate-600 bg-slate-100 rounded-lg text-sm hover:bg-slate-200 transition mt-2">
+                取消 / 回上一步
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal 語文檢定重複登錄彈窗 (2選項 - 取消新增第二筆) -->
 <div id="lang-duplicate-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-5">
@@ -932,12 +955,10 @@ function switchRole(role) {
     // 權限頁籤跳轉邏輯
     const currentActiveTab = document.querySelector(".active-tab");
     if (role === "student" || role === "parent") {
-        // 如果目前在教師專用頁面，或是目前在(被隱藏的)總覽頁面，自動跳轉到平時成績
         if (!currentActiveTab || currentActiveTab.id === "tab-overview" || currentActiveTab.id === "tab-review" || currentActiveTab.id === "tab-import-students" || currentActiveTab.id === "tab-summary") {
             switchTab("daily"); 
         }
     } else {
-        // 老師預設回總覽
         if (!currentActiveTab || currentActiveTab.id === "tab-review" || currentActiveTab.id === "tab-import-students" || currentActiveTab.id === "tab-summary") {
             switchTab("overview");
         }
@@ -1114,7 +1135,7 @@ function exportAssessmentCSV(mainCat, targetPeriod, filenamePrefix) {
     if (currentRole !== 'teacher') return;
     let csvContent = "\uFEFF學生姓名,國語,英語,數學,自然,社會,總分,班級排名\n";
     
-    const { rankData } = getClassRankAndStats(mainCat, targetPeriod); // 已經是基於 approved 計算
+    const { rankData } = getClassRankAndStats(mainCat, targetPeriod); 
     
     STUDENTS.forEach(student => {
         const studentRecords = records.filter(r => r.student === student && r.mainCat === mainCat && matchPeriod(r, targetPeriod) && r.status === "approved");
@@ -1173,6 +1194,37 @@ function handleDuplicateAddSecond() {
     saveData();
     closeDuplicateModal();
     alert("✅ 已新增為第二筆紀錄，等待老師審核中。");
+    resetFormWithMemory(tempDuplicateRecord.mainCat);
+}
+
+// 評量防呆彈窗 (2選項 - 嚴格限制)
+function showExamDuplicateModal(recordObj, existingId) {
+    tempDuplicateRecord = { ...recordObj, existingId };
+    const existingRecord = records.find(r => r.id === existingId);
+    const infoBox = document.getElementById("exam-duplicate-info-box");
+    if (infoBox) {
+        infoBox.innerHTML = `<div>📅 期程：${escapeHTML(recordObj.period)}</div><div>📖 科目：${escapeHTML(recordObj.title)}</div><div>🎯 舊分數：${escapeHTML(existingRecord.score)} (即將被 ${escapeHTML(recordObj.score)} 覆蓋)</div>`;
+    }
+    document.getElementById("exam-duplicate-modal").classList.remove("hidden");
+}
+
+function closeExamDuplicateModal() {
+    tempDuplicateRecord = null;
+    document.getElementById("exam-duplicate-modal").classList.add("hidden");
+}
+
+function handleExamDuplicateOverride() {
+    if (!tempDuplicateRecord) return;
+    const existing = records.find(r => r.id === tempDuplicateRecord.existingId);
+    if (existing) {
+        existing.score = tempDuplicateRecord.score;
+        existing.status = "pending";
+        existing.visibleToParent = false;
+        existing.createdAt = new Date().toISOString();
+    }
+    saveData();
+    closeExamDuplicateModal();
+    alert("✅ 已覆蓋舊成績，並重新送出審核！");
     resetFormWithMemory(tempDuplicateRecord.mainCat);
 }
 
@@ -1276,6 +1328,15 @@ function addRecord(mainCat) {
         const existing = records.find(r => r.student === currentStudent && r.mainCat === mainCat && r.subCat === subCat && r.title === title && r.period === period);
         if (existing) {
             showDuplicateModal(newRecordObj, existing.id);
+            return;
+        }
+    }
+
+    // 平時評量與定期評量重複判斷 (呼叫 2選項防呆 - 嚴格限制單一分數)
+    if (mainCat === "平時評量" || mainCat === "定期評量成績") {
+        const existing = records.find(r => r.student === currentStudent && r.mainCat === mainCat && r.title === title && r.period === period);
+        if (existing) {
+            showExamDuplicateModal(newRecordObj, existing.id);
             return;
         }
     }
