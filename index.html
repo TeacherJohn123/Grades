@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>學生成績與學習歷程平台 v7.7 (學習扶助年度歷程版)</title>
+    <title>學生成績與學習歷程平台 v7.8 (學習扶助優化版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -30,7 +30,7 @@
             <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
             <h1 class="text-lg md:text-xl font-bold tracking-wide">
                 學生成績與學習歷程平台
-                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.7</span>
+                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.8</span>
             </h1>
         </div>
 
@@ -508,7 +508,7 @@
             </div>
         </section>
 
-        <!-- 學習扶助 (v7.7 專案追蹤制 - 年級維度) -->
+        <!-- 學習扶助 (v7.8 專案追蹤制 - 依科目分類總表 & 學生控管總表) -->
         <section id="sec-support" class="content-sec hidden space-y-6">
             <!-- 考古題練習連結 (所有人可見) -->
             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
@@ -556,28 +556,22 @@
                 </form>
             </div>
 
-            <!-- 老師端 追蹤清單 -->
+            <!-- 老師端：以學生為單位的控管表 (v7.8新增) -->
             <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-amber-900 flex items-center gap-2"><i class="fa-solid fa-list-check text-amber-600"></i> 學習扶助專案追蹤表</h3>
+                    <h3 class="font-bold text-amber-900 flex items-center gap-2"><i class="fa-solid fa-users-viewfinder text-amber-600"></i> 學生學習扶助控管總表</h3>
                     <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">老師視角</span>
                 </div>
-                <div class="table-wrapper">
-                    <table class="w-full text-sm text-center border border-slate-200">
-                        <thead class="bg-amber-50 text-amber-900 text-xs">
-                            <tr>
-                                <th class="p-3 border">學生姓名</th>
-                                <th class="p-3 border">年級</th>
-                                <th class="p-3 border">扶助科目</th>
-                                <th class="p-3 border">成長測驗 (上學期)</th>
-                                <th class="p-3 border">篩選測驗 (下學期)</th>
-                                <th class="p-3 border">狀態</th>
-                                <th class="p-3 border">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teacher-support-list" class="divide-y divide-slate-200"></tbody>
-                    </table>
+                <div id="teacher-student-management-list"></div>
+            </div>
+
+            <!-- 老師端：依科目分類的追蹤總表 (v7.8改版並移至最下方) -->
+            <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-amber-900 flex items-center gap-2"><i class="fa-solid fa-list-check text-amber-600"></i> 科目學習扶助專案追蹤表</h3>
+                    <span class="text-xs text-amber-700 font-bold">可在此區塊快速輸入測驗分數</span>
                 </div>
+                <div id="teacher-subject-tracking-list" class="space-y-6"></div>
             </div>
         </section>
 
@@ -712,7 +706,6 @@ function renderStudentDropdown() {
     const input = document.getElementById("import-student-input");
     if (input) input.value = STUDENTS.join("\n");
     
-    // 更新學習扶助老師端表單的名單
     const supportSelect = document.getElementById("support-student-select");
     if (supportSelect) {
         supportSelect.innerHTML = STUDENTS.map(s => `<option value="${escapeHTML(s)}">${escapeHTML(s)}</option>`).join("");
@@ -816,7 +809,6 @@ function loadData() {
         supportRecords = savedSupport ? JSON.parse(savedSupport) : [];
         if (!Array.isArray(supportRecords)) supportRecords = [];
         
-        // 舊資料遷移防呆：若 v7.6 升級過來沒有 grade，預設給 五年級
         let migrated = false;
         supportRecords.forEach(r => {
             if (!r.grade) { r.grade = "五年級"; migrated = true; }
@@ -1064,7 +1056,7 @@ function resetFormWithMemory(mainCat) {
 }
 
 // ==========================================
-// 學習扶助模組功能 (v7.7 加入年級維度)
+// 學習扶助模組功能 (v7.8 老師端雙表格介面)
 // ==========================================
 function handleAddSupport(e) {
     e.preventDefault();
@@ -1078,7 +1070,6 @@ function handleAddSupport(e) {
 
     let addedCount = 0;
     checkedSubjects.forEach(subject => {
-        // v7.7: 避免重複新增同一人、同年級、同科目
         const exists = supportRecords.some(r => r.student === student && r.subject === subject && (r.grade || '五年級') === grade);
         if (!exists) {
             supportRecords.unshift({
@@ -1086,8 +1077,8 @@ function handleAddSupport(e) {
                 student: student,
                 grade: grade,
                 subject: subject,
-                score1: "", // 成長測驗(上學期)
-                score2: "", // 篩選測驗(下學期)
+                score1: "", 
+                score2: "", 
                 isClosed: false,
                 createdAt: new Date().toISOString()
             });
@@ -1142,20 +1133,20 @@ function formatSupportScore(val) {
 function renderSupportSection() {
     const dashboard = document.getElementById("student-support-dashboard");
     const cardsContainer = document.getElementById("student-support-cards");
-    const teacherList = document.getElementById("teacher-support-list");
+    const studentManagementList = document.getElementById("teacher-student-management-list");
+    const subjectTrackingList = document.getElementById("teacher-subject-tracking-list");
 
     if (dashboard) {
         dashboard.style.display = (currentRole === "teacher") ? "none" : "block";
     }
 
-    // 渲染個人看板 (學生/家長可見，按年級分群)
+    // --- 學生/家長端：唯讀看板 ---
     if (cardsContainer && currentRole !== "teacher") {
         const mySupportList = supportRecords.filter(r => r.student === currentStudent);
         if (mySupportList.length === 0) {
             cardsContainer.innerHTML = `<div class="p-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-300">🎉 太棒了！您目前沒有被列管的學習扶助科目。</div>`;
         } else {
             let html = '';
-            // 優先顯示六年級，再顯示五年級
             const displayGrades = ["六年級", "五年級"];
             
             displayGrades.forEach(gradeStr => {
@@ -1193,7 +1184,6 @@ function renderSupportSection() {
                             <div class="mt-3 text-[11px] font-bold text-slate-400 text-center relative z-10">※ 通過標準為 72 分</div>
                         </div>
                     `).join("");
-                    
                     html += `</div></div>`;
                 }
             });
@@ -1201,48 +1191,129 @@ function renderSupportSection() {
         }
     }
 
-    // 渲染老師端總表
-    if (teacherList && currentRole === "teacher") {
+    // --- 老師端：以學生為單位的控管表 (v7.8) ---
+    if (studentManagementList && currentRole === "teacher") {
         if (supportRecords.length === 0) {
-            teacherList.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">尚無列管學生</td></tr>`;
+            studentManagementList.innerHTML = `<div class="p-6 text-center text-slate-400 border border-slate-200 rounded-lg bg-slate-50/50">尚無列管學生資料</div>`;
         } else {
-            // 先按學生排序，再按年級排序
-            const sortedRecords = [...supportRecords].sort((a, b) => {
-                if (a.student < b.student) return -1;
-                if (a.student > b.student) return 1;
-                const gA = a.grade || '五年級'; const gB = b.grade || '五年級';
-                if (gA > gB) return -1; // 六年級排前面
-                if (gA < gB) return 1;
-                return 0;
+            const studentsMap = {};
+            supportRecords.forEach(r => {
+                if (!studentsMap[r.student]) studentsMap[r.student] = { '五年級': [], '六年級': [] };
+                studentsMap[r.student][r.grade || '五年級'].push(r);
             });
 
-            teacherList.innerHTML = sortedRecords.map(r => {
-                const s1Class = r.score1 && Number(r.score1) >= 72 ? 'text-emerald-600 bg-emerald-50' : (r.score1 ? 'text-red-600 bg-red-50' : 'text-slate-700');
-                const s2Class = r.score2 && Number(r.score2) >= 72 ? 'text-emerald-600 bg-emerald-50' : (r.score2 ? 'text-red-600 bg-red-50' : 'text-slate-700');
-                const badgeGrade = r.grade || '五年級';
-                
-                return `<tr class="hover:bg-slate-50 transition">
-                    <td class="p-2 border font-bold text-slate-700">${escapeHTML(r.student)}</td>
-                    <td class="p-2 border">
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded ${badgeGrade === '六年級' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}">${badgeGrade}</span>
-                    </td>
-                    <td class="p-2 border font-bold text-indigo-700">${r.subject}</td>
-                    <td class="p-2 border">
-                        <input type="number" value="${r.score1}" onchange="updateSupportScore('${r.id}', 'score1', this.value)" placeholder="未考" class="w-16 border border-slate-300 rounded p-1 text-center text-sm font-bold ${s1Class} focus:ring-2 focus:ring-amber-300">
-                    </td>
-                    <td class="p-2 border">
-                        <input type="number" value="${r.score2}" onchange="updateSupportScore('${r.id}', 'score2', this.value)" placeholder="未考" class="w-16 border border-slate-300 rounded p-1 text-center text-sm font-bold ${s2Class} focus:ring-2 focus:ring-amber-300">
-                    </td>
-                    <td class="p-2 border">
-                        <button onclick="toggleSupportStatus('${r.id}')" class="px-2.5 py-1 rounded text-[11px] font-bold transition shadow-sm border ${r.isClosed ? 'bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200' : 'bg-rose-100 text-rose-700 border-rose-300 hover:bg-rose-200'}">
-                            ${r.isClosed ? '✅ 已結案' : '⚠️ 列管中'}
-                        </button>
-                    </td>
-                    <td class="p-2 border">
-                        <button onclick="deleteSupport('${r.id}')" class="text-red-400 hover:text-red-600 px-2 py-1 transition" title="刪除此紀錄"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
+            const sortedStudents = Object.keys(studentsMap).sort();
+
+            let html = `<div class="table-wrapper"><table class="w-full text-sm text-center border border-slate-200">
+                <thead class="bg-indigo-50 text-indigo-900 text-xs">
+                    <tr>
+                        <th class="p-3 border w-1/4">學生姓名</th>
+                        <th class="p-3 border w-3/8">五年級列管狀況</th>
+                        <th class="p-3 border w-3/8">六年級列管狀況</th>
+                    </tr>
+                </thead><tbody class="divide-y divide-slate-200">`;
+
+            sortedStudents.forEach(student => {
+                const renderBadges = (records) => {
+                    if (records.length === 0) return '<span class="text-slate-300">-</span>';
+                    return records.map(r => {
+                        const bgClass = r.isClosed ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300';
+                        const icon = r.isClosed ? '✅' : '⚠️';
+                        return `<span class="inline-block m-0.5 text-xs px-2 py-1 rounded border font-bold ${bgClass}">${r.subject} ${icon}</span>`;
+                    }).join("");
+                };
+
+                html += `<tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 border font-bold text-slate-700">${escapeHTML(student)}</td>
+                    <td class="p-2 border">${renderBadges(studentsMap[student]['五年級'])}</td>
+                    <td class="p-2 border">${renderBadges(studentsMap[student]['六年級'])}</td>
                 </tr>`;
-            }).join("");
+            });
+            html += `</tbody></table></div>`;
+            studentManagementList.innerHTML = html;
+        }
+    }
+
+    // --- 老師端：以科目分類的追蹤專案表 (v7.8) ---
+    if (subjectTrackingList && currentRole === "teacher") {
+        if (supportRecords.length === 0) {
+            subjectTrackingList.innerHTML = `<div class="p-6 text-center text-slate-400 border border-slate-200 rounded-lg bg-slate-50/50">尚無列管學生資料</div>`;
+        } else {
+            const subjects = ['國語', '英語', '數學'];
+            let html = '';
+
+            subjects.forEach(subject => {
+                const recordsForSubject = supportRecords.filter(r => r.subject === subject);
+                if (recordsForSubject.length > 0) {
+                    
+                    recordsForSubject.sort((a, b) => {
+                        const gA = a.grade || '五年級'; const gB = b.grade || '五年級';
+                        if (gA > gB) return -1;
+                        if (gA < gB) return 1;
+                        if (a.student < b.student) return -1;
+                        if (a.student > b.student) return 1;
+                        return 0;
+                    });
+
+                    let themeColor = 'amber';
+                    let icon = 'fa-a';
+                    if (subject === '國語') { themeColor = 'red'; icon = 'fa-book-open'; }
+                    if (subject === '數學') { themeColor = 'blue'; icon = 'fa-calculator'; }
+
+                    html += `
+                    <div class="border border-${themeColor}-200 rounded-lg overflow-hidden shadow-sm">
+                        <div class="bg-${themeColor}-50 px-4 py-3 border-b border-${themeColor}-200 flex justify-between items-center">
+                            <h4 class="font-bold text-${themeColor}-900 flex items-center gap-2">
+                                <i class="fa-solid ${icon}"></i> ${subject}扶助追蹤表
+                            </h4>
+                            <span class="text-xs bg-white px-2 py-1 rounded-full text-${themeColor}-700 font-bold border border-${themeColor}-200">共 ${recordsForSubject.length} 筆</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="w-full text-sm text-center border-0">
+                                <thead class="bg-white text-slate-500 text-[11px] uppercase tracking-wider">
+                                    <tr>
+                                        <th class="p-2 border-b border-r w-20">年級</th>
+                                        <th class="p-2 border-b border-r min-w-[90px]">學生姓名</th>
+                                        <th class="p-2 border-b border-r">成長測驗 (上)</th>
+                                        <th class="p-2 border-b border-r">篩選測驗 (下)</th>
+                                        <th class="p-2 border-b border-r">狀態</th>
+                                        <th class="p-2 border-b w-12">刪除</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 bg-white">
+                    `;
+
+                    html += recordsForSubject.map(r => {
+                        const s1Class = r.score1 && Number(r.score1) >= 72 ? 'text-emerald-600 bg-emerald-50' : (r.score1 ? 'text-red-600 bg-red-50' : 'text-slate-700');
+                        const s2Class = r.score2 && Number(r.score2) >= 72 ? 'text-emerald-600 bg-emerald-50' : (r.score2 ? 'text-red-600 bg-red-50' : 'text-slate-700');
+                        const badgeGrade = r.grade || '五年級';
+                        
+                        return `<tr class="hover:bg-slate-50 transition">
+                            <td class="p-2 border-r border-slate-100">
+                                <span class="text-[11px] font-bold px-2 py-0.5 rounded ${badgeGrade === '六年級' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}">${badgeGrade}</span>
+                            </td>
+                            <td class="p-2 border-r border-slate-100 font-bold text-slate-700">${escapeHTML(r.student)}</td>
+                            <td class="p-2 border-r border-slate-100">
+                                <input type="number" value="${r.score1}" onchange="updateSupportScore('${r.id}', 'score1', this.value)" placeholder="未考" class="w-16 border border-slate-300 rounded p-1 text-center text-sm font-bold ${s1Class} focus:ring-2 focus:ring-${themeColor}-300 transition">
+                            </td>
+                            <td class="p-2 border-r border-slate-100">
+                                <input type="number" value="${r.score2}" onchange="updateSupportScore('${r.id}', 'score2', this.value)" placeholder="未考" class="w-16 border border-slate-300 rounded p-1 text-center text-sm font-bold ${s2Class} focus:ring-2 focus:ring-${themeColor}-300 transition">
+                            </td>
+                            <td class="p-2 border-r border-slate-100">
+                                <button onclick="toggleSupportStatus('${r.id}')" class="px-2.5 py-1 rounded text-[11px] font-bold transition shadow-sm border ${r.isClosed ? 'bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200' : 'bg-rose-100 text-rose-700 border-rose-300 hover:bg-rose-200'}">
+                                    ${r.isClosed ? '✅ 已結案' : '⚠️ 列管中'}
+                                </button>
+                            </td>
+                            <td class="p-2">
+                                <button onclick="deleteSupport('${r.id}')" class="text-red-300 hover:text-red-600 px-2 py-1 transition" title="刪除此紀錄"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>`;
+                    }).join("");
+                    
+                    html += `</tbody></table></div></div>`;
+                }
+            });
+            subjectTrackingList.innerHTML = html;
         }
     }
 }
@@ -1769,7 +1840,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (el) el.addEventListener("submit", function (e) { e.preventDefault(); addRecord(f.cat); });
     });
     
-    // 綁定新的學習扶助表單
     const supportForm = document.getElementById("new-support-form");
     if (supportForm) {
         supportForm.addEventListener("submit", handleAddSupport);
