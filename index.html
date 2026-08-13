@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>學生成績與學習歷程平台 v7.3 (成績結算模組升級版)</title>
+    <title>學生成績與學習歷程平台 v7.4 (評量排名升級版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -30,7 +30,7 @@
             <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
             <h1 class="text-lg md:text-xl font-bold tracking-wide">
                 學生成績與學習歷程平台
-                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.3</span>
+                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.4</span>
             </h1>
         </div>
 
@@ -265,7 +265,7 @@
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">科目名稱</label>
                             <select id="regular-subject" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
@@ -313,37 +313,54 @@
         <section id="sec-exam" class="content-sec hidden space-y-6">
             <div class="student-only bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-4 text-slate-800"><i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> 登錄定期評量成績</h2>
-                <form id="exam-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold mb-1 text-slate-600">評量階段</label>
-                        <select id="exam-subcat" class="w-full border p-2 rounded-lg text-sm font-bold text-indigo-700 bg-indigo-50">
-                            <option value="期中評量">期中評量</option>
-                            <option value="期末評量">期末評量</option>
+                <form id="exam-form" class="flex flex-col gap-4">
+                    <div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 flex items-center gap-3">
+                        <label class="font-bold text-slate-700 text-sm">結算期程：</label>
+                        <select id="exam-period" class="border border-indigo-300 rounded-lg p-2 text-sm font-bold text-indigo-700 bg-white">
+                            <option value="期中">期中</option>
+                            <option value="期末">期末</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1 text-slate-600">科目名稱</label>
-                        <select id="exam-title" class="w-full border p-2 rounded-lg text-sm">
-                            <option value="國語">國語</option>
-                            <option value="數學">數學</option>
-                            <option value="英語">英語</option>
-                            <option value="自然">自然</option>
-                            <option value="社會">社會</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1 text-slate-600">分數</label>
-                        <input type="number" id="exam-score" required min="0" max="100" placeholder="請填入分數" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-300">
-                    </div>
-                    <div class="md:col-span-3 flex justify-between items-center">
-                        <span class="text-xs text-slate-500">※ 提示：送出後系統會保留科目，方便您連續登記。</span>
-                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">提交</button>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-600">科目名稱</label>
+                            <select id="exam-title" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                                <option value="國語">國語</option>
+                                <option value="英語">英語</option>
+                                <option value="數學">數學</option>
+                                <option value="自然">自然</option>
+                                <option value="社會">社會</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-600">分數</label>
+                            <input type="number" id="exam-score" required min="0" max="100" placeholder="請填入分數" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-300">
+                        </div>
+                        <div class="md:col-span-2 flex justify-between items-center mt-2">
+                            <span class="text-xs text-slate-500">※ 提示：送出後系統會保留科目與期程，方便您連續登記。</span>
+                            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">送出審核</button>
+                        </div>
                     </div>
                 </form>
             </div>
 
-            <div id="student-exam-stats-container" class="student-only"></div>
+            <!-- 學生端展示區塊 -->
+            <div class="space-y-4 student-only">
+                <div class="flex border-b border-slate-200">
+                    <button type="button" id="tab-exam-midterm" onclick="switchExamPeriodTab('期中')" class="px-5 py-2.5 font-bold text-blue-600 border-b-2 border-blue-600 transition-colors">期中定期評量</button>
+                    <button type="button" id="tab-exam-final" onclick="switchExamPeriodTab('期末')" class="px-5 py-2.5 font-bold text-slate-500 hover:text-blue-500 border-b-2 border-transparent transition-colors">期末定期評量</button>
+                </div>
+                
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-award text-blue-600"></i> 定期評量五科分數與總分
+                    </h3>
+                    <div id="block-exam"></div>
+                </div>
+            </div>
 
+            <!-- 老師端排行榜 -->
             <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-3">
                     <h3 class="font-bold text-amber-900 text-base flex items-center gap-2">
@@ -351,8 +368,8 @@
                     </h3>
                     <div class="flex items-center gap-2">
                         <select id="teacher-exam-rank-period" onchange="calculateExamRankings()" class="border border-amber-300 rounded-lg p-1 text-sm bg-amber-50">
-                            <option value="期中評量">期中</option>
-                            <option value="期末評量">期末</option>
+                            <option value="期中">期中</option>
+                            <option value="期末">期末</option>
                         </select>
                         <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">老師視角</span>
                     </div>
@@ -601,6 +618,7 @@ const VALID_ROLES = ["student", "teacher", "parent"];
 
 let currentDailyTabPeriod = "期中"; 
 let currentRegularTabPeriod = "期中"; 
+let currentExamTabPeriod = "期中"; 
 
 const GRADE_CONVERT = { '甲上上': 95, '甲上': 90, '甲': 85, '甲下': 80, '甲下下': 75 };
 
@@ -817,6 +835,18 @@ function switchRegularPeriodTab(period) {
     renderAll(); 
 }
 
+function switchExamPeriodTab(period) {
+    currentExamTabPeriod = period;
+    const btnMid = document.getElementById('tab-exam-midterm');
+    const btnFin = document.getElementById('tab-exam-final');
+    [btnMid, btnFin].forEach(btn => {
+        if(btn) { btn.classList.remove('text-blue-600', 'border-blue-600'); btn.classList.add('text-slate-500', 'border-transparent'); }
+    });
+    const activeBtn = period === '期中' ? btnMid : btnFin;
+    if(activeBtn) { activeBtn.classList.remove('text-slate-500', 'border-transparent'); activeBtn.classList.add('text-blue-600', 'border-blue-600'); }
+    renderAll(); 
+}
+
 function updateDailyForm() {
     const subcat = document.getElementById("daily-subcat").value;
     const hwType = document.getElementById("hw-type").value;
@@ -876,6 +906,14 @@ function numberToChinese(num) {
 
 function show(id) { const el = document.getElementById(id); if (el) el.classList.remove("dynamic-hidden"); }
 
+function matchPeriod(r, targetPeriod) {
+    if (r.period === targetPeriod) return true;
+    if (r.period === targetPeriod + "評量") return true;
+    if (r.subCat === targetPeriod + "評量") return true; 
+    if (!r.period && targetPeriod === "期中") return true; 
+    return false;
+}
+
 function addRecord(mainCat) {
     if (currentRole !== "student") return;
 
@@ -913,9 +951,10 @@ function addRecord(mainCat) {
         if (!document.getElementById("regular-score").value) return alert("請輸入分數");
         score = document.getElementById("regular-score").value + " 分";
     } else if (mainCat === "定期評量成績") {
-        subCat = document.getElementById("exam-subcat").value;
-        period = subCat; 
+        period = document.getElementById("exam-period").value;
+        subCat = "定期評量"; 
         title = document.getElementById("exam-title").value;
+        if (!document.getElementById("exam-score").value) return alert("請輸入分數");
         score = document.getElementById("exam-score").value + " 分";
     } else if (mainCat === "語文檢定") {
         subCat = document.getElementById("lang-subcat").value;
@@ -1029,7 +1068,10 @@ function renderAll() {
 
     renderOverview(filtered);
     renderDailySection(filtered); 
-    renderRegularSection(filtered); 
+    
+    renderAssessmentSection('block-regular', '平時評量', currentRegularTabPeriod);
+    renderAssessmentSection('block-exam', '定期評量成績', currentExamTabPeriod);
+
     renderCategoryList("daily-list", "平時成績", filtered);
     renderCategoryList("regular-list", "平時評量", filtered);
     renderCategoryList("exam-list", "定期評量成績", filtered);
@@ -1044,11 +1086,10 @@ function renderAll() {
         calculateExamRankings();
         calculateFinalSummary();
     }
-    if (currentRole !== "teacher") renderStudentExamStats();
 }
 
 function renderDailySection(filteredData) {
-    const studentRecords = filteredData.filter(r => r.mainCat === "平時成績" && (r.period === currentDailyTabPeriod || (!r.period && currentDailyTabPeriod === "期中")));
+    const studentRecords = filteredData.filter(r => r.mainCat === "平時成績" && matchPeriod(r, currentDailyTabPeriod));
     
     renderListBlock('block-cloud', studentRecords.filter(r => r.subCat === '雲端速測'));
     renderListBlock('block-c-quiz', studentRecords.filter(r => r.subCat === '國語小考'));
@@ -1099,56 +1140,86 @@ function renderDailySection(filteredData) {
     }
 }
 
-function renderRegularSection(filteredData) {
-    const studentRecords = filteredData.filter(r => r.mainCat === "平時評量" && (r.period === currentRegularTabPeriod || (!r.period && currentRegularTabPeriod === "期中")));
-    
+function getClassRankAndStats(mainCat, targetPeriod) {
+    let classTotals = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
+    let classCounts = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
+    let rankData = [];
+
+    STUDENTS.forEach(studentName => {
+        const recs = records.filter(r => r.student === studentName && r.mainCat === mainCat && matchPeriod(r, targetPeriod));
+        let total = 0;
+        recs.forEach(r => {
+            const m = r.score.match(/(\d+)/);
+            if(m) {
+                const score = Number(m[1]);
+                total += score;
+                if(classTotals[r.title] !== undefined) {
+                    classTotals[r.title] += score;
+                    classCounts[r.title]++;
+                }
+            }
+        });
+        rankData.push({ studentName, totalScore: total });
+    });
+
+    rankData.sort((a, b) => b.totalScore - a.totalScore);
+    rankData.forEach((item, index) => {
+        if (index > 0 && item.totalScore === rankData[index - 1].totalScore) item.rank = rankData[index - 1].rank;
+        else item.rank = index + 1;
+    });
+
+    return { rankData, classTotals, classCounts };
+}
+
+function renderAssessmentSection(sectionId, mainCat, targetPeriod) {
+    const studentRecords = records.filter(r => r.student === currentStudent && r.mainCat === mainCat && matchPeriod(r, targetPeriod));
     const subjects = ['國語', '英語', '數學', '自然', '社會'];
-    let regularTotal = 0;
+    let totalScore = 0;
     
-    let regularHtml = `<div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">`;
+    const { rankData, classTotals, classCounts } = getClassRankAndStats(mainCat, targetPeriod);
+    const myData = rankData.find(d => d.studentName === currentStudent);
+    const myRank = myData && myData.totalScore > 0 ? myData.rank : '-';
+
+    let html = `<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-4">`;
+    
     subjects.forEach(sub => {
         const rec = studentRecords.find(r => r.title === sub);
         const match = rec ? rec.score.match(/(\d+)/) : null;
         const score = match ? Number(match[1]) : 0;
-        if (rec && match) regularTotal += score;
-        regularHtml += `
+        if (rec && match) totalScore += score;
+        html += `
             <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-center">
                 <span class="block text-xs font-semibold text-slate-500">${sub}</span>
                 <span class="text-base font-bold text-slate-800">${rec ? rec.score : '--'}</span>
             </div>`;
     });
-    regularHtml += `
-        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center col-span-2 md:col-span-1">
+    
+    html += `
+        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center">
             <span class="block text-xs font-semibold text-blue-600">五科總分</span>
-            <span class="text-lg font-black text-blue-700">${regularTotal} 分</span>
-        </div></div>`;
+            <span class="text-lg font-black text-blue-700">${totalScore > 0 ? totalScore + ' 分' : '--'}</span>
+        </div>
+        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-center">
+            <span class="block text-xs font-semibold text-amber-600">班級排名</span>
+            <span class="text-lg font-black text-amber-700">${myRank}</span>
+        </div>
+    </div>`;
         
-    let classTotals = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
-    let classCounts = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
-    const allRegularRecords = records.filter(r => r.mainCat === "平時評量" && (r.period === currentRegularTabPeriod || (!r.period && currentRegularTabPeriod === "期中")));
-
-    allRegularRecords.forEach(r => {
-        if (classTotals[r.title] !== undefined) {
-            const m = r.score.match(/(\d+)/);
-            if (m) { classTotals[r.title] += Number(m[1]); classCounts[r.title]++; }
-        }
-    });
-
-    regularHtml += `<h4 class="text-xs font-bold text-slate-500 mb-2 mt-4 pt-4 border-t border-slate-100">📊 班級各科平均</h4>`;
-    regularHtml += `<div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-center text-xs">`;
+    html += `<h4 class="text-xs font-bold text-slate-500 mb-2 mt-4 pt-4 border-t border-slate-100">📊 班級各科平均</h4>`;
+    html += `<div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-center text-xs">`;
     
     subjects.forEach(sub => {
         const avg = classCounts[sub] > 0 ? (classTotals[sub] / classCounts[sub]).toFixed(1) : '-';
-        regularHtml += `
+        html += `
             <div class="bg-white/80 p-2 rounded border border-slate-200">
                 <span class="block font-bold text-slate-600">${sub}</span>
                 <span class="text-slate-800 font-semibold">${avg}</span>
             </div>`;
     });
-    regularHtml += `</div>`;
+    html += `</div>`;
     
-    const blockRegular = document.getElementById('block-regular');
-    if (blockRegular) blockRegular.innerHTML = regularHtml;
+    const block = document.getElementById(sectionId);
+    if (block) block.innerHTML = html;
 }
 
 function renderListBlock(elementId, listData) {
@@ -1167,16 +1238,14 @@ function renderListBlock(elementId, listData) {
     html += `</ul>`; el.innerHTML = html;
 }
 
-// === 🚀 核心結算邏輯 ===
 function calculateFinalSummary() {
     if (STUDENTS.length === 0) return;
-    const targetPeriod = document.getElementById("summary-period").value; // "期中" 或 "期末"
-    const examPeriod = targetPeriod + "評量";
+    const targetPeriod = document.getElementById("summary-period").value; 
 
     let summaryResults = [];
 
     const getDailyAvgValue = (studentName, subCat, titleKeyword = "") => {
-        const list = records.filter(r => r.student === studentName && r.mainCat === "平時成績" && r.subCat === subCat && (r.period === targetPeriod || (!r.period && targetPeriod === "期中")));
+        const list = records.filter(r => r.student === studentName && r.mainCat === "平時成績" && r.subCat === subCat && matchPeriod(r, targetPeriod));
         let sum = 0, cnt = 0;
         list.forEach(r => {
             if (titleKeyword && !r.title.includes(titleKeyword)) return;
@@ -1188,19 +1257,16 @@ function calculateFinalSummary() {
     };
 
     STUDENTS.forEach(studentName => {
-        // 1. 定期評量分數
-        const cExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "國語" && r.period === examPeriod);
-        const mExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "數學" && r.period === examPeriod);
+        const cExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "國語" && matchPeriod(r, targetPeriod));
+        const mExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "數學" && matchPeriod(r, targetPeriod));
         let cExam = cExamRec ? (Number(cExamRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
         let mExam = mExamRec ? (Number(mExamRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
 
-        // 2. 平時評量分數
-        const cRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "國語" && (r.period === targetPeriod || (!r.period && targetPeriod === "期中")));
-        const mRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "數學" && (r.period === targetPeriod || (!r.period && targetPeriod === "期中")));
+        const cRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "國語" && matchPeriod(r, targetPeriod));
+        const mRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "數學" && matchPeriod(r, targetPeriod));
         let cReg = cRegRec ? (Number(cRegRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
         let mReg = mRegRec ? (Number(mRegRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
 
-        // 3. 取得各項平時成績平均
         let cloudAvg = getDailyAvgValue(studentName, "雲端速測");
         let cQuizAvg = getDailyAvgValue(studentName, "國語小考");
         let cHwAvg = getDailyAvgValue(studentName, "作業分數", "國習");
@@ -1209,11 +1275,9 @@ function calculateFinalSummary() {
         let mQuizAvg = getDailyAvgValue(studentName, "數學小考");
         let mHwAvg = getDailyAvgValue(studentName, "作業分數", "數習");
 
-        // 計算平時成績項目之平均總和
         let cDailyAvgTotal = (cloudAvg + cHwAvg + cQuizAvg + wHwAvg) / 4;
         let mDailyAvgTotal = (mHwAvg + mQuizAvg) / 2;
 
-        // 計算最終成績
         let cFinal = Math.round(cExam * 0.5 + cReg * 0.25 + cDailyAvgTotal * 0.25);
         let mFinal = Math.round(mExam * 0.5 + mReg * 0.25 + mDailyAvgTotal * 0.25);
 
@@ -1260,101 +1324,13 @@ function calculateFinalSummary() {
     wrapper.innerHTML = html;
 }
 
-function renderStudentExamStats() {
-    const container = document.getElementById("student-exam-stats-container");
-    if(!container) return;
-    if(STUDENTS.length === 0) { container.innerHTML = ""; return; }
-
-    const studentExams = records.filter(r => r.student === currentStudent && r.mainCat === "定期評量成績");
-    if(studentExams.length === 0) {
-        container.innerHTML = `<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center text-slate-500 text-sm">尚無定期評量成績</div>`; return;
-    }
-    
-    const latestPeriod = studentExams[0].period || studentExams[0].subCat || "期中評量";
-
-    let classTotals = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
-    let classCounts = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
-    let rankData = [];
-
-    STUDENTS.forEach(studentName => {
-        const exams = records.filter(r => r.student === studentName && r.mainCat === "定期評量成績" && (r.period === latestPeriod || r.subCat === latestPeriod));
-        let total = 0;
-        exams.forEach(r => {
-            const m = r.score.match(/(\d+)/);
-            if(m) {
-                const score = Number(m[1]);
-                total += score;
-                if(classTotals[r.title] !== undefined) {
-                    classTotals[r.title] += score;
-                    classCounts[r.title]++;
-                }
-            }
-        });
-        rankData.push({ studentName, totalScore: total });
-    });
-
-    rankData.sort((a, b) => b.totalScore - a.totalScore);
-    rankData.forEach((item, index) => {
-        if (index > 0 && item.totalScore === rankData[index - 1].totalScore) item.rank = rankData[index - 1].rank;
-        else item.rank = index + 1;
-    });
-
-    const myData = rankData.find(d => d.studentName === currentStudent);
-    if(!myData) return;
-
-    let html = `
-    <div class="bg-indigo-50 border border-indigo-200 p-5 rounded-xl shadow-sm mb-6">
-        <h3 class="font-bold text-indigo-900 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-chart-line"></i> 【${latestPeriod}】個人總成績與班級統計
-        </h3>
-        <div class="grid grid-cols-2 gap-4 mb-5">
-            <div class="bg-white p-4 rounded-lg shadow-sm text-center border border-indigo-100">
-                <span class="text-sm font-bold text-indigo-500 block mb-1">我的五科總分</span>
-                <span class="text-3xl font-black text-indigo-700">${myData.totalScore > 0 ? myData.totalScore : '-'}</span>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow-sm text-center border border-amber-100">
-                <span class="text-sm font-bold text-amber-500 block mb-1">班級排名</span>
-                <span class="text-3xl font-black text-amber-600">${myData.totalScore > 0 ? myData.rank : '-'}</span>
-            </div>
-        </div>
-        <h4 class="text-xs font-bold text-slate-500 mb-2">📊 班級各科平均</h4>
-        <div class="grid grid-cols-5 gap-2 text-center text-xs">`;
-    
-    ['國語', '英語', '數學', '自然', '社會'].forEach(sub => {
-        const avg = classCounts[sub] > 0 ? (classTotals[sub] / classCounts[sub]).toFixed(1) : '-';
-        html += `<div class="bg-white/80 p-2 rounded border border-slate-200">
-                <span class="block font-bold text-slate-600">${sub}</span>
-                <span class="text-slate-800 font-semibold">${avg}</span>
-            </div>`;
-    });
-
-    html += `</div></div>`;
-    container.innerHTML = html;
-}
-
 function calculateExamRankings() {
     const wrapper = document.getElementById("teacher-exam-ranking-wrapper");
     if (!wrapper) return;
     if (STUDENTS.length === 0) { wrapper.innerHTML = `<p class="text-xs text-slate-400 p-2 text-center">無學生名單</p>`; return; }
 
     const targetPeriod = document.getElementById("teacher-exam-rank-period").value;
-    let examData = [];
-
-    STUDENTS.forEach(studentName => {
-        const studentExamRecords = records.filter(r => r.student === studentName && r.mainCat === "定期評量成績" && (r.period === targetPeriod || r.subCat === targetPeriod));
-        let totalScore = 0;
-        studentExamRecords.forEach(r => {
-            const m = r.score.match(/(\d+)/);
-            if (m) totalScore += Number(m[1]);
-        });
-        examData.push({ studentName, totalScore });
-    });
-
-    examData.sort((a, b) => b.totalScore - a.totalScore);
-    examData.forEach((item, index) => {
-        if (index > 0 && item.totalScore === examData[index - 1].totalScore) item.rank = examData[index - 1].rank;
-        else item.rank = index + 1;
-    });
+    const { rankData } = getClassRankAndStats("定期評量成績", targetPeriod);
 
     let html = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
         <thead class="bg-amber-100 text-amber-900 font-bold">
@@ -1364,7 +1340,7 @@ function calculateExamRankings() {
                 <th class="p-2 border">五科總分</th>
             </tr>
         </thead><tbody class="divide-y divide-slate-200">`;
-    examData.forEach(item => {
+    rankData.forEach(item => {
         let rankBadge = item.rank === 1 ? '🥇 1' : item.rank === 2 ? '🥈 2' : item.rank === 3 ? '🥉 3' : item.rank;
         html += `
             <tr class="${item.rank <= 3 && item.totalScore > 0 ? 'bg-amber-50/50 font-bold' : ''}">
