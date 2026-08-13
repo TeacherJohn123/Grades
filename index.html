@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>學生成績與學習歷程平台 v7.4 (評量排名升級版)</title>
+    <title>學生成績與學習歷程平台 v7.5 (家長端評量檢視升級版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -30,7 +30,7 @@
             <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
             <h1 class="text-lg md:text-xl font-bold tracking-wide">
                 學生成績與學習歷程平台
-                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.4</span>
+                <span class="text-xs md:text-sm text-yellow-200 bg-indigo-800 px-2 py-0.5 rounded ml-1">v7.5</span>
             </h1>
         </div>
 
@@ -288,7 +288,7 @@
                 </form>
             </div>
 
-            <!-- 展示區塊 -->
+            <!-- 展示區塊 (學生、家長、老師均可見) -->
             <div class="space-y-4">
                 <div class="flex border-b border-slate-200">
                     <button type="button" id="tab-regular-midterm" onclick="switchRegularPeriodTab('期中')" class="px-5 py-2.5 font-bold text-blue-600 border-b-2 border-blue-600 transition-colors">期中平時評量</button>
@@ -297,7 +297,7 @@
                 
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                     <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-square-poll-vertical text-blue-600"></i> 平時評量五科分數與總分
+                        <i class="fa-solid fa-square-poll-vertical text-blue-600"></i> 平時評量個人成績與班級統計
                     </h3>
                     <div id="block-regular"></div>
                 </div>
@@ -345,8 +345,8 @@
                 </form>
             </div>
 
-            <!-- 學生端展示區塊 -->
-            <div class="space-y-4 student-only">
+            <!-- 個人成績與班級統計展示區塊 (所有人可見) -->
+            <div class="space-y-4">
                 <div class="flex border-b border-slate-200">
                     <button type="button" id="tab-exam-midterm" onclick="switchExamPeriodTab('期中')" class="px-5 py-2.5 font-bold text-blue-600 border-b-2 border-blue-600 transition-colors">期中定期評量</button>
                     <button type="button" id="tab-exam-final" onclick="switchExamPeriodTab('期末')" class="px-5 py-2.5 font-bold text-slate-500 hover:text-blue-500 border-b-2 border-transparent transition-colors">期末定期評量</button>
@@ -354,7 +354,7 @@
                 
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                     <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-award text-blue-600"></i> 定期評量五科分數與總分
+                        <i class="fa-solid fa-award text-blue-600"></i> 定期評量個人成績與班級統計
                     </h3>
                     <div id="block-exam"></div>
                 </div>
@@ -1069,8 +1069,9 @@ function renderAll() {
     renderOverview(filtered);
     renderDailySection(filtered); 
     
-    renderAssessmentSection('block-regular', '平時評量', currentRegularTabPeriod);
-    renderAssessmentSection('block-exam', '定期評量成績', currentExamTabPeriod);
+    // 家長只會看到有被核可+公開的分數，但班級平均和排名會根據全班真實數據計算
+    renderAssessmentSection('block-regular', '平時評量', currentRegularTabPeriod, filtered);
+    renderAssessmentSection('block-exam', '定期評量成績', currentExamTabPeriod, filtered);
 
     renderCategoryList("daily-list", "平時成績", filtered);
     renderCategoryList("regular-list", "平時評量", filtered);
@@ -1140,6 +1141,7 @@ function renderDailySection(filteredData) {
     }
 }
 
+// 取得該項目的全班統計資訊 (計算時以全局 records 進行，確保平均與排名準確)
 function getClassRankAndStats(mainCat, targetPeriod) {
     let classTotals = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
     let classCounts = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
@@ -1171,14 +1173,15 @@ function getClassRankAndStats(mainCat, targetPeriod) {
     return { rankData, classTotals, classCounts };
 }
 
-function renderAssessmentSection(sectionId, mainCat, targetPeriod) {
-    const studentRecords = records.filter(r => r.student === currentStudent && r.mainCat === mainCat && matchPeriod(r, targetPeriod));
+// 共用的成績區塊渲染器 (包含個人各科、總分、排名與全班各科平均)
+function renderAssessmentSection(sectionId, mainCat, targetPeriod, filteredData) {
+    // 個人的分數顯示，必須看 filteredData 的權限 (家長只看得到核可且公開的)
+    const studentRecords = filteredData.filter(r => r.student === currentStudent && r.mainCat === mainCat && matchPeriod(r, targetPeriod));
     const subjects = ['國語', '英語', '數學', '自然', '社會'];
     let totalScore = 0;
     
     const { rankData, classTotals, classCounts } = getClassRankAndStats(mainCat, targetPeriod);
     const myData = rankData.find(d => d.studentName === currentStudent);
-    const myRank = myData && myData.totalScore > 0 ? myData.rank : '-';
 
     let html = `<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-4">`;
     
@@ -1194,6 +1197,9 @@ function renderAssessmentSection(sectionId, mainCat, targetPeriod) {
             </div>`;
     });
     
+    // 如果個人總分為 0 (例如還沒登記或家長視角還沒核可)，則隱藏真實排名顯示 -
+    const myRank = (totalScore > 0 && myData && myData.totalScore > 0) ? myData.rank : '-';
+
     html += `
         <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center">
             <span class="block text-xs font-semibold text-blue-600">五科總分</span>
