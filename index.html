@@ -236,7 +236,7 @@
                     <!-- 下方呈現各項平均區塊 -->
                     <div class="bg-indigo-50 p-5 rounded-xl shadow-sm border border-indigo-200">
                         <h3 class="font-bold text-indigo-900 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-simple"></i> 期程各項平均統計
+                            <i class="fa-solid fa-chart-simple"></i> 平均分數
                         </h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-center" id="student-daily-averages">
                             <!-- JS 動態生成 -->
@@ -421,10 +421,7 @@
                     </div>
                 </form>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-800 mb-4">語文檢定提交紀錄列表</h3>
-                <div class="table-wrapper"><table class="w-full text-sm text-left"><tbody id="lang-list" class="divide-y divide-slate-100"></tbody></table></div>
-            </div>
+            
             <div class="space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
                     <div>
@@ -459,6 +456,12 @@
                         <div id="teacher-weekly-matrix-wrapper" class="table-wrapper"></div>
                     </div>
                 </div>
+            </div>
+
+            <!-- 移至下方的提交紀錄列表 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 mb-4">語文檢定提交紀錄列表</h3>
+                <div class="table-wrapper"><table class="w-full text-sm text-left"><tbody id="lang-list" class="divide-y divide-slate-100"></tbody></table></div>
             </div>
         </section>
 
@@ -654,6 +657,34 @@
     </div>
 </div>
 
+<!-- Modal 防呆重複登錄彈窗 -->
+<div id="duplicate-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-5">
+        <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-bold text-rose-600 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> 重複登錄提醒</h3>
+            <button type="button" onclick="closeDuplicateModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div class="text-sm text-slate-700 space-y-2">
+            <p>系統發現您已經登錄過相同的平時成績：</p>
+            <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 font-semibold" id="duplicate-info-box">
+                <!-- JS 動態插入 -->
+            </div>
+            <p class="pt-2 text-xs font-bold text-slate-500">請問您希望如何處理這筆新成績？</p>
+        </div>
+        <div class="flex flex-col gap-2 pt-2">
+            <button type="button" onclick="handleDuplicateOverride()" class="w-full px-4 py-2 text-white bg-rose-600 rounded-lg text-sm font-medium hover:bg-rose-700 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-left"></i> 覆蓋舊成績
+            </button>
+            <button type="button" onclick="handleDuplicateAddSecond()" class="w-full px-4 py-2 text-blue-700 bg-blue-50 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-100 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-copy"></i> 新增為第二筆 (2)
+            </button>
+            <button type="button" onclick="closeDuplicateModal()" class="w-full px-4 py-2 text-slate-600 bg-slate-100 rounded-lg text-sm hover:bg-slate-200 transition mt-2">
+                回上一步 / 取消
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 "use strict";
 
@@ -667,6 +698,8 @@ const VALID_ROLES = ["student", "teacher", "parent"];
 let currentDailyTabPeriod = "期中"; 
 let currentRegularTabPeriod = "期中"; 
 let currentExamTabPeriod = "期中"; 
+
+let tempDuplicateRecord = null; // 儲存暫存的重複紀錄以供彈窗使用
 
 const GRADE_CONVERT = { '甲上上': 95, '甲上': 90, '甲': 85, '甲下': 80, '甲下下': 75 };
 
@@ -841,16 +874,35 @@ function switchRole(role) {
     document.querySelectorAll(".student-only").forEach(el => role === "student" ? el.classList.remove("hidden") : el.classList.add("hidden"));
     document.querySelectorAll(".teacher-only").forEach(el => role === "teacher" ? el.classList.remove("hidden") : el.classList.add("hidden"));
 
-    if (role !== "teacher" && (!document.getElementById("sec-review").classList.contains("hidden") || !document.getElementById("sec-import-students").classList.contains("hidden") || !document.getElementById("sec-summary").classList.contains("hidden"))) {
-        switchTab("overview");
+    // 處理學生隱藏總覽頁面
+    const tabOverviewBtn = document.getElementById("tab-overview");
+    if (tabOverviewBtn) {
+        if (role === "student") {
+            tabOverviewBtn.classList.add("hidden");
+        } else {
+            tabOverviewBtn.classList.remove("hidden");
+        }
+    }
+
+    // 權限頁籤跳轉邏輯
+    const currentActiveTab = document.querySelector(".active-tab");
+    if (role === "student") {
+        if (!currentActiveTab || currentActiveTab.id === "tab-overview" || currentActiveTab.id === "tab-review" || currentActiveTab.id === "tab-import-students" || currentActiveTab.id === "tab-summary") {
+            switchTab("daily"); // 學生預設進去平時成績
+        }
+    } else if (role !== "teacher") {
+        if (!currentActiveTab || currentActiveTab.id === "tab-review" || currentActiveTab.id === "tab-import-students" || currentActiveTab.id === "tab-summary") {
+            switchTab("overview");
+        }
     }
     renderAll();
 }
 
 function switchTab(tabKey) {
     const validTabs = ["overview", "daily", "regular", "exam", "language", "reading", "support", "import-students", "review", "summary"]; 
-    if (!validTabs.includes(tabKey)) tabKey = "overview";
+    if (!validTabs.includes(tabKey)) tabKey = "daily"; // 防錯
     if ((tabKey === "review" || tabKey === "import-students" || tabKey === "summary") && currentRole !== "teacher") return alert("只有老師可以使用此功能。");
+    if (tabKey === "overview" && currentRole === "student") tabKey = "daily"; // 雙重防呆
 
     document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active-tab"));
     document.querySelectorAll(".content-sec").forEach(sec => sec.classList.add("hidden"));
@@ -965,6 +1017,52 @@ function matchPeriod(r, targetPeriod) {
     return false;
 }
 
+// 顯示防呆彈窗
+function showDuplicateModal(recordObj, existingId) {
+    tempDuplicateRecord = { ...recordObj, existingId };
+    
+    const infoBox = document.getElementById("duplicate-info-box");
+    if (infoBox) {
+        infoBox.innerHTML = `
+            <div>📝 類別：${escapeHTML(recordObj.subCat)}</div>
+            <div>📌 項目：${escapeHTML(recordObj.title)}</div>
+        `;
+    }
+    document.getElementById("duplicate-modal").classList.remove("hidden");
+}
+
+function closeDuplicateModal() {
+    tempDuplicateRecord = null;
+    document.getElementById("duplicate-modal").classList.add("hidden");
+}
+
+function handleDuplicateOverride() {
+    if (!tempDuplicateRecord) return;
+    const existing = records.find(r => r.id === tempDuplicateRecord.existingId);
+    if (existing) {
+        existing.score = tempDuplicateRecord.score;
+        existing.status = "pending";
+        existing.visibleToParent = false;
+        existing.createdAt = new Date().toISOString();
+    }
+    saveData();
+    closeDuplicateModal();
+    alert("✅ 已覆蓋舊成績，並重新送出審核！");
+    resetFormWithMemory(tempDuplicateRecord.mainCat);
+}
+
+function handleDuplicateAddSecond() {
+    if (!tempDuplicateRecord) return;
+    tempDuplicateRecord.title += " (2)";
+    delete tempDuplicateRecord.existingId;
+    tempDuplicateRecord.id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+    records.unshift(tempDuplicateRecord);
+    saveData();
+    closeDuplicateModal();
+    alert("✅ 已新增為第二筆紀錄，等待老師審核中。");
+    resetFormWithMemory(tempDuplicateRecord.mainCat);
+}
+
 function addRecord(mainCat) {
     if (currentRole !== "student") return;
 
@@ -1024,14 +1122,26 @@ function addRecord(mainCat) {
         score = ptsVal !== "" ? `${ptsVal} 點` : "⏳ 待補點數";
     }
 
-    records.unshift({
-        id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
+    const newRecordObj = {
+        id: "", // 暫不賦予ID，視情況
         student: currentStudent, mainCat, subCat, title, score, period,
         status: "pending", visibleToParent: false, createdAt: new Date().toISOString()
-    });
+    };
+
+    // 檢查平時成績是否有重複登錄
+    if (mainCat === "平時成績") {
+        const existing = records.find(r => r.student === currentStudent && r.mainCat === mainCat && r.subCat === subCat && r.title === title && r.period === period);
+        if (existing) {
+            showDuplicateModal(newRecordObj, existing.id);
+            return; // 終止目前的程序，等待使用者在彈窗中選擇
+        }
+    }
+
+    // 正常新增
+    newRecordObj.id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+    records.unshift(newRecordObj);
     saveData();
     alert("✅ 提交成功！等待老師審核中。");
-    
     resetFormWithMemory(mainCat);
 }
 
@@ -1140,7 +1250,6 @@ function renderSupportSection() {
         dashboard.style.display = (currentRole === "teacher") ? "none" : "block";
     }
 
-    // --- 學生/家長端：唯讀看板 ---
     if (cardsContainer && currentRole !== "teacher") {
         const mySupportList = supportRecords.filter(r => r.student === currentStudent);
         if (mySupportList.length === 0) {
@@ -1191,7 +1300,6 @@ function renderSupportSection() {
         }
     }
 
-    // --- 老師端：以學生為單位的控管表 (v7.8) ---
     if (studentManagementList && currentRole === "teacher") {
         if (supportRecords.length === 0) {
             studentManagementList.innerHTML = `<div class="p-6 text-center text-slate-400 border border-slate-200 rounded-lg bg-slate-50/50">尚無列管學生資料</div>`;
@@ -1234,7 +1342,6 @@ function renderSupportSection() {
         }
     }
 
-    // --- 老師端：以科目分類的追蹤專案表 (v7.8) ---
     if (subjectTrackingList && currentRole === "teacher") {
         if (supportRecords.length === 0) {
             subjectTrackingList.innerHTML = `<div class="p-6 text-center text-slate-400 border border-slate-200 rounded-lg bg-slate-50/50">尚無列管學生資料</div>`;
@@ -1384,6 +1491,7 @@ function renderAll() {
     renderAssessmentSection('block-regular', '平時評量', currentRegularTabPeriod, filtered);
     renderAssessmentSection('block-exam', '定期評量成績', currentExamTabPeriod, filtered);
 
+    // 下方明細清單（包含尚未核可的成績）
     renderCategoryList("daily-list", "平時成績", filtered);
     renderCategoryList("regular-list", "平時評量", filtered);
     renderCategoryList("exam-list", "定期評量成績", filtered);
@@ -1404,11 +1512,14 @@ function renderAll() {
 function renderDailySection(filteredData) {
     const studentRecords = filteredData.filter(r => r.mainCat === "平時成績" && matchPeriod(r, currentDailyTabPeriod));
     
-    renderListBlock('block-cloud', studentRecords.filter(r => r.subCat === '雲端速測'));
-    renderListBlock('block-c-quiz', studentRecords.filter(r => r.subCat === '國語小考'));
-    renderListBlock('block-m-quiz', studentRecords.filter(r => r.subCat === '數學小考'));
+    // 嚴格限制：只有核可的成績，才會顯示在上方的項目框並計算平均 (過濾 status === 'approved')
+    const approvedStudentRecords = studentRecords.filter(r => r.status === 'approved');
+    
+    renderListBlock('block-cloud', approvedStudentRecords.filter(r => r.subCat === '雲端速測'));
+    renderListBlock('block-c-quiz', approvedStudentRecords.filter(r => r.subCat === '國語小考'));
+    renderListBlock('block-m-quiz', approvedStudentRecords.filter(r => r.subCat === '數學小考'));
 
-    const hwRecords = studentRecords.filter(r => r.subCat === '作業分數');
+    const hwRecords = approvedStudentRecords.filter(r => r.subCat === '作業分數');
     const groupedHwRecords = [];
     
     ['國習', '數習', '作文'].forEach(type => {
@@ -1432,9 +1543,9 @@ function renderDailySection(filteredData) {
         return cnt > 0 ? (sum / cnt).toFixed(1) : '-';
     };
 
-    const cloudAvg = calcAvg(studentRecords.filter(r => r.subCat === '雲端速測'));
-    const cQuizAvg = calcAvg(studentRecords.filter(r => r.subCat === '國語小考'));
-    const mQuizAvg = calcAvg(studentRecords.filter(r => r.subCat === '數學小考'));
+    const cloudAvg = calcAvg(approvedStudentRecords.filter(r => r.subCat === '雲端速測'));
+    const cQuizAvg = calcAvg(approvedStudentRecords.filter(r => r.subCat === '國語小考'));
+    const mQuizAvg = calcAvg(approvedStudentRecords.filter(r => r.subCat === '數學小考'));
     
     const cHwAvg = calcAvg(hwRecords, '國習');
     const mHwAvg = calcAvg(hwRecords, '數習');
@@ -1459,7 +1570,8 @@ function getClassRankAndStats(mainCat, targetPeriod) {
     let rankData = [];
 
     STUDENTS.forEach(studentName => {
-        const recs = records.filter(r => r.student === studentName && r.mainCat === mainCat && matchPeriod(r, targetPeriod));
+        // 全班統計與排名僅計算「已核可」的成績
+        const recs = records.filter(r => r.student === studentName && r.mainCat === mainCat && matchPeriod(r, targetPeriod) && r.status === "approved");
         let total = 0;
         recs.forEach(r => {
             const m = r.score.match(/(\d+)/);
@@ -1485,7 +1597,8 @@ function getClassRankAndStats(mainCat, targetPeriod) {
 }
 
 function renderAssessmentSection(sectionId, mainCat, targetPeriod, filteredData) {
-    const studentRecords = filteredData.filter(r => r.student === currentStudent && r.mainCat === mainCat && matchPeriod(r, targetPeriod));
+    // 個人成績統計也僅顯示「已核可」的成績
+    const studentRecords = filteredData.filter(r => r.student === currentStudent && r.mainCat === mainCat && matchPeriod(r, targetPeriod) && r.status === "approved");
     const subjects = ['國語', '英語', '數學', '自然', '社會'];
     let totalScore = 0;
     
@@ -1559,7 +1672,7 @@ function calculateFinalSummary() {
     let summaryResults = [];
 
     const getDailyAvgValue = (studentName, subCat, titleKeyword = "") => {
-        const list = records.filter(r => r.student === studentName && r.mainCat === "平時成績" && r.subCat === subCat && matchPeriod(r, targetPeriod));
+        const list = records.filter(r => r.student === studentName && r.mainCat === "平時成績" && r.subCat === subCat && matchPeriod(r, targetPeriod) && r.status === "approved");
         let sum = 0, cnt = 0;
         list.forEach(r => {
             if (titleKeyword && !r.title.includes(titleKeyword)) return;
@@ -1571,13 +1684,13 @@ function calculateFinalSummary() {
     };
 
     STUDENTS.forEach(studentName => {
-        const cExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "國語" && matchPeriod(r, targetPeriod));
-        const mExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "數學" && matchPeriod(r, targetPeriod));
+        const cExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "國語" && matchPeriod(r, targetPeriod) && r.status === "approved");
+        const mExamRec = records.find(r => r.student === studentName && r.mainCat === "定期評量成績" && r.title === "數學" && matchPeriod(r, targetPeriod) && r.status === "approved");
         let cExam = cExamRec ? (Number(cExamRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
         let mExam = mExamRec ? (Number(mExamRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
 
-        const cRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "國語" && matchPeriod(r, targetPeriod));
-        const mRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "數學" && matchPeriod(r, targetPeriod));
+        const cRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "國語" && matchPeriod(r, targetPeriod) && r.status === "approved");
+        const mRegRec = records.find(r => r.student === studentName && r.mainCat === "平時評量" && r.title === "數學" && matchPeriod(r, targetPeriod) && r.status === "approved");
         let cReg = cRegRec ? (Number(cRegRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
         let mReg = mRegRec ? (Number(mRegRec.score.match(/(\d+)/)?.[1]) || 0) : 0;
 
@@ -1809,7 +1922,10 @@ function renderReview() {
             <td class="p-3 font-medium">${escapeHTML(r.student)}</td><td class="p-3 text-xs">${escapeHTML(r.mainCat)}</td>
             <td class="p-3">${escapeHTML(r.subCat)}（${escapeHTML(r.title)}）</td><td class="p-3 text-indigo-600 font-bold">${escapeHTML(r.score)}</td>
             <td class="p-3"><button type="button" onclick="openEditModal('${r.id}')" class="px-2.5 py-1 rounded text-xs bg-blue-100 text-blue-700">修改</button></td>
-            <td class="p-3"><button type="button" onclick="toggleApprove('${r.id}')" class="px-3 py-1 rounded text-xs text-white ${approved ? "bg-emerald-600" : "bg-slate-500"}">${approved ? "✓ 已核可" : "點擊核可"}</button></td>
+            <td class="p-3 flex items-center gap-2">
+                <button type="button" onclick="toggleApprove('${r.id}')" class="px-3 py-1 rounded text-xs text-white ${approved ? "bg-emerald-600" : "bg-slate-500"}">${approved ? "✓ 已核可" : "點擊核可"}</button>
+                <button type="button" onclick="deleteRecord('${r.id}')" class="px-2.5 py-1 rounded text-xs bg-red-100 text-red-700 hover:bg-red-200"><i class="fa-solid fa-trash-can"></i> 刪除</button>
+            </td>
             <td class="p-3"><label class="text-xs flex gap-1"><input type="checkbox" onchange="toggleParentVisible('${r.id}')" ${r.visibleToParent ? "checked" : ""} ${!approved ? "disabled" : ""}> 公開</label></td>
         </tr>`;
     }).join("");
