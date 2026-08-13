@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -408,7 +408,8 @@
                         <label class="block text-xs font-semibold mb-1 text-slate-600">檢定項目</label>
                         <select id="lang-subcat" onchange="updateLanguageFormOptions()" class="w-full border p-2 rounded-lg text-sm">
                             <option value="英檢單字檢定">英檢單字檢定</option>
-                            <option value="每週一句">每週一句</option>
+                            <option value="每週一句">每週一句 (單句闖關)</option>
+                            <option value="每週一句期末等第">每週一句 (期末等第登錄)</option>
                         </select>
                     </div>
                     <div id="lang-vocab-level-container">
@@ -427,13 +428,14 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-1 text-slate-600">檢定結果 / 分數</label>
-                        <select id="lang-pass-status" class="w-full border p-2 rounded-lg text-sm font-bold text-blue-700 bg-blue-50">
+                        <select id="lang-pass-status" data-mode="normal" class="w-full border p-2 rounded-lg text-sm font-bold text-blue-700 bg-blue-50">
                             <option value="通過">🟢 通過</option>
                             <option value="未通過">🔴 未通過</option>
                         </select>
                     </div>
-                    <div class="md:col-span-3 text-right">
-                        <button type="submit" class="bg-blue-600 text-white px-5 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">提交檢定紀錄</button>
+                    <div class="md:col-span-3 text-right flex items-center justify-end gap-3 mt-2">
+                        <span class="text-xs text-slate-500">※ 提示：闖關送出後，系統會自動為您跳轉到下一關。</span>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition">提交檢定紀錄</button>
                     </div>
                 </form>
             </div>
@@ -451,7 +453,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-comments text-indigo-600"></i> 每週一句闖關紀錄與期末評估</h3>
-                            <span id="student-weekly-summary" class="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800"></span>
+                            <span id="student-weekly-summary" class="text-sm font-bold px-3 py-1 rounded bg-blue-100 text-blue-800"></span>
                         </div>
                         <div id="student-weekly-matrix-wrapper" class="table-wrapper"></div>
                     </div>
@@ -527,7 +529,7 @@
             </div>
         </section>
 
-        <!-- 學習扶助 (v7.8 專案追蹤制 - 依科目分類總表 & 學生控管總表) -->
+        <!-- 學習扶助 (v7.8 專案追蹤制) -->
         <section id="sec-support" class="content-sec hidden space-y-6">
             <!-- 考古題練習連結 (所有人可見) -->
             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
@@ -544,7 +546,7 @@
             <div id="student-support-dashboard" class="space-y-4">
                 <h3 class="font-bold text-slate-800 mb-1 flex items-center gap-2"><i class="fa-solid fa-clipboard-user text-indigo-600"></i> 個人列管科目與測驗追蹤</h3>
                 <div id="student-support-cards" class="flex flex-col gap-4">
-                    <!-- JS 動態生成 (按年級分群) -->
+                    <!-- JS 動態生成 -->
                 </div>
             </div>
 
@@ -575,7 +577,7 @@
                 </form>
             </div>
 
-            <!-- 老師端：以學生為單位的控管表 (v7.8新增) -->
+            <!-- 老師端：以學生為單位的控管表 -->
             <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-amber-900 flex items-center gap-2"><i class="fa-solid fa-users-viewfinder text-amber-600"></i> 學生學習扶助控管總表</h3>
@@ -584,7 +586,7 @@
                 <div id="teacher-student-management-list"></div>
             </div>
 
-            <!-- 老師端：依科目分類的追蹤總表 (v7.8改版並移至最下方) -->
+            <!-- 老師端：依科目分類的追蹤總表 -->
             <div class="teacher-only hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-amber-900 flex items-center gap-2"><i class="fa-solid fa-list-check text-amber-600"></i> 科目學習扶助專案追蹤表</h3>
@@ -730,7 +732,7 @@
     </div>
 </div>
 
-<!-- Modal 語文檢定重複登錄彈窗 (2選項 - 取消新增第二筆) -->
+<!-- Modal 語文檢定重複登錄彈窗 (2選項 - 覆蓋或取消) -->
 <div id="lang-duplicate-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-5">
         <div class="flex justify-between items-center border-b pb-2">
@@ -738,7 +740,7 @@
             <button type="button" onclick="closeLangDuplicateModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
         <div class="text-sm text-slate-700 space-y-2">
-            <p>您已經提交過這個關卡的紀錄：</p>
+            <p>您已經提交過這個項目的紀錄：</p>
             <div class="bg-amber-50 text-amber-900 p-3 rounded-lg border border-amber-200 font-semibold" id="lang-duplicate-info-box"></div>
             <p class="pt-2 text-xs font-bold text-slate-500">是否要用新紀錄覆蓋舊紀錄？（例如：將未通過更新為通過）</p>
         </div>
@@ -870,6 +872,7 @@ function updateMathQuizUnitOptions() {
 function initLanguageFormOptions() {
     updateVocabStageOptions();
     initWeeklyStageOptions();
+    updateLanguageFormOptions();
 }
 
 function updateLanguageFormOptions() {
@@ -877,10 +880,33 @@ function updateLanguageFormOptions() {
     const vocabLvl = document.getElementById("lang-vocab-level-container");
     const vocabStg = document.getElementById("lang-vocab-stage-container");
     const weeklyContainer = document.getElementById("lang-weekly-container");
+    const passStatus = document.getElementById("lang-pass-status");
+
     if (subcat === "英檢單字檢定") {
-        vocabLvl.classList.remove("dynamic-hidden"); vocabStg.classList.remove("dynamic-hidden"); weeklyContainer.classList.add("dynamic-hidden");
+        vocabLvl.classList.remove("dynamic-hidden"); 
+        vocabStg.classList.remove("dynamic-hidden"); 
+        weeklyContainer.classList.add("dynamic-hidden");
+        if (passStatus.dataset.mode !== "normal") {
+            passStatus.innerHTML = `<option value="通過">🟢 通過</option><option value="未通過">🔴 未通過</option>`;
+            passStatus.dataset.mode = "normal";
+        }
+    } else if (subcat === "每週一句") {
+        vocabLvl.classList.add("dynamic-hidden"); 
+        vocabStg.classList.add("dynamic-hidden"); 
+        weeklyContainer.classList.remove("dynamic-hidden");
+        if (passStatus.dataset.mode !== "normal") {
+            passStatus.innerHTML = `<option value="通過">🟢 通過</option><option value="未通過">🔴 未通過</option>`;
+            passStatus.dataset.mode = "normal";
+        }
     } else {
-        vocabLvl.classList.add("dynamic-hidden"); vocabStg.classList.add("dynamic-hidden"); weeklyContainer.classList.remove("dynamic-hidden");
+        // 每週一句期末等第
+        vocabLvl.classList.add("dynamic-hidden"); 
+        vocabStg.classList.add("dynamic-hidden"); 
+        weeklyContainer.classList.add("dynamic-hidden");
+        if (passStatus.dataset.mode !== "final") {
+            passStatus.innerHTML = `<option value="特優">🏆 特優</option><option value="優">🎖️ 優</option><option value="未參加">⚪ 未參加</option><option value="未通過">🔴 未通過</option>`;
+            passStatus.dataset.mode = "final";
+        }
     }
 }
 
@@ -942,7 +968,6 @@ function switchRole(role) {
     document.querySelectorAll(".student-only").forEach(el => role === "student" ? el.classList.remove("hidden") : el.classList.add("hidden"));
     document.querySelectorAll(".teacher-only").forEach(el => role === "teacher" ? el.classList.remove("hidden") : el.classList.add("hidden"));
 
-    // 學生與家長隱藏總覽頁面
     const tabOverviewBtn = document.getElementById("tab-overview");
     if (tabOverviewBtn) {
         if (role === "student" || role === "parent") {
@@ -952,7 +977,6 @@ function switchRole(role) {
         }
     }
 
-    // 權限頁籤跳轉邏輯
     const currentActiveTab = document.querySelector(".active-tab");
     if (role === "student" || role === "parent") {
         if (!currentActiveTab || currentActiveTab.id === "tab-overview" || currentActiveTab.id === "tab-review" || currentActiveTab.id === "tab-import-students" || currentActiveTab.id === "tab-summary") {
@@ -968,9 +992,9 @@ function switchRole(role) {
 
 function switchTab(tabKey) {
     const validTabs = ["overview", "daily", "regular", "exam", "language", "reading", "support", "import-students", "review", "summary"]; 
-    if (!validTabs.includes(tabKey)) tabKey = "daily"; // 防錯
+    if (!validTabs.includes(tabKey)) tabKey = "daily"; 
     if ((tabKey === "review" || tabKey === "import-students" || tabKey === "summary") && currentRole !== "teacher") return alert("只有老師可以使用此功能。");
-    if (tabKey === "overview" && (currentRole === "student" || currentRole === "parent")) tabKey = "daily"; // 雙重防呆
+    if (tabKey === "overview" && (currentRole === "student" || currentRole === "parent")) tabKey = "daily"; 
 
     document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active-tab"));
     document.querySelectorAll(".content-sec").forEach(sec => sec.classList.add("hidden"));
@@ -1105,11 +1129,10 @@ function downloadCSV(csvContent, filename) {
     document.body.removeChild(link);
 }
 
-// 匯出平時成績平均
 function exportDailyAveragesCSV() {
     if (currentRole !== 'teacher') return;
     const targetPeriod = currentDailyTabPeriod;
-    let csvContent = "\uFEFF"; // BOM for Excel UTF-8
+    let csvContent = "\uFEFF"; 
     csvContent += "學生姓名,雲端速測,國語小考,數學小考,國習平均,數習平均,作文平均\n";
     
     STUDENTS.forEach(student => {
@@ -1130,7 +1153,6 @@ function exportDailyAveragesCSV() {
     downloadCSV(csvContent, `${targetPeriod}平時成績平均_${getFormattedTime()}.csv`);
 }
 
-// 匯出平時/定期評量統計
 function exportAssessmentCSV(mainCat, targetPeriod, filenamePrefix) {
     if (currentRole !== 'teacher') return;
     let csvContent = "\uFEFF學生姓名,國語,英語,數學,自然,社會,總分,班級排名\n";
@@ -1197,7 +1219,6 @@ function handleDuplicateAddSecond() {
     resetFormWithMemory(tempDuplicateRecord.mainCat);
 }
 
-// 評量防呆彈窗 (2選項 - 嚴格限制)
 function showExamDuplicateModal(recordObj, existingId) {
     tempDuplicateRecord = { ...recordObj, existingId };
     const existingRecord = records.find(r => r.id === existingId);
@@ -1228,7 +1249,6 @@ function handleExamDuplicateOverride() {
     resetFormWithMemory(tempDuplicateRecord.mainCat);
 }
 
-// 語文檢定專屬防呆彈窗
 function showLangDuplicateModal(recordObj, existingId) {
     tempDuplicateRecord = { ...recordObj, existingId };
     const infoBox = document.getElementById("lang-duplicate-info-box");
@@ -1306,8 +1326,12 @@ function addRecord(mainCat) {
         if (subCat === "英檢單字檢定") {
             title = `${document.getElementById("lang-vocab-level").value} ${document.getElementById("lang-vocab-stage").value}`;
             score = passStatus;
-        } else {
-            title = document.getElementById("lang-weekly-stage").value; score = passStatus;
+        } else if (subCat === "每週一句") {
+            title = document.getElementById("lang-weekly-stage").value; 
+            score = passStatus;
+        } else if (subCat === "每週一句期末等第") {
+            title = "期末闖關等第"; 
+            score = passStatus;
         }
     } else if (mainCat === "閱讀成長") {
         const bookTitle = document.getElementById("reading-title").value.trim();
@@ -1323,7 +1347,6 @@ function addRecord(mainCat) {
         status: "pending", visibleToParent: false, createdAt: new Date().toISOString()
     };
 
-    // 平時成績重複判斷 (呼叫 3選項防呆)
     if (mainCat === "平時成績") {
         const existing = records.find(r => r.student === currentStudent && r.mainCat === mainCat && r.subCat === subCat && r.title === title && r.period === period);
         if (existing) {
@@ -1332,7 +1355,6 @@ function addRecord(mainCat) {
         }
     }
 
-    // 平時評量與定期評量重複判斷 (呼叫 2選項防呆 - 嚴格限制單一分數)
     if (mainCat === "平時評量" || mainCat === "定期評量成績") {
         const existing = records.find(r => r.student === currentStudent && r.mainCat === mainCat && r.title === title && r.period === period);
         if (existing) {
@@ -1341,7 +1363,6 @@ function addRecord(mainCat) {
         }
     }
 
-    // 語文檢定重複判斷 (呼叫 2選項防呆)
     if (mainCat === "語文檢定") {
         const existing = records.find(r => r.student === currentStudent && r.mainCat === mainCat && r.subCat === subCat && r.title === title);
         if (existing) {
@@ -1350,7 +1371,6 @@ function addRecord(mainCat) {
         }
     }
 
-    // 正常新增
     newRecordObj.id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
     records.unshift(newRecordObj);
     saveData();
@@ -1370,16 +1390,26 @@ function resetFormWithMemory(mainCat) {
     } else if (mainCat === "定期評量成績") {
         const scoreInput = document.getElementById("exam-score");
         if (scoreInput) { scoreInput.value = ""; scoreInput.focus(); }
-    } else {
-        const map = { "語文檢定": "language-form", "閱讀成長": "reading-form" };
-        const form = document.getElementById(map[mainCat]);
+    } else if (mainCat === "語文檢定") {
+        const subcat = document.getElementById("lang-subcat").value;
+        if (subcat === "英檢單字檢定") {
+            const stgSelect = document.getElementById("lang-vocab-stage");
+            let currentStg = parseInt(stgSelect.value.replace(/\D/g, ''));
+            if (currentStg && currentStg < 6) stgSelect.value = `第 ${currentStg + 1} 關`;
+        } else if (subcat === "每週一句") {
+            const wStgSelect = document.getElementById("lang-weekly-stage");
+            let currentWStg = parseInt(wStgSelect.value.replace(/\D/g, ''));
+            if (currentWStg && currentWStg < 16) wStgSelect.value = `第 ${currentWStg + 1} 句`;
+        }
+        document.getElementById("lang-pass-status").selectedIndex = 0;
+    } else if (mainCat === "閱讀成長") {
+        const form = document.getElementById("reading-form");
         if (form) form.reset();
-        if (mainCat === "語文檢定") updateLanguageFormOptions();
     }
 }
 
 // ==========================================
-// 學習扶助模組功能 (v7.8 老師端雙表格介面)
+// 學習扶助模組功能
 // ==========================================
 function handleAddSupport(e) {
     e.preventDefault();
@@ -1977,8 +2007,11 @@ function renderStudentLanguageMatrix(studentName) {
     }
     wWrap.innerHTML = wHTML + `</tr></tbody></table>`;
 
+    const summaryRec = records.find(r => r.student === studentName && r.mainCat === "語文檢定" && r.subCat === "每週一句期末等第" && r.status === "approved");
+    let summaryText = summaryRec ? summaryRec.score : "尚未登錄";
+
     const summary = document.getElementById("student-weekly-summary");
-    if (summary) summary.textContent = `期末評估：${passCount >= 14 ? "特優" : passCount >= 10 ? "優" : passCount > 0 ? "未通過" : "未闖關"} (通過 ${passCount} 句)`;
+    if (summary) summary.textContent = `期末闖關等第：${summaryText} (已通過 ${passCount} 句)`;
 }
 
 function renderTeacherLanguageMatrix() {
@@ -2001,13 +2034,21 @@ function renderTeacherLanguageMatrix() {
     vWrap.innerHTML = vHTML + `</tbody></table>`;
 
     let wHTML = `<table class="w-full text-xs text-center border border-slate-200 rounded-lg overflow-hidden">
-        <thead class="bg-amber-100 text-amber-900 font-bold"><tr><th class="p-2 border text-left">學生</th><th class="p-2 border">通過句數</th><th class="p-2 border">期末狀態</th></tr></thead><tbody>`;
+        <thead class="bg-amber-100 text-amber-900 font-bold"><tr><th class="p-2 border text-left">學生</th><th class="p-2 border">通過句數</th><th class="p-2 border">期末等第(學生登錄)</th></tr></thead><tbody>`;
     STUDENTS.forEach(studentName => {
         let passCnt = 0;
         for (let i = 1; i <= 16; i++) { if (getWeeklyStageStatus(studentName, i).code === "pass") passCnt++; }
+        
+        const summaryRec = records.find(r => r.student === studentName && r.mainCat === "語文檢定" && r.subCat === "每週一句期末等第" && r.status === "approved");
+        let summaryText = summaryRec ? summaryRec.score : "⚪ 尚未登錄";
+        let badgeColor = "text-slate-500 font-medium";
+        if (summaryText === "特優") badgeColor = "text-emerald-600 font-bold";
+        else if (summaryText === "優") badgeColor = "text-blue-600 font-bold";
+        else if (summaryText === "未通過") badgeColor = "text-red-600 font-bold";
+
         wHTML += `<tr><td class="p-2 border text-left font-bold bg-slate-50">${escapeHTML(studentName)}</td>
             <td class="p-2 border font-bold text-indigo-600">${passCnt} / 16 句</td>
-            <td class="p-2 border font-bold">${passCnt >= 14 ? "🟢 特優" : passCnt >= 10 ? "🔵 優" : passCnt > 0 ? "🔴 未通過" : "⚪ 未闖關"}</td></tr>`;
+            <td class="p-2 border ${badgeColor}">${summaryText}</td></tr>`;
     });
     wWrap.innerHTML = wHTML + `</tbody></table>`;
 }
