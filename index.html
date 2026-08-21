@@ -33,7 +33,7 @@
         <form id="login-form" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">帳號 (代號 / 座號)</label>
-                <input type="text" id="auth-account" required placeholder="例如：teacher, stu01, p01" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="auth-account" required placeholder="例如：t01, s01, p01" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">密碼</label>
@@ -45,8 +45,8 @@
         </form>
         <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-[11px] text-slate-500 space-y-1">
             <p>※ 測試帳號提示：</p>
-            <p>• 老師：<code>teacher</code> / <code>t1234</code></p>
-            <p>• 學生：<code>stu01</code> / <code>1111</code></p>
+            <p>• 老師：<code>t01</code> / <code>1234</code></p>
+            <p>• 學生：<code>s01</code> / <code>1111</code></p>
             <p>• 家長：<code>p01</code> / <code>1111</code></p>
         </div>
     </div>
@@ -1672,40 +1672,58 @@ function toggleParentVisible(id) {
 
 async function approveAll() {
     if (currentRole !== 'teacher') return;
-    let count = 0;
-    
     const pendingRecords = records.filter(r => r.status === 'pending');
     if (pendingRecords.length === 0) {
         return alert("目前沒有需要核可的成績。");
     }
 
-    for (const r of pendingRecords) {
-        r.status = 'approved';
-        await postRecordToCloud(r, "成績總表");
-        count++;
-    }
+    const btn = document.querySelector('button[onclick="approveAll()"]');
+    if (btn) btn.disabled = true;
 
-    renderAll();
-    alert(`✅ 已一鍵核可並同步 ${count} 筆成績至雲端！`);
+    try {
+        let count = 0;
+        for (let i = 0; i < pendingRecords.length; i++) {
+            const r = pendingRecords[i];
+            r.status = 'approved';
+            await postRecordToCloud(r, "成績總表");
+            count++;
+        }
+        renderAll();
+        alert(`✅ 成功一鍵核可並同步 ${count} 筆成績至雲端！`);
+    } catch (err) {
+        console.error("一鍵核可發生錯誤：", err);
+        alert("⚠️ 雲端同步過程發生異常，請檢查網路連線。");
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
 async function publishAll() {
     if (currentRole !== 'teacher') return;
-    let count = 0;
-
     const unpublishRecords = records.filter(r => r.status === 'approved' && !isTruthy(r.visibleToParent));
     if (unpublishRecords.length === 0) {
         return alert("目前沒有未公開的已核可成績。");
     }
 
-    for (const r of unpublishRecords) {
-        r.visibleToParent = true;
-        await postRecordToCloud(r, "成績總表");
-        count++;
-    }
+    const btn = document.querySelector('button[onclick="publishAll()"]');
+    if (btn) btn.disabled = true;
 
-    renderAll();
-    alert(`✅ 已一鍵公開並同步 ${count} 筆成績至雲端！`);
+    try {
+        let count = 0;
+        for (let i = 0; i < unpublishRecords.length; i++) {
+            const r = unpublishRecords[i];
+            r.visibleToParent = true;
+            await postRecordToCloud(r, "成績總表");
+            count++;
+        }
+        renderAll();
+        alert(`✅ 成功一鍵公開並同步 ${count} 筆成績至雲端！`);
+    } catch (err) {
+        console.error("一鍵公開發生錯誤：", err);
+        alert("⚠️ 雲端同步過程發生異常，請檢查網路連線。");
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
 function escapeHTML(value) {
