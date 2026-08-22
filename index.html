@@ -44,7 +44,7 @@
         <form id="login-form" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">帳號 (代號 / 座號)</label>
-                <input type="text" id="auth-account" required placeholder="例如：teacher, stu01, p01" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="auth-account" required placeholder="例如：t01, stu01, p01" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">密碼</label>
@@ -56,7 +56,7 @@
         </form>
         <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-[11px] text-slate-500 space-y-1">
             <p>※ 測試帳號提示：</p>
-            <p>• 老師：<code>t01</code> / <code>1234</code></p>
+            <p>• 老師：<code>t01</code> / <code>t1234</code></p>
             <p>• 學生：<code>stu01</code> / <code>1111</code></p>
             <p>• 家長：<code>p01</code> / <code>1111</code></p>
         </div>
@@ -923,6 +923,17 @@ async function postRecordToCloud(recordObj, targetSheet = "成績總表") {
     }
 }
 
+async function batchPostRecordsToCloud(rowsArray, targetSheet = "成績總表") {
+    try {
+        await fetch(GAS_API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "batchSaveRecords", targetSheet: targetSheet, rowsArray: rowsArray })
+        });
+    } catch (e) {
+        console.error("批次雲端存檔失敗", e);
+    }
+}
+
 function saveData(newRecord = null, targetSheet = "成績總表") {
     renderAll();
     if (newRecord) {
@@ -1293,7 +1304,7 @@ function closeDuplicateModal() {
     document.getElementById("duplicate-modal").classList.add("hidden");
 }
 
-function handleDuplicateOverride() {
+async function handleDuplicateOverride() {
     if (!tempDuplicateRecord) return;
     const existing = records.find(r => r.id === tempDuplicateRecord.existingId);
     if (existing) {
@@ -1301,10 +1312,20 @@ function handleDuplicateOverride() {
         existing.status = "pending";
         existing.visibleToParent = false;
         existing.createdAt = new Date().toISOString();
-        saveData(existing);
+        
+        showLoading("正在覆蓋舊成績並同步至雲端...");
+        try {
+            await postRecordToCloud(existing, "成績總表");
+            renderAll();
+            alert("✅ 已覆蓋舊成績，並重新送出審核！");
+        } catch (err) {
+            console.error("覆蓋同步失敗：", err);
+            alert("⚠️ 雲端同步失敗，請檢查網路連線。");
+        } finally {
+            hideLoading();
+        }
     }
     closeDuplicateModal();
-    alert("✅ 已覆蓋舊成績，並重新送出審核！");
     resetFormWithMemory(tempDuplicateRecord.mainCat);
 }
 
@@ -1335,7 +1356,7 @@ function closeExamDuplicateModal() {
     document.getElementById("exam-duplicate-modal").classList.add("hidden");
 }
 
-function handleExamDuplicateOverride() {
+async function handleExamDuplicateOverride() {
     if (!tempDuplicateRecord) return;
     const existing = records.find(r => r.id === tempDuplicateRecord.existingId);
     if (existing) {
@@ -1343,11 +1364,20 @@ function handleExamDuplicateOverride() {
         existing.status = "pending";
         existing.visibleToParent = false;
         existing.createdAt = new Date().toISOString();
-        saveData(existing);
+        
+        showLoading("正在覆蓋舊成績並同步至雲端...");
+        try {
+            await postRecordToCloud(existing, "成績總表");
+            renderAll();
+            alert("✅ 已成功覆蓋舊成績，並重新送出審核！");
+        } catch (err) {
+            console.error("覆蓋同步失敗：", err);
+            alert("⚠️ 雲端同步失敗，請檢查網路連線。");
+        } finally {
+            hideLoading();
+        }
     }
     closeExamDuplicateModal();
-    alert("✅ 已覆蓋舊成績，並重新送出審核！");
-    resetFormWithMemory(tempDuplicateRecord.mainCat);
 }
 
 function showLangDuplicateModal(recordObj, existingId) {
@@ -1362,7 +1392,7 @@ function closeLangDuplicateModal() {
     document.getElementById("lang-duplicate-modal").classList.add("hidden");
 }
 
-function handleLangDuplicateOverride() {
+async function handleLangDuplicateOverride() {
     if (!tempDuplicateRecord) return;
     const existing = records.find(r => r.id === tempDuplicateRecord.existingId);
     if (existing) {
@@ -1370,11 +1400,20 @@ function handleLangDuplicateOverride() {
         existing.status = "pending";
         existing.visibleToParent = false;
         existing.createdAt = new Date().toISOString();
-        saveData(existing);
+        
+        showLoading("正在覆蓋舊紀錄並同步至雲端...");
+        try {
+            await postRecordToCloud(existing, "成績總表");
+            renderAll();
+            alert("✅ 已更新並覆蓋舊紀錄，等待審核！");
+        } catch (err) {
+            console.error("覆蓋同步失敗：", err);
+            alert("⚠️ 雲端同步失敗，請檢查網路連線。");
+        } finally {
+            hideLoading();
+        }
     }
     closeLangDuplicateModal();
-    alert("✅ 已更新並覆蓋舊紀錄，等待審核！");
-    resetFormWithMemory(tempDuplicateRecord.mainCat);
 }
 
 function addRecord(mainCat) {
@@ -1718,19 +1757,14 @@ async function approveAll() {
         return alert("目前沒有需要核可的成績。");
     }
 
-    showLoading("正在一鍵核可並上傳雲端，請稍候...");
+    showLoading("正在批次一鍵核可並上傳雲端...");
 
     try {
-        let count = 0;
-        for (let i = 0; i < pendingRecords.length; i++) {
-            const r = pendingRecords[i];
-            r.status = 'approved';
-            await postRecordToCloud(r, "成績總表");
-            count++;
-        }
+        pendingRecords.forEach(r => r.status = 'approved');
+        await batchPostRecordsToCloud(pendingRecords, "成績總表");
 
         renderAll();
-        alert(`✅ 成功一鍵核可並同步 ${count} 筆成績至雲端！`);
+        alert(`✅ 成功一鍵核可並同步 ${pendingRecords.length} 筆成績至雲端！`);
     } catch (err) {
         console.error("一鍵核可發生錯誤：", err);
         alert("⚠️ 雲端同步過程發生異常，請檢查網路連線。");
@@ -1747,19 +1781,14 @@ async function publishAll() {
         return alert("目前沒有未公開的已核可成績。");
     }
 
-    showLoading("正在一鍵公開並上傳雲端，請稍候...");
+    showLoading("正在批次一鍵公開並上傳雲端...");
 
     try {
-        let count = 0;
-        for (let i = 0; i < unpublishRecords.length; i++) {
-            const r = unpublishRecords[i];
-            r.visibleToParent = true;
-            await postRecordToCloud(r, "成績總表");
-            count++;
-        }
+        unpublishRecords.forEach(r => r.visibleToParent = true);
+        await batchPostRecordsToCloud(unpublishRecords, "成績總表");
 
         renderAll();
-        alert(`✅ 成功一鍵公開並同步 ${count} 筆成績至雲端！`);
+        alert(`✅ 成功一鍵公開並同步 ${unpublishRecords.length} 筆成績至雲端！`);
     } catch (err) {
         console.error("一鍵公開發生錯誤：", err);
         alert("⚠️ 雲端同步過程發生異常，請檢查網路連線。");
