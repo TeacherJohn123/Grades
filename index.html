@@ -3,81 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>班級外掃區與工具管理系統</title>
+    <title>班級掃地工作分配系統（雲端雙時段版）</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
         body { -webkit-text-size-adjust: 100%; }
-        .dragging { opacity: 0.4; }
-        .drag-over { background-color: #eff6ff !important; border-color: #3b82f6 !important; border-style: dashed !important; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
+    <!-- 頂部導覽列 -->
     <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-broom text-2xl text-yellow-300"></i>
-                <h1 class="text-lg md:text-xl font-bold tracking-wider">班級外掃區與工具管理系統</h1>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-wider">班級掃地工作分配系統</h1>
+                    <p id="sync-status-label" class="text-xs text-indigo-200">雲端同步狀態：就緒</p>
+                </div>
             </div>
+            <!-- 功能按鈕列 -->
             <div class="flex flex-wrap items-center gap-2">
-                <button onclick="openToolSummaryModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
-                    <i class="fa-solid fa-calculator"></i> 統計所需掃具
+                <button onclick="syncToCloud()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> 手動同步雲端
+                </button>
+                <button onclick="openToolsSummaryModal()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
+                    <i class="fa-solid fa-clipboard-list"></i> 統計所需掃具
+                </button>
+                <button onclick="openCalendarModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
+                    <i class="fa-solid fa-calendar-days"></i> 歷史日曆
                 </button>
                 <button onclick="openAddZoneModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
-                    <i class="fa-solid fa-plus"></i> 新增外掃區
+                    <i class="fa-solid fa-plus"></i> 新增區域
                 </button>
                 <button onclick="openAddToolModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
-                    <i class="fa-solid fa-tag"></i> 新增工具標籤
+                    <i class="fa-solid fa-tag"></i> 新增工具
                 </button>
                 <button onclick="openStatsModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
-                    <i class="fa-solid fa-chart-bar"></i> 表現統計總表
+                    <i class="fa-solid fa-chart-bar"></i> 表現統計
                 </button>
-                <button onclick="exportData()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
-                    <i class="fa-solid fa-download"></i> 匯出 (JSON)
-                </button>
-                <button onclick="document.getElementById('import-file-input').click()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs md:text-sm px-3 py-2 rounded-lg shadow flex items-center gap-1 transition">
-                    <i class="fa-solid fa-upload"></i> 匯入 (JSON)
-                </button>
-                <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importData(event)">
             </div>
         </div>
     </header>
 
+    <!-- 時段切換橫幅 -->
+    <div class="bg-indigo-800 text-white shadow-inner py-3 px-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-indigo-200 font-bold">目前打掃時段：</span>
+                <div class="inline-flex rounded-lg p-1 bg-indigo-950 border border-indigo-700">
+                    <button id="btn-session-morning" onclick="switchSession('morning')" class="px-4 py-1.5 rounded-md text-xs md:text-sm font-bold transition bg-indigo-600 text-white shadow">
+                        ☀️ 早上時段（外掃區）
+                    </button>
+                    <button id="btn-session-afternoon" onclick="switchSession('afternoon')" class="px-4 py-1.5 rounded-md text-xs md:text-sm font-bold transition text-indigo-300 hover:text-white">
+                        🌙 下午時段（教室內掃）
+                    </button>
+                </div>
+            </div>
+            <div class="text-xs text-indigo-200" id="session-desc-label">
+                正在編排：早上外掃區工作分配與工具設定
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要內容區 -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <aside class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col h-fit sticky top-20">
+        <!-- 左側：待分配學生區 -->
+        <aside class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col h-fit sticky top-28">
             <h2 class="font-bold text-slate-700 mb-2 flex items-center justify-between">
                 <span><i class="fa-solid fa-users text-indigo-600"></i> 待分配學生</span>
                 <span id="unassigned-count" class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full">0</span>
             </h2>
-            <p class="text-xs text-slate-400 mb-3">請將座號拖曳至右側外掃區，或點擊學生進行工具配發。</p>
+            <p class="text-xs text-slate-400 mb-3">尚未指派至本時段區域的學生座號：</p>
             
-            <div id="unassigned-container" 
-                 ondragover="allowDrop(event)" 
-                 ondrop="dropToUnassigned(event)" 
-                 class="flex flex-col gap-2 min-h-[300px] max-h-[60vh] overflow-y-auto p-2 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+            <div id="unassigned-container" class="flex flex-wrap gap-1.5 max-h-[50vh] overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-200">
+                <!-- 動態生成 -->
             </div>
         </aside>
 
+        <!-- 右側：掃地區塊卡片網格 -->
         <section class="lg:col-span-3 flex flex-col gap-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                 <div>
-                    <h2 class="font-bold text-slate-800 text-lg">外掃區任務分配與工具點選</h2>
-                    <p class="text-xs text-slate-500">點擊學生姓名可開啟「工具配發與表現評估」視窗。</p>
+                    <h2 id="section-title" class="font-bold text-slate-800 text-lg">早上外掃區任務分配與工具點選</h2>
+                    <p class="text-xs text-slate-500">選擇學生座號排入空格，需求人數將會自動即時遞減。</p>
                 </div>
-                <button onclick="resetAllAssignments()" class="text-xs text-rose-600 hover:text-rose-800 border border-rose-200 px-3 py-1 rounded-md hover:bg-rose-50 transition">
-                    重設所有分配
+                <button onclick="resetCurrentSessionAssignments()" class="text-xs text-rose-600 hover:text-rose-800 border border-rose-200 px-3 py-1 rounded-md hover:bg-rose-50 transition">
+                    清空本時段排班
                 </button>
             </div>
 
             <div id="zones-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 動態生成 -->
             </div>
         </section>
     </main>
 
-    <!-- 學生設定 Modal -->
+    <!-- 視窗 Modal：掃具統計總表 -->
+    <div id="tools-summary-modal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 id="tools-summary-title" class="font-bold text-lg text-slate-800"><i class="fa-solid fa-clipboard-list text-teal-600"></i> 掃具需求總數統計</h3>
+                <button onclick="closeToolsSummaryModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto border rounded-lg">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead class="bg-slate-100 text-slate-700 sticky top-0">
+                        <tr>
+                            <th class="p-3 border-b">工具名稱</th>
+                            <th class="p-3 border-b text-center">總需求數量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tools-summary-table-body">
+                        <!-- 動態生成工具統計 -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end pt-2 border-t">
+                <button onclick="closeToolsSummaryModal()" class="px-4 py-2 bg-slate-700 text-white text-sm rounded-lg">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 視窗 Modal：打掃日曆與歷史紀錄 -->
+    <div id="calendar-modal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-calendar-days text-indigo-600"></i> 打掃歷史日曆紀錄</h3>
+                <button onclick="closeCalendarModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <button onclick="changeCalendarMonth(-1)" class="p-2 bg-slate-100 rounded hover:bg-slate-200 text-xs font-bold"><i class="fa-solid fa-chevron-left"></i> 上個月</button>
+                    <h4 id="calendar-month-title" class="font-bold text-slate-700 text-base">2026年 8月</h4>
+                    <button onclick="changeCalendarMonth(1)" class="p-2 bg-slate-100 rounded hover:bg-slate-200 text-xs font-bold">下個月 <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+
+                <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 border-b pb-2">
+                    <span class="text-rose-500">日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="text-rose-500">六</span>
+                </div>
+
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center text-sm">
+                    <!-- 動態產生 -->
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-3 border-t text-xs text-slate-500">
+                <span id="calendar-mode-tip">💡 目前檢視即時排班狀態</span>
+                <button onclick="closeCalendarModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 視窗 Modal：學生工具配發與表現評估 -->
     <div id="student-modal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -87,7 +170,7 @@
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">今日工作表現狀態：</label>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">工作表現狀態：</label>
                     <select id="modal-performance-select" class="w-full border rounded-lg p-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500">
                         <option value="認真">🟢 認真 (正常)</option>
                         <option value="遲到">🟡 遲到</option>
@@ -99,54 +182,29 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">配發掃地工具 (可複選)：</label>
                     <div id="modal-tools-container" class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 bg-slate-50 border rounded-lg">
+                        <!-- 動態工具 -->
                     </div>
                 </div>
             </div>
 
             <div class="flex justify-end gap-2 pt-3 border-t">
-                <button onclick="closeStudentModal()" class="px-4 py-2 bg-slate-100 text-slate-700 text-sm rounded-lg hover:bg-slate-200 transition">取消</button>
-                <button onclick="saveStudentModal()" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition">儲存設定</button>
+                <button onclick="closeStudentModal()" class="px-4 py-2 bg-slate-100 text-slate-700 text-sm rounded-lg hover:bg-slate-200">取消</button>
+                <button onclick="saveStudentModal()" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">儲存設定</button>
             </div>
         </div>
     </div>
 
-    <!-- 掃具總計統計 Modal -->
-    <div id="tool-summary-modal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-calculator text-emerald-600"></i> 全班所需掃具總計清單</h3>
-                <button onclick="closeToolSummaryModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-xs text-slate-500">以下為目前所有外掃區學生已配發工具的總數量統計：</p>
-            <div class="flex-1 overflow-y-auto border rounded-lg">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead class="bg-slate-100 text-slate-700 sticky top-0">
-                        <tr>
-                            <th class="p-3 border-b">工具名稱</th>
-                            <th class="p-3 border-b text-center">總需求數量</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tool-summary-table-body">
-                    </tbody>
-                </table>
-            </div>
-            <div class="flex justify-end pt-2 border-t">
-                <button onclick="closeToolSummaryModal()" class="px-4 py-2 bg-slate-700 text-white text-sm rounded-lg">關閉</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 外掃區新增與編輯 Modal -->
+    <!-- 視窗 Modal：新增/編輯區域 -->
     <div id="zone-modal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <h3 id="zone-modal-title" class="font-bold text-lg text-slate-800 border-b pb-2">新增外掃區</h3>
+            <h3 id="zone-modal-title" class="font-bold text-lg text-slate-800 border-b pb-2">新增掃地區域</h3>
             <input type="hidden" id="zone-edit-id">
             <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">外掃區名稱：</label>
-                <input type="text" id="zone-name-input" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="例如：操場司令台旁">
+                <label class="block text-xs font-bold text-slate-600 mb-1">區域名稱：</label>
+                <input type="text" id="zone-name-input" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="例如：講臺與黑板">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">空格容量（至多幾位學生）：</label>
+                <label class="block text-xs font-bold text-slate-600 mb-1">需求人數（容量）：</label>
                 <input type="number" id="zone-capacity-input" value="6" min="1" max="15" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500">
             </div>
             <div class="flex justify-end gap-2 pt-2">
@@ -156,10 +214,10 @@
         </div>
     </div>
 
-    <!-- 新增工具標籤 Modal -->
+    <!-- 視窗 Modal：新增工具標籤 -->
     <div id="tool-modal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <h3 class="font-bold text-lg text-slate-800 border-b pb-2">新增自訂工具標籤</h3>
+            <h3 class="font-bold text-lg text-slate-800 border-b pb-2">新增工具標籤</h3>
             <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">工具名稱：</label>
                 <input type="text" id="new-tool-input" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="例如：長柄刷">
@@ -171,11 +229,11 @@
         </div>
     </div>
 
-    <!-- 表現統計總表 Modal -->
+    <!-- 視窗 Modal：表現統計總表 -->
     <div id="stats-modal" class="fixed inset-0 bg-slate-900/50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-chart-bar text-amber-600"></i> 全班掃地工作表現與遲到/未出現統計總表</h3>
+                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-chart-bar text-amber-600"></i> 全班掃地工作表現與統計總表</h3>
                 <button onclick="closeStatsModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto border rounded-lg">
@@ -183,13 +241,14 @@
                     <thead class="bg-slate-100 text-slate-700 sticky top-0">
                         <tr>
                             <th class="p-3 border-b">座號姓名</th>
-                            <th class="p-3 border-b text-center">🟢 認真次數</th>
-                            <th class="p-3 border-b text-center text-amber-600">🟡 遲到累積</th>
-                            <th class="p-3 border-b text-center text-rose-600">🔴 未出現累積</th>
-                            <th class="p-3 border-b text-center">🟠 未認真累積</th>
+                            <th class="p-3 border-b text-center">🟢 認真</th>
+                            <th class="p-3 border-b text-center text-amber-600">🟡 遲到</th>
+                            <th class="p-3 border-b text-center text-rose-600">🔴 未出現</th>
+                            <th class="p-3 border-b text-center">🟠 未認真</th>
                         </tr>
                     </thead>
                     <tbody id="stats-table-body">
+                        <!-- 動態生成 -->
                     </tbody>
                 </table>
             </div>
@@ -199,30 +258,43 @@
         </div>
     </div>
 
+    <!-- JavaScript 邏輯控制 -->
     <script>
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw5LpLxILSFaD6_O1YNfRh4tLmZfbWODTDexQejCWb9NTy-QpUWzn9Wbr3VfGNZRNrS4A/exec";
+
+        let currentViewDate = "PERMANENT"; 
+        let currentSession = "morning"; // "morning" 或 "afternoon"
+
+        // 30位學生
         let STUDENTS = [];
         for (let i = 1; i <= 30; i++) {
             STUDENTS.push({
                 id: i,
                 name: `${i < 10 ? '0' + i : i}號`,
-                zoneId: null,
-                isLeader: false,
-                tools: [],
-                performance: "認真",
-                stats: { 認真: 0, 遲到: 0, 未出現: 0, 未認真: 0 }
+                morning: { zoneId: null, isLeader: false, tools: [], performance: "認真" },
+                afternoon: { zoneId: null, isLeader: false, tools: [], performance: "認真" },
+                stats: { 認真: 0, 遲到: 0, 未出現: 0, 未認真: 0 } 
             });
         }
 
-        let ZONES = [
-            { id: "z_1", name: "汽車停放區", capacity: 6, leaderId: null, order: 1 },
-            { id: "z_2", name: "華徑步道", capacity: 6, leaderId: null, order: 2 },
-            { id: "z_3", name: "華徑旁綠地", capacity: 6, leaderId: null, order: 3 },
-            { id: "z_4", name: "二年一班教室後方紅磚道", capacity: 6, leaderId: null, order: 4 },
-            { id: "z_5", name: "資源回收室旁紅磚道及綠地", capacity: 6, leaderId: null, order: 5 },
-            { id: "z_6", name: "一年四班教室後方紅磚道", capacity: 6, leaderId: null, order: 6 },
-            { id: "z_7", name: "團輔室", capacity: 6, leaderId: null, order: 7 },
-            { id: "z_8", name: "輔導室內部及走廊", capacity: 6, leaderId: null, order: 8 },
-            { id: "z_9", name: "輔導室旁廁所走廊", capacity: 6, leaderId: null, order: 9 }
+        let ZONES_MORNING = [
+            { id: "z_m1", name: "汽車停放區", capacity: 6, leaderId: null, order: 1 },
+            { id: "z_m2", name: "華徑步道", capacity: 6, leaderId: null, order: 2 },
+            { id: "z_m3", name: "華徑旁綠地", capacity: 6, leaderId: null, order: 3 },
+            { id: "z_m4", name: "二年一班教室後方紅磚道", capacity: 6, leaderId: null, order: 4 },
+            { id: "z_m5", name: "資源回收室旁紅磚道及綠地", capacity: 6, leaderId: null, order: 5 },
+            { id: "z_m6", name: "一年四班教室後方紅磚道", capacity: 6, leaderId: null, order: 6 },
+            { id: "z_m7", name: "團輔室", capacity: 6, leaderId: null, order: 7 },
+            { id: "z_m8", name: "輔導室內部及走廊", capacity: 6, leaderId: null, order: 8 },
+            { id: "z_m9", name: "輔導室旁廁所走廊", capacity: 6, leaderId: null, order: 9 }
+        ];
+
+        let ZONES_AFTERNOON = [
+            { id: "z_a1", name: "講臺與黑板", capacity: 3, leaderId: null, order: 1 },
+            { id: "z_a2", name: "教室內部掃地", capacity: 6, leaderId: null, order: 2 },
+            { id: "z_a3", name: "教室內部拖地", capacity: 6, leaderId: null, order: 3 },
+            { id: "z_a4", name: "前後走廊與洗手台", capacity: 4, leaderId: null, order: 4 },
+            { id: "z_a5", name: "垃圾與資源回收區", capacity: 4, leaderId: null, order: 5 }
         ];
 
         let TOOL_TAGS = [
@@ -230,26 +302,137 @@
         ];
 
         let currentEditingStudentId = null;
+        let calendarYear = new Date().getFullYear();
+        let calendarMonth = new Date().getMonth();
 
-        function loadData() {
-            const savedStudents = localStorage.getItem("cleaning_students");
-            const savedZones = localStorage.getItem("cleaning_zones");
+        function getCurrentZones() {
+            return currentSession === "morning" ? ZONES_MORNING : ZONES_AFTERNOON;
+        }
+
+        function switchSession(session) {
+            currentSession = session;
+            const btnM = document.getElementById("btn-session-morning");
+            const btnA = document.getElementById("btn-session-afternoon");
+            const desc = document.getElementById("session-desc-label");
+            const title = document.getElementById("section-title");
+
+            if (session === "morning") {
+                btnM.className = "px-4 py-1.5 rounded-md text-xs md:text-sm font-bold transition bg-indigo-600 text-white shadow";
+                btnA.className = "px-4 py-1.5 rounded-md text-xs md:text-sm font-bold transition text-indigo-300 hover:text-white";
+                desc.innerText = "正在編排：早上外掃區工作分配與工具設定";
+                title.innerText = "早上外掃區任務分配與工具點選";
+            } else {
+                btnA.className = "px-4 py-1.5 rounded-md text-xs md:text-sm font-bold transition bg-indigo-600 text-white shadow";
+                btnM.className = "px-4 py-1.5 rounded-md text-xs md:text-sm font-bold transition text-indigo-300 hover:text-white";
+                desc.innerText = "正在編排：下午教室內掃區工作分配與工具設定";
+                title.innerText = "下午教室內掃區任務分配與工具點選";
+            }
+            renderAllLocal();
+        }
+
+        async function loadData() {
+            updateSyncStatus("正在從雲端載入...", "text-yellow-300");
+            try {
+                if (GAS_WEB_APP_URL && !GAS_WEB_APP_URL.includes("你的Google網址代碼")) {
+                    const response = await fetch(GAS_WEB_APP_URL);
+                    const cloudData = await response.json();
+                    if (cloudData && cloudData.students) {
+                        STUDENTS = cloudData.students;
+                        if (cloudData.zonesMorning) ZONES_MORNING = cloudData.zonesMorning;
+                        if (cloudData.zonesAfternoon) ZONES_AFTERNOON = cloudData.zonesAfternoon;
+                        if (cloudData.toolTags) TOOL_TAGS = cloudData.toolTags;
+                        updateSyncStatus("已與 Google 雲端同步", "text-emerald-300");
+                        renderAllLocal();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log("從雲端載入失敗，改用本機備份：", e);
+            }
+
+            loadLocalStorageData();
+            updateSyncStatus("使用本機端資料", "text-sky-300");
+            renderAllLocal();
+        }
+
+        function loadLocalStorageData() {
             const savedTools = localStorage.getItem("cleaning_tools");
-
-            if (savedStudents) STUDENTS = JSON.parse(savedStudents);
-            if (savedZones) ZONES = JSON.parse(savedZones);
+            const savedZM = localStorage.getItem("cleaning_zones_morning");
+            const savedZA = localStorage.getItem("cleaning_zones_afternoon");
             if (savedTools) TOOL_TAGS = JSON.parse(savedTools);
+            if (savedZM) ZONES_MORNING = JSON.parse(savedZM);
+            if (savedZA) ZONES_AFTERNOON = JSON.parse(savedZA);
+
+            if (currentViewDate === "PERMANENT") {
+                const permanentData = localStorage.getItem("cleaning_permanent_assignment_v2");
+                if (permanentData) {
+                    const parsed = JSON.parse(permanentData);
+                    STUDENTS = parsed.students;
+                    if (parsed.zonesMorning) ZONES_MORNING = parsed.zonesMorning;
+                    if (parsed.zonesAfternoon) ZONES_AFTERNOON = parsed.zonesAfternoon;
+                }
+            } else {
+                loadHistoryDateData(currentViewDate);
+            }
+        }
+
+        function loadHistoryDateData(dateStr) {
+            const historyData = localStorage.getItem(`cleaning_history_${dateStr}`);
+            if (historyData) {
+                const parsed = JSON.parse(historyData);
+                STUDENTS = parsed.students;
+                if (parsed.zonesMorning) ZONES_MORNING = parsed.zonesMorning;
+                if (parsed.zonesAfternoon) ZONES_AFTERNOON = parsed.zonesAfternoon;
+            }
         }
 
         function saveData() {
-            localStorage.setItem("cleaning_students", JSON.stringify(STUDENTS));
-            localStorage.setItem("cleaning_zones", JSON.stringify(ZONES));
             localStorage.setItem("cleaning_tools", JSON.stringify(TOOL_TAGS));
+            localStorage.setItem("cleaning_zones_morning", JSON.stringify(ZONES_MORNING));
+            localStorage.setItem("cleaning_zones_afternoon", JSON.stringify(ZONES_AFTERNOON));
+
+            const payload = { students: STUDENTS, zonesMorning: ZONES_MORNING, zonesAfternoon: ZONES_AFTERNOON, toolTags: TOOL_TAGS };
+
+            if (currentViewDate === "PERMANENT") {
+                localStorage.setItem("cleaning_permanent_assignment_v2", JSON.stringify(payload));
+                syncToCloudBackground(payload);
+            } else {
+                localStorage.setItem(`cleaning_history_${dateStr}`, JSON.stringify(payload));
+            }
+        }
+
+        async function syncToCloudBackground(dataObj) {
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("你的Google網址代碼")) return;
+            updateSyncStatus("正在同步至雲端...", "text-yellow-300");
+            try {
+                await fetch(GAS_WEB_APP_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dataObj)
+                });
+                updateSyncStatus("雲端同步完成", "text-emerald-300");
+            } catch (e) {
+                updateSyncStatus("雲端同步失敗（本機已儲存）", "text-rose-300");
+            }
+        }
+
+        function syncToCloud() {
+            const payload = { students: STUDENTS, zonesMorning: ZONES_MORNING, zonesAfternoon: ZONES_AFTERNOON, toolTags: TOOL_TAGS };
+            syncToCloudBackground(payload);
+            alert("已手動觸發雲端同步！");
+        }
+
+        function updateSyncStatus(text, colorClass) {
+            const label = document.getElementById("sync-status-label");
+            if (label) {
+                label.className = `text-xs ${colorClass}`;
+                label.innerText = `雲端同步狀態：${text}`;
+            }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
             loadData();
-            renderAll();
         });
 
         function renderAll() {
@@ -258,53 +441,94 @@
             saveData();
         }
 
+        function renderAllLocal() {
+            renderUnassigned();
+            renderZones();
+        }
+
         function renderUnassigned() {
             const container = document.getElementById("unassigned-container");
-            const unassigned = STUDENTS.filter(s => s.zoneId === null);
+            const unassigned = STUDENTS.filter(s => s[currentSession].zoneId === null);
             document.getElementById("unassigned-count").innerText = unassigned.length;
 
             if (unassigned.length === 0) {
-                container.innerHTML = `<div class="text-center text-xs text-slate-400 py-8">所有學生皆已分配完畢！</div>`;
+                container.innerHTML = `<div class="w-full text-center text-xs text-slate-400 py-4">本時段所有學生皆已分配完畢！</div>`;
                 return;
             }
 
             container.innerHTML = unassigned.map(s => `
-                <div draggable="true" ondragstart="drag(event, ${s.id})" 
-                     class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex justify-between items-center cursor-grab active:cursor-grabbing hover:border-indigo-400 transition">
-                    <span class="font-bold text-sm text-slate-700">${s.name}</span>
-                    <div class="flex items-center gap-1">
-                        ${getPerformanceBadge(s.performance)}
-                        <button onclick="openStudentModal(${s.id})" class="text-xs text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded">配置</button>
-                    </div>
-                </div>
+                <span class="bg-white border border-slate-200 text-slate-700 text-xs px-2 py-1 rounded shadow-xs font-bold">${s.name}</span>
             `).join("");
         }
 
         function renderZones() {
             const container = document.getElementById("zones-container");
-            ZONES.sort((a, b) => a.order - b.order);
+            let zones = getCurrentZones();
+            zones.sort((a, b) => a.order - b.order);
+            const unassignedStudents = STUDENTS.filter(s => s[currentSession].zoneId === null);
 
-            container.innerHTML = ZONES.map((zone, index) => {
-                const zoneStudents = STUDENTS.filter(s => s.zoneId === zone.id);
+            container.innerHTML = zones.map((zone, index) => {
+                const zoneStudents = STUDENTS.filter(s => s[currentSession].zoneId === zone.id);
+                const remainingNeeded = Math.max(0, zone.capacity - zoneStudents.length);
+
                 if (zone.leaderId && !zoneStudents.some(s => s.id === zone.leaderId)) {
                     zone.leaderId = zoneStudents.length > 0 ? zoneStudents[0].id : null;
                 }
 
+                let slotsHtml = "";
+                for (let i = 0; i < zone.capacity; i++) {
+                    const assignedStudent = zoneStudents[i];
+                    if (assignedStudent) {
+                        slotsHtml += `
+                            <div class="bg-white p-2 rounded border border-slate-200 shadow-xs flex flex-col justify-between gap-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-sm text-slate-800">${assignedStudent.name} ${zone.leaderId === assignedStudent.id ? '<span class="text-[10px] bg-indigo-600 text-white px-1 py-0.5 rounded ml-1">負責</span>' : ''}</span>
+                                    <div class="flex items-center gap-1">
+                                        ${getPerformanceBadge(assignedStudent[currentSession].performance)}
+                                        <button onclick="openStudentModal(${assignedStudent.id})" class="text-xs text-indigo-600 hover:bg-indigo-50 p-1 rounded" title="工具配發"><i class="fa-solid fa-toolbox"></i></button>
+                                        <button onclick="removeFromZone(${assignedStudent.id})" class="text-xs text-slate-400 hover:text-rose-600 p-1" title="移除"><i class="fa-solid fa-xmark"></i></button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    ${assignedStudent[currentSession].tools.length === 0 ? '<span class="text-[10px] text-slate-400 italic">未配發工具</span>' : assignedStudent[currentSession].tools.map(t => `<span class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded">${t}</span>`).join("")}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        slotsHtml += `
+                            <div class="bg-slate-50 p-2 rounded border border-dashed border-slate-300 flex items-center justify-between">
+                                <span class="text-xs text-slate-400">空格 ${i+1}</span>
+                                <select onchange="assignStudentToZone('${zone.id}', this.value)" class="border rounded bg-white p-1 text-xs text-slate-700 focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">+ 選擇學生</option>
+                                    ${unassignedStudents.map(us => `<option value="${us.id}">${us.name}</option>`).join("")}
+                                </select>
+                            </div>
+                        `;
+                    }
+                }
+
                 return `
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between"
-                         ondragover="allowDrop(event)" ondrop="dropToZone(event, '${zone.id}')">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-start gap-2 mb-3">
                                 <div>
                                     <h3 class="font-bold text-slate-800 text-base">${zone.name}</h3>
-                                    <span class="text-xs text-slate-400">容量：${zoneStudents.length} / ${zone.capacity} 人</span>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-xs text-slate-500">設定需求：${zone.capacity}人</span>
+                                        <span class="text-xs text-slate-500">| 已排：${zoneStudents.length}人</span>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-1">
-                                    <button onclick="moveZone('${zone.id}', 'up')" ${index === 0 ? 'disabled class="opacity-30 cursor-not-allowed"' : ''} class="text-xs text-slate-500 p-1 hover:bg-slate-100 rounded"><i class="fa-solid fa-arrow-up"></i></button>
-                                    <button onclick="moveZone('${zone.id}', 'down')" ${index === ZONES.length - 1 ? 'disabled class="opacity-30 cursor-not-allowed"' : ''} class="text-xs text-slate-500 p-1 hover:bg-slate-100 rounded"><i class="fa-solid fa-arrow-down"></i></button>
-                                    <button onclick="openEditZoneModal('${zone.id}')" class="text-xs text-indigo-600 p-1 hover:bg-indigo-50 rounded"><i class="fa-solid fa-pen"></i></button>
-                                    <button onclick="deleteZone('${zone.id}')" class="text-xs text-rose-600 p-1 hover:bg-rose-50 rounded"><i class="fa-solid fa-trash"></i></button>
+                                <div class="flex flex-col items-center bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-lg">
+                                    <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider">還需</span>
+                                    <span class="text-2xl font-black ${remainingNeeded === 0 ? 'text-emerald-600' : 'text-indigo-600'}">${remainingNeeded}</span>
                                 </div>
+                            </div>
+
+                            <div class="flex justify-end items-center gap-1 mb-3">
+                                <button onclick="moveZone('${zone.id}', 'up')" ${index === 0 ? 'disabled class="opacity-30 cursor-not-allowed"' : ''} class="text-xs text-slate-500 p-1 hover:bg-slate-100 rounded"><i class="fa-solid fa-arrow-up"></i></button>
+                                <button onclick="moveZone('${zone.id}', 'down')" ${index === zones.length - 1 ? 'disabled class="opacity-30 cursor-not-allowed"' : ''} class="text-xs text-slate-500 p-1 hover:bg-slate-100 rounded"><i class="fa-solid fa-arrow-down"></i></button>
+                                <button onclick="openEditZoneModal('${zone.id}')" class="text-xs text-indigo-600 p-1 hover:bg-indigo-50 rounded" title="編輯區域"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteZone('${zone.id}')" class="text-xs text-rose-600 p-1 hover:bg-rose-50 rounded" title="刪除區域"><i class="fa-solid fa-trash"></i></button>
                             </div>
 
                             <div class="bg-indigo-50/60 p-2.5 rounded-lg border border-indigo-100 mb-3 flex items-center justify-between text-xs">
@@ -320,24 +544,8 @@
                                 </button>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 min-h-[90px] p-2 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                                ${zoneStudents.length === 0 ? `<div class="col-span-2 text-center text-xs text-slate-400 py-4 pointer-events-none">拖曳學生座號至此處</div>` : ''}
-                                ${zoneStudents.map(s => `
-                                    <div draggable="true" ondragstart="drag(event, ${s.id})" 
-                                         class="bg-white p-2 rounded border border-slate-200 shadow-xs flex flex-col justify-between gap-1 cursor-grab active:cursor-grabbing hover:border-indigo-400 transition">
-                                        <div class="flex justify-between items-center">
-                                            <span class="font-bold text-sm text-slate-800">${s.name} ${zone.leaderId === s.id ? '<span class="text-[10px] bg-indigo-600 text-white px-1 py-0.5 rounded ml-1">負責</span>' : ''}</span>
-                                            <div class="flex items-center gap-1">
-                                                ${getPerformanceBadge(s.performance)}
-                                                <button onclick="openStudentModal(${s.id})" class="text-xs text-indigo-600 hover:bg-indigo-50 p-1 rounded" title="工具配發"><i class="fa-solid fa-toolbox"></i></button>
-                                                <button onclick="removeFromZone(${s.id})" class="text-xs text-slate-400 hover:text-rose-600 p-1" title="移回待分配"><i class="fa-solid fa-xmark"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-wrap gap-1 mt-1">
-                                            ${s.tools.length === 0 ? '<span class="text-[10px] text-slate-400 italic">未配發工具</span>' : s.tools.map(t => `<span class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded">${t}</span>`).join("")}
-                                        </div>
-                                    </div>
-                                `).join("")}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${slotsHtml}
                             </div>
                         </div>
                     </div>
@@ -352,76 +560,158 @@
             return `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded font-bold">認真</span>`;
         }
 
-        function drag(event, studentId) {
-            event.dataTransfer.setData("text/plain", studentId);
-        }
+        // --- 統計所需掃具總數功能 ---
+        function openToolsSummaryModal() {
+            // 計算目前時段所有學生配發的工具總數
+            const toolCounts = {};
+            TOOL_TAGS.forEach(t => toolCounts[t] = 0);
 
-        function allowDrop(event) {
-            event.preventDefault();
-        }
+            STUDENTS.forEach(s => {
+                const tools = s[currentSession].tools || [];
+                tools.forEach(t => {
+                    if (toolCounts[t] !== undefined) {
+                        toolCounts[t]++;
+                    } else {
+                        toolCounts[t] = 1;
+                    }
+                });
+            });
 
-        function dropToUnassigned(event) {
-            event.preventDefault();
-            const studentId = Number(event.dataTransfer.getData("text/plain"));
-            const student = STUDENTS.find(s => s.id === studentId);
-            if (student) {
-                student.zoneId = null;
-                student.isLeader = false;
-                renderAll();
+            const tbody = document.getElementById("tools-summary-table-body");
+            const title = document.getElementById("tools-summary-title");
+            title.innerHTML = `<i class="fa-solid fa-clipboard-list text-teal-600"></i> 掃具需求總數統計 (${currentSession === 'morning' ? '早上時段' : '下午時段'})`;
+
+            let html = "";
+            let totalCount = 0;
+            for (const [tool, count] of Object.entries(toolCounts)) {
+                totalCount += count;
+                html += `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-3 font-bold text-slate-800">${tool}</td>
+                        <td class="p-3 text-center text-teal-700 font-black text-base">${count} 份</td>
+                    </tr>
+                `;
             }
+
+            if (totalCount === 0) {
+                html = `<tr><td colspan="2" class="p-6 text-center text-slate-400 text-xs">目前本時段尚未配發任何工具給學生。</td></tr>`;
+            }
+
+            tbody.innerHTML = html;
+            document.getElementById("tools-summary-modal").classList.remove("hidden");
         }
 
-        function dropToZone(event, zoneId) {
-            event.preventDefault();
-            const studentId = Number(event.dataTransfer.getData("text/plain"));
+        function closeToolsSummaryModal() {
+            document.getElementById("tools-summary-modal").classList.add("hidden");
+        }
+
+        // --- 歷史日曆功能 ---
+        function openCalendarModal() {
+            renderCalendarGrid();
+            document.getElementById("calendar-modal").classList.remove("hidden");
+        }
+
+        function closeCalendarModal() {
+            document.getElementById("calendar-modal").classList.add("hidden");
+        }
+
+        function changeCalendarMonth(direction) {
+            calendarMonth += direction;
+            if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+            else if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+            renderCalendarGrid();
+        }
+
+        function renderCalendarGrid() {
+            document.getElementById("calendar-month-title").innerText = `${calendarYear}年 ${calendarMonth + 1}月`;
+            const grid = document.getElementById("calendar-grid");
+
+            const firstDayIndex = new Date(calendarYear, calendarMonth, 1).getDay();
+            const totalDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+            let html = "";
+            for (let i = 0; i < firstDayIndex; i++) { html += `<div></div>`; }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const mStr = String(calendarMonth + 1).padStart(2, '0');
+                const dStr = String(day).padStart(2, '0');
+                const dateStr = `${calendarYear}-${mStr}-${dStr}`;
+                
+                const hasRecord = localStorage.getItem(`cleaning_history_${dateStr}`) !== null;
+                const isSelected = dateStr === currentViewDate;
+
+                let btnClass = "bg-slate-50 hover:bg-slate-100 text-slate-700 border";
+                if (isSelected) btnClass = "bg-indigo-600 text-white font-bold border-indigo-600 shadow";
+                else if (hasRecord) btnClass = "bg-emerald-50 text-emerald-800 border-emerald-300 font-bold";
+
+                html += `
+                    <button onclick="selectHistoryDate('${dateStr}')" class="p-2 rounded-lg text-xs transition flex flex-col items-center justify-center h-12 ${btnClass}">
+                        <span>${day}</span>
+                        ${hasRecord ? '<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-1"></span>' : ''}
+                    </button>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function selectHistoryDate(dateStr) {
+            currentViewDate = dateStr;
+            document.getElementById("calendar-mode-tip").innerText = `⚠️ 目前檢視歷史快照：${dateStr}`;
+            loadHistoryDateData(dateStr);
+            closeCalendarModal();
+            renderAllLocal();
+        }
+
+        // --- 操作函式 ---
+        function assignStudentToZone(zoneId, studentIdStr) {
+            if (!studentIdStr) return;
+            const studentId = Number(studentIdStr);
             const student = STUDENTS.find(s => s.id === studentId);
-            const zone = ZONES.find(z => z.id === zoneId);
-            const zoneStudents = STUDENTS.filter(s => s.zoneId === zoneId);
+            let zones = getCurrentZones();
+            const zone = zones.find(z => z.id === zoneId);
+            const zoneStudents = STUDENTS.filter(s => s[currentSession].zoneId === zoneId);
 
             if (student && zone) {
-                if (zoneStudents.length >= zone.capacity && student.zoneId !== zoneId) {
-                    alert(`此區域（${zone.name}）已達到容量上限（${zone.capacity}人）！`);
+                if (zoneStudents.length >= zone.capacity) {
+                    alert(`此區域已達到需求人數上限！`);
+                    renderAll();
                     return;
                 }
-                student.zoneId = zoneId;
+                student[currentSession].zoneId = zoneId;
                 renderAll();
             }
         }
 
         function removeFromZone(studentId) {
             const student = STUDENTS.find(s => s.id === studentId);
-            if (student) {
-                student.zoneId = null;
-                student.isLeader = false;
-                renderAll();
+            if (student) { 
+                student[currentSession].zoneId = null; 
+                student[currentSession].isLeader = false; 
+                renderAll(); 
             }
         }
 
         function setZoneLeader(zoneId, leaderId) {
-            const zone = ZONES.find(z => z.id === zoneId);
-            if (zone) {
-                zone.leaderId = leaderId ? Number(leaderId) : null;
-                renderAll();
-            }
+            let zones = getCurrentZones();
+            const zone = zones.find(z => z.id === zoneId);
+            if (zone) { zone.leaderId = leaderId ? Number(leaderId) : null; renderAll(); }
         }
 
         function openReportModal(zoneId) {
-            const zone = ZONES.find(z => z.id === zoneId);
-            const zoneStudents = STUDENTS.filter(s => s.zoneId === zoneId);
-            if (zoneStudents.length === 0) {
-                alert("此區域目前沒有分配學生！");
-                return;
-            }
+            let zones = getCurrentZones();
+            const zone = zones.find(z => z.id === zoneId);
+            const zoneStudents = STUDENTS.filter(s => s[currentSession].zoneId === zoneId);
+            if (zoneStudents.length === 0) { alert("此區域目前沒有分配學生！"); return; }
 
-            let html = `<div class="space-y-3"><p class="text-xs text-slate-500">請由負責人勾選未準時到達或未出席的學生：</p>`;
+            let html = `<div class="space-y-3"><p class="text-xs text-slate-500">回報未到或遲到學生：</p>`;
             zoneStudents.forEach(s => {
                 html += `
                     <div class="flex items-center justify-between p-2 bg-slate-50 rounded border">
                         <span class="font-bold text-sm">${s.name}</span>
                         <div class="flex gap-2">
-                            <label class="text-xs flex items-center gap-1 cursor-pointer text-amber-600"><input type="radio" name="report_${s.id}" value="遲到"> 遲到</label>
-                            <label class="text-xs flex items-center gap-1 cursor-pointer text-rose-600"><input type="radio" name="report_${s.id}" value="未出現"> 未出現</label>
-                            <label class="text-xs flex items-center gap-1 cursor-pointer text-emerald-600"><input type="radio" name="report_${s.id}" value="認真" checked> 正常</label>
+                            <label class="text-xs flex items-center gap-1 cursor-pointer text-amber-600"><input type="radio" name="report_${s.id}" value="遲到" ${s[currentSession].performance==='遲到'?'checked':''}> 遲到</label>
+                            <label class="text-xs flex items-center gap-1 cursor-pointer text-rose-600"><input type="radio" name="report_${s.id}" value="未出現" ${s[currentSession].performance==='未出現'?'checked':''}> 未出現</label>
+                            <label class="text-xs flex items-center gap-1 cursor-pointer text-emerald-600"><input type="radio" name="report_${s.id}" value="認真" ${s[currentSession].performance==='認真'?'checked':''}> 正常</label>
                         </div>
                     </div>
                 `;
@@ -445,38 +735,38 @@
         }
 
         function submitReport(zoneId) {
-            const zoneStudents = STUDENTS.filter(s => s.zoneId === zoneId);
+            const zoneStudents = STUDENTS.filter(s => s[currentSession].zoneId === zoneId);
             zoneStudents.forEach(s => {
                 const radios = document.querySelectorAll(`input[name="report_${s.id}"]`);
                 radios.forEach(r => {
                     if (r.checked) {
-                        const oldPerf = s.performance;
+                        const oldPerf = s[currentSession].performance;
                         const newPerf = r.value;
                         if (oldPerf !== newPerf) {
                             if (newPerf === "遲到") s.stats.遲到 = (s.stats.遲到 || 0) + 1;
                             if (newPerf === "未出現") s.stats.未出現 = (s.stats.未出現 || 0) + 1;
                             if (newPerf === "未認真") s.stats.未認真 = (s.stats.未認真 || 0) + 1;
                             if (newPerf === "認真") s.stats.認真 = (s.stats.認真 || 0) + 1;
-                            s.performance = newPerf;
+                            s[currentSession].performance = newPerf;
                         }
                     }
                 });
             });
             document.getElementById('temp-report-modal').remove();
             renderAll();
-            alert("已成功更新今日回報狀態！");
+            alert("已成功更新回報狀態！");
         }
 
         function openStudentModal(studentId) {
             currentEditingStudentId = studentId;
             const student = STUDENTS.find(s => s.id === studentId);
-            document.getElementById("modal-student-title").innerText = `學生管理：${student.name}`;
-            document.getElementById("modal-performance-select").value = student.performance;
+            document.getElementById("modal-student-title").innerText = `學生管理：${student.name} (${currentSession === 'morning' ? '早上時段' : '下午時段'})`;
+            document.getElementById("modal-performance-select").value = student[currentSession].performance;
 
             const toolsContainer = document.getElementById("modal-tools-container");
             toolsContainer.innerHTML = TOOL_TAGS.map(t => `
                 <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer bg-white p-1.5 rounded border">
-                    <input type="checkbox" value="${t}" ${student.tools.includes(t) ? 'checked' : ''} class="rounded text-indigo-600">
+                    <input type="checkbox" value="${t}" ${student[currentSession].tools.includes(t) ? 'checked' : ''} class="rounded text-indigo-600">
                     ${t}
                 </label>
             `).join("");
@@ -492,60 +782,25 @@
         function saveStudentModal() {
             if (!currentEditingStudentId) return;
             const student = STUDENTS.find(s => s.id === currentEditingStudentId);
-            
             const newPerf = document.getElementById("modal-performance-select").value;
-            if (student.performance !== newPerf) {
+            if (student[currentSession].performance !== newPerf) {
                 if (newPerf === "遲到") student.stats.遲到 = (student.stats.遲到 || 0) + 1;
                 if (newPerf === "未出現") student.stats.未出現 = (student.stats.未出現 || 0) + 1;
                 if (newPerf === "未認真") student.stats.未認真 = (student.stats.未認真 || 0) + 1;
                 if (newPerf === "認真") student.stats.認真 = (student.stats.認真 || 0) + 1;
-                student.performance = newPerf;
+                student[currentSession].performance = newPerf;
             }
 
             const checkboxes = document.querySelectorAll("#modal-tools-container input[type='checkbox']");
-            student.tools = [];
-            checkboxes.forEach(cb => {
-                if (cb.checked) student.tools.push(cb.value);
-            });
+            student[currentSession].tools = [];
+            checkboxes.forEach(cb => { if (cb.checked) student[currentSession].tools.push(cb.value); });
 
             closeStudentModal();
             renderAll();
         }
 
-        // --- 📊 掃具總計統計功能 ---
-        function openToolSummaryModal() {
-            const tbody = document.getElementById("tool-summary-table-body");
-            
-            // 計算各工具的總數量
-            const counts = {};
-            TOOL_TAGS.forEach(t => counts[t] = 0);
-
-            // 只計算已被分配到外掃區的學生工具
-            STUDENTS.forEach(s => {
-                if (s.zoneId !== null) {
-                    s.tools.forEach(t => {
-                        counts[t] = (counts[t] || 0) + 1;
-                    });
-                }
-            });
-
-            // 渲染至表格
-            tbody.innerHTML = TOOL_TAGS.map(t => `
-                <tr class="hover:bg-slate-50 border-b">
-                    <td class="p-3 font-bold text-slate-800">${t}</td>
-                    <td class="p-3 text-center text-emerald-700 font-bold text-base">${counts[t] || 0}</td>
-                </tr>
-            `).join("");
-
-            document.getElementById("tool-summary-modal").classList.remove("hidden");
-        }
-
-        function closeToolSummaryModal() {
-            document.getElementById("tool-summary-modal").classList.add("hidden");
-        }
-
         function openAddZoneModal() {
-            document.getElementById("zone-modal-title").innerText = "新增外掃區";
+            document.getElementById("zone-modal-title").innerText = `新增掃地區域 (${currentSession === 'morning' ? '早上' : '下午'})`;
             document.getElementById("zone-edit-id").value = "";
             document.getElementById("zone-name-input").value = "";
             document.getElementById("zone-capacity-input").value = "6";
@@ -553,102 +808,69 @@
         }
 
         function openEditZoneModal(zoneId) {
-            const zone = ZONES.find(z => z.id === zoneId);
-            document.getElementById("zone-modal-title").innerText = "編輯外掃區";
+            let zones = getCurrentZones();
+            const zone = zones.find(z => z.id === zoneId);
+            document.getElementById("zone-modal-title").innerText = "編輯掃地區域";
             document.getElementById("zone-edit-id").value = zone.id;
             document.getElementById("zone-name-input").value = zone.name;
             document.getElementById("zone-capacity-input").value = zone.capacity;
             document.getElementById("zone-modal").classList.remove("hidden");
         }
 
-        function closeZoneModal() {
-            document.getElementById("zone-modal").classList.add("hidden");
-        }
+        function closeZoneModal() { document.getElementById("zone-modal").classList.add("hidden"); }
 
         function saveZoneModal() {
             const editId = document.getElementById("zone-edit-id").value;
             const name = document.getElementById("zone-name-input").value.trim();
             const capacity = Number(document.getElementById("zone-capacity-input").value);
+            if (!name) { alert("請輸入區域名稱！"); return; }
 
-            if (!name) {
-                alert("請輸入外掃區名稱！");
-                return;
-            }
-
+            let zones = getCurrentZones();
             if (editId) {
-                const zone = ZONES.find(z => z.id === editId);
-                if (zone) {
-                    zone.name = name;
-                    zone.capacity = capacity;
-                }
+                const zone = zones.find(z => z.id === editId);
+                if (zone) { zone.name = name; zone.capacity = capacity; }
             } else {
-                const newId = 'z_' + Date.now();
-                ZONES.push({
-                    id: newId,
-                    name: name,
-                    capacity: capacity,
-                    leaderId: null,
-                    order: ZONES.length + 1
-                });
+                zones.push({ id: 'z_' + Date.now(), name: name, capacity: capacity, leaderId: null, order: zones.length + 1 });
             }
-
             closeZoneModal();
             renderAll();
         }
 
         function deleteZone(zoneId) {
-            if (confirm("確定要刪除此外掃區嗎？該區的學生將被移回待分配區。")) {
-                STUDENTS.forEach(s => {
-                    if (s.zoneId === zoneId) {
-                        s.zoneId = null;
-                        s.isLeader = false;
-                    }
-                });
-                ZONES = ZONES.filter(z => z.id !== zoneId);
+            if (confirm("確定要刪除此區域嗎？")) {
+                STUDENTS.forEach(s => { if (s[currentSession].zoneId === zoneId) { s[currentSession].zoneId = null; s[currentSession].isLeader = false; } });
+                if (currentSession === "morning") {
+                    ZONES_MORNING = ZONES_MORNING.filter(z => z.id !== zoneId);
+                } else {
+                    ZONES_AFTERNOON = ZONES_AFTERNOON.filter(z => z.id !== zoneId);
+                }
                 renderAll();
             }
         }
 
         function moveZone(zoneId, direction) {
-            ZONES.sort((a, b) => a.order - b.order);
-            const index = ZONES.findIndex(z => z.id === zoneId);
+            let zones = getCurrentZones();
+            zones.sort((a, b) => a.order - b.order);
+            const index = zones.findIndex(z => z.id === zoneId);
             if (index === -1) return;
-
             if (direction === 'up' && index > 0) {
-                const temp = ZONES[index].order;
-                ZONES[index].order = ZONES[index - 1].order;
-                ZONES[index - 1].order = temp;
-            } else if (direction === 'down' && index < ZONES.length - 1) {
-                const temp = ZONES[index].order;
-                ZONES[index].order = ZONES[index + 1].order;
-                ZONES[index + 1].order = temp;
+                const temp = zones[index].order; zones[index].order = zones[index - 1].order; zones[index - 1].order = temp;
+            } else if (direction === 'down' && index < zones.length - 1) {
+                const temp = zones[index].order; zones[index].order = zones[index + 1].order; zones[index + 1].order = temp;
             }
             renderAll();
         }
 
-        function openAddToolModal() {
-            document.getElementById("new-tool-input").value = "";
-            document.getElementById("tool-modal").classList.remove("hidden");
-        }
-
-        function closeToolModal() {
-            document.getElementById("tool-modal").classList.add("hidden");
-        }
-
+        function openAddToolModal() { document.getElementById("new-tool-input").value = ""; document.getElementById("tool-modal").classList.remove("hidden"); }
+        function closeToolModal() { document.getElementById("tool-modal").classList.add("hidden"); }
         function saveToolModal() {
             const toolName = document.getElementById("new-tool-input").value.trim();
-            if (!toolName) {
-                alert("請輸入工具名稱！");
-                return;
-            }
-            if (TOOL_TAGS.includes(toolName)) {
-                alert("此工具標籤已存在！");
-                return;
-            }
+            if (!toolName) { alert("請輸入工具名稱！"); return; }
+            if (TOOL_TAGS.includes(toolName)) { alert("此工具已存在！"); return; }
             TOOL_TAGS.push(toolName);
             closeToolModal();
             renderAll();
-            alert("成功新增工具標籤！");
+            alert("成功新增工具！");
         }
 
         function openStatsModal() {
@@ -662,69 +884,16 @@
                     <td class="p-3 text-center text-orange-600 font-bold">${s.stats.未認真 || 0}</td>
                 </tr>
             `).join("");
-            document.getElementById("stats-modal").classList.add("hidden"); // 這裡預防性保持，但記得原本是要移除hidden
             document.getElementById("stats-modal").classList.remove("hidden");
         }
 
-        function closeStatsModal() {
-            document.getElementById("stats-modal").classList.add("hidden");
-        }
+        function closeStatsModal() { document.getElementById("stats-modal").classList.add("hidden"); }
 
-        function resetAllAssignments() {
-            if (confirm("確定要將所有學生從外掃區移回待分配區嗎？")) {
-                STUDENTS.forEach(s => {
-                    s.zoneId = null;
-                    s.isLeader = false;
-                });
+        function resetCurrentSessionAssignments() {
+            if (confirm(`確定要清空【${currentSession === 'morning' ? '早上' : '下午'}時段】的所有排班嗎？`)) {
+                STUDENTS.forEach(s => { s[currentSession].zoneId = null; s[currentSession].isLeader = false; });
                 renderAll();
             }
-        }
-
-        function exportData() {
-            try {
-                const dataToExport = {
-                    students: STUDENTS,
-                    zones: ZONES,
-                    toolTags: TOOL_TAGS,
-                    exportDate: new Date().toISOString()
-                };
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
-                const downloadAnchor = document.createElement('a');
-                downloadAnchor.setAttribute("href", dataStr);
-                downloadAnchor.setAttribute("download", `cleaning_system_backup_${new Date().toISOString().slice(0,10)}.json`);
-                document.body.appendChild(downloadAnchor);
-                downloadAnchor.click();
-                downloadAnchor.remove();
-            } catch (error) {
-                alert("匯出資料失敗：" + error);
-            }
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported && imported.students && imported.zones) {
-                        if (confirm("確定要匯入此備份檔案嗎？現有的畫面設定與分配狀態將被覆蓋。")) {
-                            STUDENTS = imported.students;
-                            ZONES = imported.zones;
-                            if (imported.toolTags) TOOL_TAGS = imported.toolTags;
-                            renderAll();
-                            alert("資料成功匯入與還原！");
-                        }
-                    } else {
-                        alert("檔案格式不正確，無法辨識。");
-                    }
-                } catch (error) {
-                    alert("解析 JSON 失敗，請確認檔案格式是否正確。");
-                }
-                event.target.value = "";
-            };
-            reader.readAsText(file);
         }
     </script>
 </body>
