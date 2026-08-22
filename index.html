@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -397,7 +398,7 @@
                 localStorage.setItem("cleaning_permanent_assignment_v2", JSON.stringify(payload));
                 syncToCloudBackground(payload);
             } else {
-                localStorage.setItem(`cleaning_history_${dateStr}`, JSON.stringify(payload));
+                localStorage.setItem(`cleaning_history_${currentViewDate}`, JSON.stringify(payload));
             }
         }
 
@@ -562,7 +563,6 @@
 
         // --- 統計所需掃具總數功能 ---
         function openToolsSummaryModal() {
-            // 計算目前時段所有學生配發的工具總數
             const toolCounts = {};
             TOOL_TAGS.forEach(t => toolCounts[t] = 0);
 
@@ -682,11 +682,13 @@
             }
         }
 
+        // 當學生從掃區移走時，自動清除該時段的工具與負責人狀態
         function removeFromZone(studentId) {
             const student = STUDENTS.find(s => s.id === studentId);
             if (student) { 
                 student[currentSession].zoneId = null; 
                 student[currentSession].isLeader = false; 
+                student[currentSession].tools = []; // 自動移除工具
                 renderAll(); 
             }
         }
@@ -838,7 +840,13 @@
 
         function deleteZone(zoneId) {
             if (confirm("確定要刪除此區域嗎？")) {
-                STUDENTS.forEach(s => { if (s[currentSession].zoneId === zoneId) { s[currentSession].zoneId = null; s[currentSession].isLeader = false; } });
+                STUDENTS.forEach(s => { 
+                    if (s[currentSession].zoneId === zoneId) { 
+                        s[currentSession].zoneId = null; 
+                        s[currentSession].isLeader = false; 
+                        s[currentSession].tools = []; // 刪除區域時一併清除學生工具
+                    } 
+                });
                 if (currentSession === "morning") {
                     ZONES_MORNING = ZONES_MORNING.filter(z => z.id !== zoneId);
                 } else {
@@ -891,7 +899,11 @@
 
         function resetCurrentSessionAssignments() {
             if (confirm(`確定要清空【${currentSession === 'morning' ? '早上' : '下午'}時段】的所有排班嗎？`)) {
-                STUDENTS.forEach(s => { s[currentSession].zoneId = null; s[currentSession].isLeader = false; });
+                STUDENTS.forEach(s => { 
+                    s[currentSession].zoneId = null; 
+                    s[currentSession].isLeader = false; 
+                    s[currentSession].tools = []; // 清空時也一併清除工具
+                });
                 renderAll();
             }
         }
