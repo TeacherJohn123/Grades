@@ -1964,19 +1964,6 @@ function getClassRankAndStats(mainCat, targetPeriod) {
 
     return { rankData, classTotals, classCounts };
 }
-            }
-        });
-        rankData.push({ studentName, totalScore: total });
-    });
-
-    rankData.sort((a, b) => b.totalScore - a.totalScore);
-    rankData.forEach((item, index) => {
-        if (index > 0 && item.totalScore === rankData[index - 1].totalScore) item.rank = rankData[index - 1].rank;
-        else item.rank = index + 1;
-    });
-
-    return { rankData, classTotals, classCounts };
-}
 
 function renderAssessmentSection(sectionId, mainCat, targetPeriod, filteredData) {
     const studentRecords = filteredData.filter(r => r.student === currentStudent && r.mainCat === mainCat && matchPeriod(r, targetPeriod) && r.status === "approved");
