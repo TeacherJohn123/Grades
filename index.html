@@ -1769,6 +1769,7 @@ async function deleteRecord(id) {
         hideLoading();
     }
 }
+
 async function toggleApprove(id) {
     if (currentRole !== "teacher") return;
     const item = records.find(r => String(r.id) === String(id));
@@ -1785,7 +1786,8 @@ async function toggleApprove(id) {
         }
     }
 }
-(id) {
+
+async function toggleParentVisible(id) {
     if (currentRole !== "teacher") return;
     const item = records.find(r => String(r.id) === String(id));
     if (item) {
@@ -1802,7 +1804,6 @@ async function toggleApprove(id) {
         }
     }
 }
-
 async function approveAll() {
     if (currentRole !== 'teacher') return;
     
