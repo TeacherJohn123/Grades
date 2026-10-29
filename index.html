@@ -1931,6 +1931,7 @@ function renderDailySection(filteredData) {
 }
 
 function getClassRankAndStats(mainCat, targetPeriod) {
+    const SUBJECTS = ['國語', '英語', '數學', '自然', '社會'];
     let classTotals = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
     let classCounts = { '國語': 0, '英語': 0, '數學': 0, '自然': 0, '社會': 0 };
     let rankData = [];
@@ -1938,15 +1939,31 @@ function getClassRankAndStats(mainCat, targetPeriod) {
     STUDENTS.forEach(studentName => {
         const recs = records.filter(r => r.student === studentName && r.mainCat === mainCat && matchPeriod(r, targetPeriod) && r.status === "approved");
         let total = 0;
-        recs.forEach(r => {
-            const m = r.score.match(/(\d+)/);
-            if(m) {
+
+        // 每一科只取一筆、只計算五科，與個人頁面(renderAssessmentSection)邏輯一致
+        SUBJECTS.forEach(sub => {
+            const rec = recs.find(r => r.title === sub);
+            if (!rec) return;
+            const m = String(rec.score).match(/(\d+)/);
+            if (m) {
                 const score = Number(m[1]);
                 total += score;
-                if(classTotals[r.title] !== undefined) {
-                    classTotals[r.title] += score;
-                    classCounts[r.title]++;
-                }
+                classTotals[sub] += score;
+                classCounts[sub]++;
+            }
+        });
+
+        rankData.push({ studentName, totalScore: total });
+    });
+
+    rankData.sort((a, b) => b.totalScore - a.totalScore);
+    rankData.forEach((item, index) => {
+        if (index > 0 && item.totalScore === rankData[index - 1].totalScore) item.rank = rankData[index - 1].rank;
+        else item.rank = index + 1;
+    });
+
+    return { rankData, classTotals, classCounts };
+}
             }
         });
         rankData.push({ studentName, totalScore: total });
