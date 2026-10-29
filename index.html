@@ -1105,7 +1105,7 @@ function updateHwUnitOptions(hwType) {
         let start = period === "期中" ? 1 : 7;
         let end = period === "期中" ? 6 : 12;
         for (let i = start; i <= end; i++) options.push(`第${numberToChinese(i)}課`);
-        show("score-grade-container");
+        show("score-number-container");
     } else if (hwType === "數習") {
         if (label) label.textContent = "數習單元標籤";
         let start = period === "期中" ? 1 : 6;
@@ -1442,12 +1442,8 @@ function addRecord(mainCat) {
         } else if (subCat === "作業分數") {
             const hwType = document.getElementById("hw-type").value;
             const unit = document.getElementById("hw-unit-val").value;
-            if (hwType === "國習") {
-                title = `國習（${unit}）`; score = document.getElementById("daily-grade-val").value;
-            } else {
-                if (!document.getElementById("daily-score-val").value) return alert("請輸入分數");
-                title = `${hwType}（${unit}）`; score = document.getElementById("daily-score-val").value + " 分";
-            }
+            if (!document.getElementById("daily-score-val").value) return alert("請輸入分數");
+            title = `${hwType}（${unit}）`; score = document.getElementById("daily-score-val").value + " 分";
         }
     } else if (mainCat === "平時評量") { 
         period = document.getElementById("regular-period").value;
