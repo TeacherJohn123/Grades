@@ -1748,30 +1748,27 @@ async function deleteRecord(id) {
     const item = records.find(r => String(r.id) === String(id));
     if (!item) return;
     if (currentRole === "student" && item.status === "approved") return alert("⚠️ 該筆紀錄已經老師審核，無法刪除！");
-    if (confirm("確定刪除此紀錄？")) {
-        // 從本地陣列移除
+    if (!confirm("確定刪除此紀錄？")) return;
+
+    showLoading("正在從雲端刪除紀錄...");
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "deleteRecord", targetSheet: "成績總表", id: String(id) })
+        });
+        const result = await res.json();
+        if (result.status !== "success") throw new Error(result.message || "刪除失敗");
+
         records = records.filter(r => String(r.id) !== String(id));
         renderAll();
-        // 註：若要在雲端試算表刪除列可透過後續擴充，目前以前端狀態同步為主
-        alert("✅ 紀錄已刪除！");
+        alert("✅ 紀錄已從雲端刪除！");
+    } catch (err) {
+        console.error("刪除失敗：", err);
+        alert("⚠️ 雲端刪除失敗，紀錄未被刪除。請確認 GAS 已加入 deleteRecord 功能。");
+    } finally {
+        hideLoading();
     }
 }
-
-async function toggleApprove(id) {
-    if (currentRole !== "teacher") return;
-    const item = records.find(r => String(r.id) === String(id));
-    if (item) { 
-        item.status = item.status === "approved" ? "pending" : "approved"; 
-        showLoading("正在同步審核狀態...");
-        try {
-            await postRecordToCloud(item, "成績總表");
-            renderAll();
-        } catch(e) {
-            alert("⚠️ 同步失敗");
-        } finally {
-            hideLoading();
-        }
-    }
 }
 
 async function toggleParentVisible(id) {
