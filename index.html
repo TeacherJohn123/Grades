@@ -1769,9 +1769,23 @@ async function deleteRecord(id) {
         hideLoading();
     }
 }
+async function toggleApprove(id) {
+    if (currentRole !== "teacher") return;
+    const item = records.find(r => String(r.id) === String(id));
+    if (item) { 
+        item.status = item.status === "approved" ? "pending" : "approved"; 
+        showLoading("正在同步審核狀態...");
+        try {
+            await postRecordToCloud(item, "成績總表");
+            renderAll();
+        } catch(e) {
+            alert("⚠️ 同步失敗");
+        } finally {
+            hideLoading();
+        }
+    }
 }
-
-async function toggleParentVisible(id) {
+(id) {
     if (currentRole !== "teacher") return;
     const item = records.find(r => String(r.id) === String(id));
     if (item) {
