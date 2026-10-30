@@ -916,31 +916,32 @@ async function fetchCloudData() {
 }
 
 async function postRecordToCloud(recordObj, targetSheet = "成績總表") {
-    try {
-        await fetch(GAS_API_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "saveRecord", targetSheet: targetSheet, rowObj: recordObj })
-        });
-    } catch (e) {
-        console.error("雲端存檔失敗", e);
-    }
+    const res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "saveRecord", targetSheet: targetSheet, rowObj: recordObj })
+    });
+    const result = await res.json();
+    if (result.status !== "success") throw new Error(result.message || "雲端存檔失敗");
+    return true;
 }
 
 async function batchPostRecordsToCloud(rowsArray, targetSheet = "成績總表") {
-    try {
-        await fetch(GAS_API_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "batchSaveRecords", targetSheet: targetSheet, rowsArray: rowsArray })
-        });
-    } catch (e) {
-        console.error("批次雲端存檔失敗", e);
-    }
+    const res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "batchSaveRecords", targetSheet: targetSheet, rowsArray: rowsArray })
+    });
+    const result = await res.json();
+    if (result.status !== "success") throw new Error(result.message || "批次雲端存檔失敗");
+    return true;
 }
 
 function saveData(newRecord = null, targetSheet = "成績總表") {
     renderAll();
     if (newRecord) {
-        postRecordToCloud(newRecord, targetSheet);
+        postRecordToCloud(newRecord, targetSheet).catch(err => {
+            console.error("雲端存檔失敗", err);
+            alert("⚠️ 雲端同步失敗，這筆資料可能尚未儲存到雲端。請檢查網路後重新整理，確認資料是否還在。");
+        });
     }
 }
 
@@ -1583,14 +1584,29 @@ function toggleSupportStatus(id) {
     if (record) { record.isClosed = !record.isClosed; saveData(record, "學習扶助"); }
 }
 
-function deleteSupport(id) {
+async function deleteSupport(id) {
     if (currentRole !== "teacher") return;
-    if (confirm("確定要刪除此筆學習扶助列管紀錄嗎？")) {
-        supportRecords = supportRecords.filter(r => r.id !== id);
-        saveData();
+    if (!confirm("確定要刪除此筆學習扶助列管紀錄嗎？")) return;
+
+    showLoading("正在從雲端刪除列管紀錄...");
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "deleteRecord", targetSheet: "學習扶助", id: String(id) })
+        });
+        const result = await res.json();
+        if (result.status !== "success") throw new Error(result.message || "刪除失敗");
+
+        supportRecords = supportRecords.filter(r => String(r.id) !== String(id));
+        renderAll();
+        alert("✅ 列管紀錄已從雲端刪除！");
+    } catch (err) {
+        console.error("刪除列管紀錄失敗：", err);
+        alert("⚠️ 雲端刪除失敗，紀錄未被刪除。請檢查網路連線。");
+    } finally {
+        hideLoading();
     }
 }
-
 function formatSupportScore(val) {
     if (val === "" || val === null || val === undefined) return '<span class="text-slate-300">-</span>';
     const num = Number(val);
